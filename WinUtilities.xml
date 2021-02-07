@@ -3099,16 +3099,16 @@
         <member name="P:WinUtilities.Mouse.IsHidden">
             <summary>Check if the mouse is hidden by this process</summary>
         </member>
-        <member name="M:WinUtilities.Mouse.Click">
+        <member name="M:WinUtilities.Mouse.Click(System.Nullable{WinUtilities.Coord},WinUtilities.CoordRelation)">
             <summary>Send a left click</summary>
         </member>
-        <member name="M:WinUtilities.Mouse.RightClick">
+        <member name="M:WinUtilities.Mouse.RightClick(System.Nullable{WinUtilities.Coord},WinUtilities.CoordRelation)">
             <summary>Send a right click</summary>
         </member>
-        <member name="M:WinUtilities.Mouse.MiddleClick">
+        <member name="M:WinUtilities.Mouse.MiddleClick(System.Nullable{WinUtilities.Coord},WinUtilities.CoordRelation)">
             <summary>Send a middle click</summary>
         </member>
-        <member name="M:WinUtilities.Mouse.DoubleClick">
+        <member name="M:WinUtilities.Mouse.DoubleClick(System.Nullable{WinUtilities.Coord},WinUtilities.CoordRelation)">
             <summary>Send a double click</summary>
         </member>
         <member name="M:WinUtilities.Mouse.Scroll(WinUtilities.Key,System.Double)">

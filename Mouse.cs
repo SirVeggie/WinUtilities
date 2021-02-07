@@ -53,14 +53,20 @@ namespace WinUtilities {
         #endregion
 
         #region methods
+        private static void MoveAndSend(Coord? pos, CoordRelation rel, params Key[] keys) {
+            if (pos is Coord p)
+                Move(p, rel);
+            Input.Send(keys);
+        }
+
         /// <summary>Send a left click</summary>
-        public static void Click() => Input.Send(Key.LButton);
+        public static void Click(Coord? pos = null, CoordRelation rel = CoordRelation.Screen) => MoveAndSend(pos, rel, Key.LButton);
         /// <summary>Send a right click</summary>
-        public static void RightClick() => Input.Send(Key.RButton);
+        public static void RightClick(Coord? pos = null, CoordRelation rel = CoordRelation.Screen) => MoveAndSend(pos, rel, Key.RButton);
         /// <summary>Send a middle click</summary>
-        public static void MiddleClick() => Input.Send(Key.MButton);
+        public static void MiddleClick(Coord? pos = null, CoordRelation rel = CoordRelation.Screen) => MoveAndSend(pos, rel, Key.MButton);
         /// <summary>Send a double click</summary>
-        public static void DoubleClick() => Input.Send(Key.LButton, Key.LButton);
+        public static void DoubleClick(Coord? pos = null, CoordRelation rel = CoordRelation.Screen) => MoveAndSend(pos, rel, Key.LButton, Key.LButton);
         /// <summary>Send a scroll wheel event</summary>
         public static void Scroll(Key key, double amount) => Scroll(key, (int) Math.Round(amount));
         /// <summary>Send a scroll wheel event</summary>

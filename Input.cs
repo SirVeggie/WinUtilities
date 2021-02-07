@@ -296,7 +296,63 @@ namespace WinUtilities {
         }
 
         private static void SendControlMouse(Window window, WinAPI.MOUSEINPUT input) {
-            throw new NotImplementedException();
+            WM message;
+            int wParam = 0;
+            int lParam = 0;
+
+            if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.LEFTDOWN)) {
+                message = WM.LBUTTONDOWN;
+                wParam = 1;
+                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.LEFTUP)) {
+                message = WM.LBUTTONUP;
+                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.RIGHTDOWN)) {
+                message = WM.RBUTTONDOWN;
+                wParam = 2;
+                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.RIGHTUP)) {
+                message = WM.RBUTTONUP;
+                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.MIDDLEDOWN)) {
+                message = WM.MBUTTONDOWN;
+                wParam = 16;
+                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.MIDDLEUP)) {
+                message = WM.MBUTTONUP;
+                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.MOVE) || input.flags.HasFlag(WinAPI.MOUSEEVENTF.MOVE_NOCOALESCE)) {
+                message = WM.MOUSEMOVE;
+                lParam = Coord.Zero.AsValue;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.WHEEL)) {
+                message = WM.MOUSEWHEEL;
+                wParam = input.mouseData << 16;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.HWHEEL)) {
+                message = WM.MOUSEHWHEEL;
+                wParam = input.mouseData << 16;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.XDOWN)) {
+                message = WM.XBUTTONDOWN;
+                wParam = input.mouseData << 16;
+                lParam = input.mouseData == 1 ? 32 : 64;
+
+            } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.XUP)) {
+                message = WM.XBUTTONUP;
+                wParam = input.mouseData << 16;
+
+            } else {
+                throw new Exception("Illegal mouse input event");
+            }
+
+            window.PostMessage(message, wParam, lParam);
         }
 
         private static void SendControlText(Window window, params char[] chars) {
