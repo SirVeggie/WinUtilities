@@ -1,0 +1,3791 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WinUtilities</name>
+    </assembly>
+    <members>
+        <member name="T:WinUtilities.CoordType">
+            <summary>Specifies the type of window coordinates used</summary>
+        </member>
+        <member name="F:WinUtilities.CoordType.Normal">
+            <summary>Matches the visible area of the window</summary>
+        </member>
+        <member name="F:WinUtilities.CoordType.Raw">
+            <summary>Matches the real area of the window</summary>
+        </member>
+        <member name="F:WinUtilities.CoordType.Client">
+            <summary>Matches the client area of the window</summary>
+        </member>
+        <member name="T:WinUtilities.CoordRelation">
+            <summary>Specifies what the coordinates are relative to</summary>
+        </member>
+        <member name="F:WinUtilities.CoordRelation.Screen">
+            <summary>Position [0,0] is the primary screen's left upper corner</summary>
+        </member>
+        <member name="F:WinUtilities.CoordRelation.ActiveWindow">
+            <summary>Position [0,0] is the active window's upper left corner</summary>
+        </member>
+        <member name="F:WinUtilities.CoordRelation.Mouse">
+            <summary>Position [0,0] is the current mouse position</summary>
+        </member>
+        <member name="T:WinUtilities.EdgeType">
+            <summary>Specifies which edge of an area to target</summary>
+        </member>
+        <member name="T:WinUtilities.Edge">
+            <summary>A struct combining a target edge and a point</summary>
+        </member>
+        <member name="P:WinUtilities.Edge.Type">
+            <summary>Edges to target</summary>
+        </member>
+        <member name="P:WinUtilities.Edge.Pos">
+            <summary>Corner position</summary>
+        </member>
+        <member name="M:WinUtilities.Edge.#ctor(WinUtilities.EdgeType,WinUtilities.Coord)">
+            <summary>Create a new <see cref="T:WinUtilities.Edge"/></summary>
+        </member>
+        <member name="T:WinUtilities.Area">
+            <summary>Specifies a rectangular area in [x, y] coordinates.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Point">
+            <summary>Location of the upper left corner of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Size">
+            <summary>Size of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.X">
+            <summary>Left edge of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Y">
+            <summary>Top edge of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.W">
+            <summary>Width of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.H">
+            <summary>Height of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntX">
+            <summary>Left edge of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntY">
+            <summary>Right edge of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntW">
+            <summary>Width of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntH">
+            <summary>Height of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IsValid">
+            <summary>Check if all the components are not NaN.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IsNaN">
+            <summary>Check if all the components are NaN.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Zero">
+            <summary>All components are 0.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.NaN">
+            <summary>All components are NaN.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Center">
+            <summary>Get or set the center of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Corners">
+            <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight].</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopLeft">
+            <summary>Get or set the Top Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopRight">
+            <summary>Get or set the Top Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomLeft">
+            <summary>Get or set the Bottom Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomRight">
+            <summary>Get or set the Bottom Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Left">
+            <summary>Get or set the Left edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Right">
+            <summary>Get or set the Right edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Top">
+            <summary>Get or set the Top edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Bottom">
+            <summary>Get or set the Bottom edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopLeftR">
+            <summary>Resize from Top Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopRightR">
+            <summary>Resize from Top Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomLeftR">
+            <summary>Resize from Bottom Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomRightR">
+            <summary>Resize from Bottom Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.LeftR">
+            <summary>Resize from Left edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.RightR">
+            <summary>Resize from Right edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopR">
+            <summary>Resize from Top edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomR">
+            <summary>Resize from Bottom edge of the area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Copy(System.Double,System.Double,System.Double,System.Double)">
+            <summary>Create a copy while modifying the size using percentages.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Round">
+            <summary>Rounds all components to closest integer.</summary>
+            <returns>A copy of itself.</returns>
+        </member>
+        <member name="M:WinUtilities.Area.FillNaN(WinUtilities.Area)">
+            <summary>Fills the current NaN values with the new ones.</summary>
+            <returns>A copy of itself.</returns>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord)">
+            <summary>Returns the Coord of the closest corner.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord,System.Double@)">
+            <summary>Returns the Coord of the closest corner.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.Edge,System.Boolean,System.Boolean)">
+            <summary>Moves the area's edges using dynamic selection.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.EdgeType,System.Double,System.Boolean,System.Boolean)">
+            <summary>Moves the area's edges using dynamic selection. X and Y are the same.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.EdgeType,WinUtilities.Coord,System.Boolean,System.Boolean)">
+            <summary>Moves the area's edges using dynamic selection.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddPoint(WinUtilities.Area)">
+            <summary>Add another area's point to this area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddPoint(WinUtilities.Coord)">
+            <summary>Add to the area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetPoint(WinUtilities.Area)">
+            <summary>Set another area's point as this area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetPoint(WinUtilities.Coord)">
+            <summary>Set the area's point. Helps with dotting into code.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddSize(WinUtilities.Area)">
+            <summary>Add another area's size to this area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddSize(WinUtilities.Coord)">
+            <summary>Add to the area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetSize(WinUtilities.Area)">
+            <summary>Set another area's size as this area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetSize(WinUtilities.Coord)">
+            <summary>Set the area's size. Helps with dotting into code.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Relative(System.Double,System.Double)">
+            <summary>Turns screen coordinates relative to parent area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Relative(WinUtilities.Coord)">
+            <summary>Turns screen coordinates relative to parent area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Relative(WinUtilities.Area)">
+            <summary>Turns screen coordinates relative to parent area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Contains(WinUtilities.Coord)">
+            <summary>Checks if the given point is within the area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Contains(System.Double,System.Double)">
+            <summary>Checks if the given point is within the area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Contains(WinUtilities.Area)">
+            <summary>Returns true if the parent fully contains the given position.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Overlaps(WinUtilities.Area)">
+            <summary>Returns true if the two positions overlap.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Touches(WinUtilities.Area)">
+            <summary>Returns true if the two positions overlap or their edges touch.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Grow(System.Double)">
+            <summary>Grows the area outwards by the specified value. Shrinks if negative.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Area)">
+            <summary>Clamp the given <paramref name="area"/> to the parent area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Moves the given area to within the clamp area. Area is resized if necessary.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Coord)">
+            <summary>Clamp the given <paramref name="point"/> to the parent area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Coord,WinUtilities.Area)">
+            <summary>Moves the given point within the clamped area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Mutual(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Takes the mutual area between two areas.</summary>
+        </member>
+        <member name="T:WinUtilities.Coord">
+            <summary>
+            Has coordinate (point), vector and rectangle (size) properties.
+            A hybrid of those.
+            </summary>
+        </member>
+        <member name="P:WinUtilities.Coord.X">
+            <summary>X value of the coordinate</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Y">
+            <summary>Y value of the coordinate</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IntX">
+            <summary>X value of the coordinate as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IntY">
+            <summary>Y value of the coordinate as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Zero">
+            <summary>All components are 0.</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.NaN">
+            <summary>All components are NaN.</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IsValid">
+            <summary>Check if all the components are not NaN.</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IsNaN">
+            <summary>Check if all the components are NaN.</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.AsValue">
+            <summary>Gives the current Coord as a single integer.</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Magnitude">
+            <summary>
+            Point's distance from origin. Naming comes from vectors.
+            </summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Normalized">
+            <summary>Gets a copy whose distance to the origin is set to 1</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.SurfaceArea">
+            <summary>Gets the surface area of the area object</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.FromInt(System.Int32)">
+            <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Fill(WinUtilities.Coord)">
+            <summary>Fills the current Coord's NaN values with the other one.</summary>
+            <returns>A copy of itself.</returns>
+        </member>
+        <member name="M:WinUtilities.Coord.Round">
+            <summary>Rounds all components to closest integer.</summary>
+            <returns>A copy of itself.</returns>
+        </member>
+        <member name="M:WinUtilities.Coord.Relative(System.Double,System.Double)">
+            <summary>Turns screen coordinates relative to parent coordinates.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Relative(WinUtilities.Coord)">
+            <summary>Turns screen coordinates relative to parent coordinates.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Distance(System.Double,System.Double)">
+            <summary>Distance to the given point.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Distance(WinUtilities.Coord)">
+            <summary>Distance to the given point.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SqDistance(System.Double,System.Double)">
+            <summary>Returns the square distance to the point, so Max(dx, dy).</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SqDistance(WinUtilities.Coord)">
+            <summary>Returns the square distance to the point, so Max(dx, dy).</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Rotate(System.Double)">
+            <summary>Rotate as a vector.</summary>
+        </member>
+        <member name="T:WinUtilities.WM">
+            <summary>Enum of all Window Messages.</summary>
+        </member>
+        <member name="T:WinUtilities.WS">
+            <summary>Enum of all Window Styles.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.BORDER">
+            <summary>The window has a thin-line border.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.CAPTION">
+            <summary>The window has a title bar (includes the WS_BORDER style).</summary>
+        </member>
+        <member name="F:WinUtilities.WS.CHILD">
+            <summary>The window is a child window. A window with this style cannot have a menu bar. This style cannot be used with the WS_POPUP style.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.CLIPCHILDREN">
+            <summary>Excludes the area occupied by child windows when drawing occurs within the parent window. This style is used when creating the parent window.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.CLIPSIBLINGS">
+            <summary>
+            Clips child windows relative to each other; that is, when a particular child window receives a WM_PAINT message, the WS_CLIPSIBLINGS style clips all other overlapping child windows out of the region of the child window to be updated.
+            If WS_CLIPSIBLINGS is not specified and child windows overlap, it is possible, when drawing within the client area of a child window, to draw within the client area of a neighboring child window.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS.DISABLED">
+            <summary>The window is initially disabled. A disabled window cannot receive input from the user. To change this after a window has been created, use the EnableWindow function.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.DLGFRAME">
+            <summary>The window has a border of a style typically used with dialog boxes. A window with this style cannot have a title bar.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.GROUP">
+            <summary>
+            The window is the first control of a group of controls. The group consists of this first control and all controls defined after it, up to the next control with the WS_GROUP style.
+            The first control in each group usually has the WS_TABSTOP style so that the user can move from group to group. The user can subsequently change the keyboard focus from one control in the group to the next control in the group by using the direction keys.
+            You can turn this style on and off to change dialog box navigation. To change this style after a window has been created, use the SetWindowLong function.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS.HSCROLL">
+            <summary>The window has a horizontal scroll bar.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.MAXIMIZE">
+            <summary>The window is initially maximized.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.MAXIMIZEBOX">
+            <summary>The window has a maximize button. Cannot be combined with the WS_EX_CONTEXTHELP style. The WS_SYSMENU style must also be specified.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.MINIMIZE">
+            <summary>The window is initially minimized.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.MINIMIZEBOX">
+            <summary>The window has a minimize button. Cannot be combined with the WS_EX_CONTEXTHELP style. The WS_SYSMENU style must also be specified.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.OVERLAPPED">
+            <summary>The window is an overlapped window. An overlapped window has a title bar and a border.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.POPUP">
+            <summary>The window is a pop-up window. This style cannot be used with the WS_CHILD style.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.SIZEFRAME">
+            <summary>The window has a sizing border.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.SYSMENU">
+            <summary>The window has a window menu on its title bar. The WS_CAPTION style must also be specified.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.TABSTOP">
+            <summary>
+            The window is a control that can receive the keyboard focus when the user presses the TAB key.
+            Pressing the TAB key changes the keyboard focus to the next control with the WS_TABSTOP style.  
+            You can turn this style on and off to change dialog box navigation. To change this style after a window has been created, use the SetWindowLong function.
+            For user-created windows and modeless dialogs to work with tab stops, alter the message loop to call the IsDialogMessage function.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS.VISIBLE">
+            <summary>The window is initially visible. This style can be turned on and off by using the ShowWindow or SetWindowPos function.</summary>
+        </member>
+        <member name="F:WinUtilities.WS.VSCROLL">
+            <summary>The window has a vertical scroll bar.</summary>
+        </member>
+        <member name="T:WinUtilities.WS_EX">
+            <summary>Enum of all Window Ex Styles.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.ACCEPTFILES">
+            <summary>Specifies a window that accepts drag-drop files.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.APPWINDOW">
+            <summary>Forces a top-level window onto the taskbar when the window is visible.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.CLIENTEDGE">
+            <summary>Specifies a window that has a border with a sunken edge.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.COMPOSITED">
+            <summary>
+            Specifies a window that paints all descendants in bottom-to-top painting order using double-buffering.
+            This cannot be used if the window has a class style of either CS_OWNDC or CS_CLASSDC. This style is not supported in Windows 2000.
+            </summary>
+            <remarks>
+            With WS_EX_COMPOSITED set, all descendants of a window get bottom-to-top painting order using double-buffering.
+            Bottom-to-top painting order allows a descendent window to have translucency (alpha) and transparency (color-key) effects,
+            but only if the descendent window also has the WS_EX_TRANSPARENT bit set.
+            Double-buffering allows the window and its descendents to be painted without flicker.
+            </remarks>
+        </member>
+        <member name="F:WinUtilities.WS_EX.CONTEXTHELP">
+            <summary>
+            Specifies a window that includes a question mark in the title bar. When the user clicks the question mark,
+            the cursor changes to a question mark with a pointer. If the user then clicks a child window, the child receives a WM_HELP message.
+            The child window should pass the message to the parent window procedure, which should call the WinHelp function using the HELP_WM_HELP command.
+            The Help application displays a pop-up window that typically contains help for the child window.
+            WS_EX_CONTEXTHELP cannot be used with the WS_MAXIMIZEBOX or WS_MINIMIZEBOX styles.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.CONTROLPARENT">
+            <summary>
+            Specifies a window which contains child windows that should take part in dialog box navigation.
+            If this style is specified, the dialog manager recurses into children of this window when performing navigation operations
+            such as handling the TAB key, an arrow key, or a keyboard mnemonic.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.DLGMODALFRAME">
+            <summary>Specifies a window that has a double border.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.LAYERED">
+            <summary>
+            Specifies a window that is a layered window.
+            This cannot be used for child windows or if the window has a class style of either CS_OWNDC or CS_CLASSDC.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.LAYOUTRTL">
+            <summary>
+            Specifies a window with the horizontal origin on the right edge. Increasing horizontal values advance to the left.
+            The shell language must support reading-order alignment for this to take effect.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.LEFT">
+            <summary>Specifies a window that has generic left-aligned properties. This is the default.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.LEFTSCROLLBAR">
+            <summary>
+            Specifies a window with the vertical scroll bar (if present) to the left of the client area.
+            The shell language must support reading-order alignment for this to take effect.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.LTRREADING">
+            <summary>
+            Specifies a window that displays text using left-to-right reading-order properties. This is the default.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.MDICHILD">
+            <summary>
+            Specifies a multiple-document interface (MDI) child window.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.NOACTIVATE">
+            <summary>
+            Specifies a top-level window created with this style does not become the foreground window when the user clicks it.
+            The system does not bring this window to the foreground when the user minimizes or closes the foreground window.
+            The window does not appear on the taskbar by default. To force the window to appear on the taskbar, use the WS_EX_APPWINDOW style.
+            To activate the window, use the SetActiveWindow or SetForegroundWindow function.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.NOINHERITLAYOUT">
+            <summary>
+            Specifies a window which does not pass its window layout to its child windows.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.NOPARENTNOTIFY">
+            <summary>
+            Specifies that a child window created with this style does not send the WM_PARENTNOTIFY message to its parent window when it is created or destroyed.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.NOREDIRECTIONBITMAP">
+            <summary>
+            The window does not render to a redirection surface.
+            This is for windows that do not have visible content or that use mechanisms other than surfaces to provide their visual.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.RIGHT">
+            <summary>
+            Specifies a window that has generic "right-aligned" properties. This depends on the window class.
+            The shell language must support reading-order alignment for this to take effect.
+            Using the WS_EX_RIGHT style has the same effect as using the SS_RIGHT (static), ES_RIGHT (edit), and BS_RIGHT/BS_RIGHTBUTTON (button) control styles.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.RIGHTSCROLLBAR">
+            <summary>Specifies a window with the vertical scroll bar (if present) to the right of the client area. This is the default.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.RTLREADING">
+            <summary>
+            Specifies a window that displays text using right-to-left reading-order properties.
+            The shell language must support reading-order alignment for this to take effect.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.STATICEDGE">
+            <summary>Specifies a window with a three-dimensional border style intended to be used for items that do not accept user input.</summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.TOOLWINDOW">
+            <summary>
+            Specifies a window that is intended to be used as a floating toolbar.
+            A tool window has a title bar that is shorter than a normal title bar, and the window title is drawn using a smaller font.
+            A tool window does not appear in the taskbar or in the dialog that appears when the user presses ALT+TAB.
+            If a tool window has a system menu, its icon is not displayed on the title bar.
+            However, you can display the system menu by right-clicking or by typing ALT+SPACE.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.TOPMOST">
+            <summary>
+            Specifies a window that should be placed above all non-topmost windows and should stay above them, even when the window is deactivated.
+            To add or remove this style, use the SetWindowPos function.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.TRANSPARENT">
+            <summary>
+            Specifies a window that should not be painted until siblings beneath the window (that were created by the same thread) have been painted.
+            The window appears transparent because the bits of underlying sibling windows have already been painted.
+            To achieve transparency without these restrictions, use the SetWindowRgn function.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WS_EX.WINDOWEDGE">
+            <summary>Specifies a window that has a border with a raised edge.</summary>
+        </member>
+        <member name="T:WinUtilities.HT">
+            <summary>Enum of all Hit Test values.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.BORDER">
+            <summary>In the border of a window that does not have a sizing border.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.BOTTOM">
+            <summary>In the lower-horizontal border of a resizable window (the user can click the mouse to resize the window vertically).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.BOTTOMLEFT">
+            <summary>In the lower-left corner of a border of a resizable window (the user can click the mouse to resize the window diagonally).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.BOTTOMRIGHT">
+            <summary>In the lower-right corner of a border of a resizable window (the user can click the mouse to resize the window diagonally).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.CAPTION">
+            <summary>In a title bar.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.CLIENT">
+            <summary>In a client area.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.CLOSE">
+            <summary>In a Close button.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.ERROR">
+            <summary>On the screen background or on a dividing line between windows (same as HTNOWHERE, except that the DefWindowProc function produces a system beep to indicate an error).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.GROWBOX">
+            <summary>In a size box (same as HTSIZE).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.HELP">
+            <summary>In a Help button.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.HSCROLL">
+            <summary>In a horizontal scroll bar.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.LEFT">
+            <summary>In the left border of a resizable window (the user can click the mouse to resize the window horizontally).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.MENU">
+            <summary>In a menu.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.MAXBUTTON">
+            <summary>In a Maximize button.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.MINBUTTON">
+            <summary>In a Minimize button.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.NOWHERE">
+            <summary>On the screen background or on a dividing line between windows.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.REDUCE">
+            <summary>In a Minimize button.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.RIGHT">
+            <summary>In the right border of a resizable window (the user can click the mouse to resize the window horizontally).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.SIZE">
+            <summary>In a size box (same as HTGROWBOX).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.SYSMENU">
+            <summary>In a window menu or in a Close button in a child window.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.TOP">
+            <summary>In the upper-horizontal border of a window.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.TOPLEFT">
+            <summary>In the upper-left corner of a window border.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.TOPRIGHT">
+            <summary>In the upper-right corner of a window border.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.TRANSPARENT">
+            <summary>In a window currently covered by another window in the same thread (the message will be sent to underlying windows in the same thread until one of them returns a code that is not HTTRANSPARENT).</summary>
+        </member>
+        <member name="F:WinUtilities.HT.VSCROLL">
+            <summary>In the vertical scroll bar.</summary>
+        </member>
+        <member name="F:WinUtilities.HT.ZOOM">
+            <summary>In a Maximize button.</summary>
+        </member>
+        <member name="T:WinUtilities.MonitorDefault">
+            <summary>Determines what to return if an exact match was not found.</summary>
+        </member>
+        <member name="F:WinUtilities.MonitorDefault.Null">
+            <summary>Returns null if point is not on any monitor.</summary>
+        </member>
+        <member name="F:WinUtilities.MonitorDefault.Primary">
+            <summary>Returns primary monitor if point is not on any monitor.</summary>
+        </member>
+        <member name="F:WinUtilities.MonitorDefault.Nearest">
+            <summary>Returns nearest monitor if point is not on any monitor.</summary>
+        </member>
+        <member name="T:WinUtilities.VKey">
+            <summary>Enum of virtual key codes.</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LBUTTON">
+            <summary>
+            Left mouse button
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RBUTTON">
+            <summary>
+            Right mouse button
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.CANCEL">
+            <summary>
+            Control-break processing
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MBUTTON">
+            <summary>
+            Middle mouse button (three-button mouse)
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.XBUTTON1">
+            <summary>
+            Windows 2000/XP: X1 mouse button
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.XBUTTON2">
+            <summary>
+            Windows 2000/XP: X2 mouse button
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.UNDEFINED">
+            <summary>This key is undefined</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BACK">
+            <summary>
+            BACKSPACE key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.TAB">
+            <summary>
+            TAB key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.CLEAR">
+            <summary>
+            CLEAR key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RETURN">
+            <summary>
+            ENTER key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SHIFT">
+            <summary>
+            SHIFT key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.CONTROL">
+            <summary>
+            CTRL key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MENU">
+            <summary>
+            ALT key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PAUSE">
+            <summary>
+            PAUSE key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.CAPITAL">
+            <summary>
+            CAPS LOCK key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.KANA">
+            <summary>
+            Input Method Editor (IME) Kana mode
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.JUNJA">
+            <summary>
+            IME Junja mode
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.FINAL">
+            <summary>
+            IME final mode
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.KANJI">
+            <summary>
+            IME Kanji mode
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.ESCAPE">
+            <summary>
+            ESC key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.CONVERT">
+            <summary>
+            IME convert
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NONCONVERT">
+            <summary>
+            IME nonconvert
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.ACCEPT">
+            <summary>
+            IME accept
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MODECHANGE">
+            <summary>
+            IME mode change request
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SPACE">
+            <summary>
+            SPACEBAR
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PRIOR">
+            <summary>
+            PAGE UP key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NEXT">
+            <summary>
+            PAGE DOWN key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.END">
+            <summary>
+            END key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.HOME">
+            <summary>
+            HOME key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LEFT">
+            <summary>
+            LEFT ARROW key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.UP">
+            <summary>
+            UP ARROW key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RIGHT">
+            <summary>
+            RIGHT ARROW key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.DOWN">
+            <summary>
+            DOWN ARROW key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SELECT">
+            <summary>
+            SELECT key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PRINT">
+            <summary>
+            PRINT key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.EXECUTE">
+            <summary>
+            EXECUTE key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SNAPSHOT">
+            <summary>
+            PRINT SCREEN key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.INSERT">
+            <summary>
+            INS key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.DELETE">
+            <summary>
+            DEL key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.HELP">
+            <summary>
+            HELP key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D0">
+            <summary>
+            0 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D1">
+            <summary>
+            1 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D2">
+            <summary>
+            2 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D3">
+            <summary>
+            3 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D4">
+            <summary>
+            4 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D5">
+            <summary>
+            5 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D6">
+            <summary>
+            6 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D7">
+            <summary>
+            7 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D8">
+            <summary>
+            8 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D9">
+            <summary>
+            9 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.A">
+            <summary>
+            A key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.B">
+            <summary>
+            B key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.C">
+            <summary>
+            C key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.D">
+            <summary>
+            D key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.E">
+            <summary>
+            E key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F">
+            <summary>
+            F key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.G">
+            <summary>
+            G key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.H">
+            <summary>
+            H key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.I">
+            <summary>
+            I key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.J">
+            <summary>
+            J key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.K">
+            <summary>
+            K key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.L">
+            <summary>
+            L key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.M">
+            <summary>
+            M key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.N">
+            <summary>
+            N key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.O">
+            <summary>
+            O key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.P">
+            <summary>
+            P key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.Q">
+            <summary>
+            Q key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.R">
+            <summary>
+            R key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.S">
+            <summary>
+            S key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.T">
+            <summary>
+            T key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.U">
+            <summary>
+            U key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.V">
+            <summary>
+            V key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.W">
+            <summary>
+            W key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.X">
+            <summary>
+            X key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.Y">
+            <summary>
+            Y key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.Z">
+            <summary>
+            Z key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LWIN">
+            <summary>
+            Left Windows key (Microsoft Natural keyboard)
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RWIN">
+            <summary>
+            Right Windows key (Natural keyboard)
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.APPS">
+            <summary>
+            Applications key (Natural keyboard)
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SLEEP">
+            <summary>
+            Computer Sleep key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD0">
+            <summary>
+            Numeric keypad 0 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD1">
+            <summary>
+            Numeric keypad 1 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD2">
+            <summary>
+            Numeric keypad 2 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD3">
+            <summary>
+            Numeric keypad 3 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD4">
+            <summary>
+            Numeric keypad 4 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD5">
+            <summary>
+            Numeric keypad 5 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD6">
+            <summary>
+            Numeric keypad 6 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD7">
+            <summary>
+            Numeric keypad 7 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD8">
+            <summary>
+            Numeric keypad 8 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMPAD9">
+            <summary>
+            Numeric keypad 9 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MULTIPLY">
+            <summary>
+            Multiply key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.ADD">
+            <summary>
+            Add key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SEPARATOR">
+            <summary>
+            Separator key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SUBTRACT">
+            <summary>
+            Subtract key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.DECIMAL">
+            <summary>
+            Decimal key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.DIVIDE">
+            <summary>
+            Divide key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F1">
+            <summary>
+            F1 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F2">
+            <summary>
+            F2 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F3">
+            <summary>
+            F3 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F4">
+            <summary>
+            F4 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F5">
+            <summary>
+            F5 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F6">
+            <summary>
+            F6 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F7">
+            <summary>
+            F7 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F8">
+            <summary>
+            F8 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F9">
+            <summary>
+            F9 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F10">
+            <summary>
+            F10 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F11">
+            <summary>
+            F11 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F12">
+            <summary>
+            F12 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F13">
+            <summary>
+            F13 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F14">
+            <summary>
+            F14 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F15">
+            <summary>
+            F15 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F16">
+            <summary>
+            F16 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F17">
+            <summary>
+            F17 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F18">
+            <summary>
+            F18 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F19">
+            <summary>
+            F19 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F20">
+            <summary>
+            F20 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F21">
+            <summary>
+            F21 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F22">
+            <summary>
+            F22 key, (PPC only) Key used to lock device.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F23">
+            <summary>
+            F23 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.F24">
+            <summary>
+            F24 key  
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NUMLOCK">
+            <summary>
+            NUM LOCK key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.SCROLL">
+            <summary>
+            SCROLL LOCK key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LSHIFT">
+            <summary>
+            Left SHIFT key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RSHIFT">
+            <summary>
+            Right SHIFT key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LCONTROL">
+            <summary>
+            Left CONTROL key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RCONTROL">
+            <summary>
+            Right CONTROL key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LMENU">
+            <summary>
+            Left MENU key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.RMENU">
+            <summary>
+            Right MENU key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_BACK">
+            <summary>
+            Windows 2000/XP: Browser Back key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_FORWARD">
+            <summary>
+            Windows 2000/XP: Browser Forward key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_REFRESH">
+            <summary>
+            Windows 2000/XP: Browser Refresh key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_STOP">
+            <summary>
+            Windows 2000/XP: Browser Stop key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_SEARCH">
+            <summary>
+            Windows 2000/XP: Browser Search key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_FAVORITES">
+            <summary>
+            Windows 2000/XP: Browser Favorites key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.BROWSER_HOME">
+            <summary>
+            Windows 2000/XP: Browser Start and Home key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.VOLUME_MUTE">
+            <summary>
+            Windows 2000/XP: Volume Mute key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.VOLUME_DOWN">
+            <summary>
+            Windows 2000/XP: Volume Down key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.VOLUME_UP">
+            <summary>
+            Windows 2000/XP: Volume Up key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MEDIA_NEXT_TRACK">
+            <summary>
+            Windows 2000/XP: Next Track key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MEDIA_PREV_TRACK">
+            <summary>
+            Windows 2000/XP: Previous Track key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MEDIA_STOP">
+            <summary>
+            Windows 2000/XP: Stop Media key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.MEDIA_PLAY_PAUSE">
+            <summary>
+            Windows 2000/XP: Play/Pause Media key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LAUNCH_MAIL">
+            <summary>
+            Windows 2000/XP: Start Mail key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LAUNCH_MEDIA_SELECT">
+            <summary>
+            Windows 2000/XP: Select Media key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LAUNCH_APP1">
+            <summary>
+            Windows 2000/XP: Start Application 1 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.LAUNCH_APP2">
+            <summary>
+            Windows 2000/XP: Start Application 2 key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_1">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_PLUS">
+            <summary>
+            Windows 2000/XP: For any country/region, the '+' key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_COMMA">
+            <summary>
+            Windows 2000/XP: For any country/region, the ',' key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_MINUS">
+            <summary>
+            Windows 2000/XP: For any country/region, the '-' key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_PERIOD">
+            <summary>
+            Windows 2000/XP: For any country/region, the '.' key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_2">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_3">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_4">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_5">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_6">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_7">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_8">
+            <summary>
+            Used for miscellaneous characters; it can vary by keyboard.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_102">
+            <summary>
+            Windows 2000/XP: Either the angle bracket key or the backslash key on the RT 102-key keyboard
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PROCESSKEY">
+            <summary>
+            Windows 95/98/Me, Windows NT 4.0, Windows 2000/XP: IME PROCESS key
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PACKET">
+            <summary>
+            Windows 2000/XP: Used to pass Unicode characters as if they were keystrokes.
+            The VK_PACKET key is the low word of a 32-bit Virtual Key value used for non-keyboard input methods. For more information,
+            see Remark in KEYBDINPUT, SendInput, WM_KEYDOWN, and WM_KEYUP
+            </summary>
+        </member>
+        <member name="F:WinUtilities.VKey.ATTN">
+            <summary>Attn key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.CRSEL">
+            <summary>CrSel key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.EXSEL">
+            <summary>ExSel key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.EREOF">
+            <summary>Erase EOF key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PLAY">
+            <summary>Play key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.ZOOM">
+            <summary>Zoom key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.NONAME">
+            <summary>Reserved</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.PA1">
+            <summary>PA1 key</summary>
+        </member>
+        <member name="F:WinUtilities.VKey.OEM_CLEAR">
+            <summary>Clear key</summary>
+        </member>
+        <member name="T:WinUtilities.ScanCode">
+            <summary>Enum of key scan codes.</summary>
+        </member>
+        <member name="T:WinUtilities.WinAPI">
+            <summary>Access to a variety of native Windows API calls, structures, enums and some custom macros</summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.ClipCursor(System.IntPtr)">
+            <summary>Only pass IntPtr.Zero as an argument.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.MapVirtualKey(WinUtilities.ScanCode)">
+            <summary>Macro that maps a scan code to a virtual key by <see cref="F:WinUtilities.WinAPI.KeyMapFlags.ScanCode_to_VirtualKeyEx"/></summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.MapVirtualKey(WinUtilities.VKey)">
+            <summary>Macro that maps a virtual key to a scan code by <see cref="F:WinUtilities.WinAPI.KeyMapFlags.VirtualKey_to_ScanCode"/></summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.MapVirtualKeyChar(WinUtilities.ScanCode)">
+            <summary>Macro that maps a scan code to a char by <see cref="F:WinUtilities.WinAPI.KeyMapFlags.ScanCode_to_Char"/></summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.GetRegionDataManaged(System.IntPtr)">
+            <summary>Tries to retrieve Region data. Getting all rects doesn't work.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.GetPidFromHwnd(System.IntPtr)">
+            <summary>Get process id from a window handle</summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.GetClassFromHwnd(System.IntPtr)">
+            <summary>Get class name from a window handle</summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.GetPathFromPid(System.UInt32)">
+            <summary>Get exe path from a window handle</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.KeyMapFlags.VirtualKey_to_ScanCode">
+            <summary>The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If there is no translation, the function returns 0.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.KeyMapFlags.ScanCode_to_VirtualKey">
+            <summary>The uCode parameter is a scan code and is translated into a virtual-key code that does not distinguish between left- and right-hand keys. If there is no translation, the function returns 0.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.KeyMapFlags.ScanCode_to_Char">
+            <summary>The uCode parameter is a virtual-key code and is translated into an unshifted character value in the low order word of the return value. Dead keys (diacritics) are indicated by setting the top bit of the return value. If there is no translation, the function returns 0.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.KeyMapFlags.ScanCode_to_VirtualKeyEx">
+            <summary>The uCode parameter is a scan code and is translated into a virtual-key code that distinguishes between left- and right-hand keys. If there is no translation, the function returns 0.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.ByteAlignClient">
+            <summary>Aligns the window's client area on a byte boundary (in the x direction). This style affects the width of the window and its horizontal placement on the display.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.ByteAlignWindow">
+            <summary>Aligns the window on a byte boundary (in the x direction). This style affects the width of the window and its horizontal placement on the display.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.ClassDC">
+            <summary>
+            Allocates one device context to be shared by all windows in the class.
+            Because window classes are process specific, it is possible for multiple threads of an application to create a window of the same class.
+            It is also possible for the threads to attempt to use the device context simultaneously. When this happens, the system allows only one thread to successfully finish its drawing operation.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.DoubleClicks">
+            <summary>Sends a double-click message to the window procedure when the user double-clicks the mouse while the cursor is within a window belonging to the class.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.DropShadow">
+            <summary>
+            Enables the drop shadow effect on a window. The effect is turned on and off through SPI_SETDROPSHADOW.
+            Typically, this is enabled for small, short-lived windows such as menus to emphasize their Z order relationship to other windows.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.GlobalClass">
+            <summary>Indicates that the window class is an application global class. For more information, see the "Application Global Classes" section of About Window Classes.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.HorizontalRedraw">
+            <summary>Redraws the entire window if a movement or size adjustment changes the width of the client area.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.NoClose">
+            <summary>Disables Close on the window menu.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.OwnDC">
+            <summary>Allocates a unique device context for each window in the class.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.ParentDC">
+            <summary>
+            Sets the clipping rectangle of the child window to that of the parent window so that the child can draw on the parent.
+            A window with the CS_PARENTDC style bit receives a regular device context from the system's cache of device contexts.
+            It does not give the child the parent's device context or device context settings. Specifying CS_PARENTDC enhances an application's performance.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.SaveBits">
+            <summary>
+            Saves, as a bitmap, the portion of the screen image obscured by a window of this class.
+            When the window is removed, the system uses the saved bitmap to restore the screen image, including other windows that were obscured.
+            Therefore, the system does not send WM_PAINT messages to windows that were obscured if the memory used by the bitmap has not been discarded and if other screen actions have not invalidated the stored image.
+            This style is useful for small windows (for example, menus or dialog boxes) that are displayed briefly and then removed before other screen activity takes place.
+            This style increases the time required to display the window, because the system must first allocate memory to store the bitmap.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.ClassStyles.VerticalRedraw">
+            <summary>Redraws the entire window if a movement or size adjustment changes the height of the client area.</summary>
+        </member>
+        <member name="T:WinUtilities.WinAPI.WH">
+            <summary>Enum of Windows Hooks</summary>
+        </member>
+        <member name="T:WinUtilities.WinAPI.SM">
+            <summary>Enum of System Metrics</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.ARRANGE">
+            <summary>
+            The flags that specify how the system arranged minimized windows. For more information, see the Remarks section in this topic.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CLEANBOOT">
+            <summary>
+            The value that specifies how the system is started:
+            0 Normal boot
+            1 Fail-safe boot
+            2 Fail-safe with network boot
+            A fail-safe boot (also called SafeBoot, Safe Mode, or Clean Boot) bypasses the user startup files.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CMONITORS">
+            <summary>
+            The number of display monitors on a desktop. For more information, see the Remarks section in this topic.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CMOUSEBUTTONS">
+            <summary>
+            The number of buttons on a mouse, or zero if no mouse is installed.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXBORDER">
+            <summary>
+            The width of a window border, in pixels. This is equivalent to the CXEDGE value for windows with the 3-D look.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXCURSOR">
+            <summary>
+            The width of a cursor, in pixels. The system cannot create cursors of other sizes.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXDLGFRAME">
+            <summary>
+            This value is the same as CXFIXEDFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXDOUBLECLK">
+            <summary>
+            The width of the rectangle around the location of a first click in a double-click sequence, in pixels. ,
+            The second click must occur within the rectangle that is defined by CXDOUBLECLK and CYDOUBLECLK for the system
+            to consider the two clicks a double-click. The two clicks must also occur within a specified time.
+            To set the width of the double-click rectangle, call SystemParametersInfo with SPI_SETDOUBLECLKWIDTH.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXDRAG">
+            <summary>
+            The number of pixels on either side of a mouse-down point that the mouse pointer can move before a drag operation begins.
+            This allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
+            If this value is negative, it is subtracted from the left of the mouse-down point and added to the right of it.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXEDGE">
+            <summary>
+            The width of a 3-D border, in pixels. This metric is the 3-D counterpart of CXBORDER.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXFIXEDFRAME">
+            <summary>
+            The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels.
+            CXFIXEDFRAME is the height of the horizontal border, and CYFIXEDFRAME is the width of the vertical border.
+            This value is the same as CXDLGFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXFOCUSBORDER">
+            <summary>
+            The width of the left and right edges of the focus rectangle that the DrawFocusRectdraws.
+            This value is in pixels.
+            Windows 2000:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXFRAME">
+            <summary>
+            This value is the same as CXSIZEFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXFULLSCREEN">
+            <summary>
+            The width of the client area for a full-screen window on the primary display monitor, in pixels.
+            To get the coordinates of the portion of the screen that is not obscured by the system taskbar or by application desktop toolbars,
+            call the SystemParametersInfofunction with the SPI_GETWORKAREA value.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXHSCROLL">
+            <summary>
+            The width of the arrow bitmap on a horizontal scroll bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXHTHUMB">
+            <summary>
+            The width of the thumb box in a horizontal scroll bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXICON">
+            <summary>
+            The default width of an icon, in pixels. The LoadIcon function can load only icons with the dimensions
+            that CXICON and CYICON specifies.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXICONSPACING">
+            <summary>
+            The width of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size
+            CXICONSPACING by CYICONSPACING when arranged. This value is always greater than or equal to CXICON.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMAXIMIZED">
+            <summary>
+            The default width, in pixels, of a maximized top-level window on the primary display monitor.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMAXTRACK">
+            <summary>
+            The default maximum width of a window that has a caption and sizing borders, in pixels.
+            This metric refers to the entire desktop. The user cannot drag the window frame to a size larger than these dimensions.
+            A window can override this value by processing the WM_GETMINMAXINFO message.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMENUCHECK">
+            <summary>
+            The width of the default menu check-mark bitmap, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMENUSIZE">
+            <summary>
+            The width of menu bar buttons, such as the child window close button that is used in the multiple document interface, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMIN">
+            <summary>
+            The minimum width of a window, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMINIMIZED">
+            <summary>
+            The width of a minimized window, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMINSPACING">
+            <summary>
+            The width of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged.
+            This value is always greater than or equal to CXMINIMIZED.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXMINTRACK">
+            <summary>
+            The minimum tracking width of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions.
+            A window can override this value by processing the WM_GETMINMAXINFO message.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXPADDEDBORDER">
+            <summary>
+            The amount of border padding for captioned windows, in pixels. Windows XP/2000:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXSCREEN">
+            <summary>
+            The width of the screen of the primary display monitor, in pixels. This is the same value obtained by calling 
+            GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, HORZRES).
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXSIZE">
+            <summary>
+            The width of a button in a window caption or title bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXSIZEFRAME">
+            <summary>
+            The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
+            CXSIZEFRAME is the width of the horizontal border, and CYSIZEFRAME is the height of the vertical border.
+            This value is the same as CXFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXSMICON">
+            <summary>
+            The recommended width of a small icon, in pixels. Small icons typically appear in window captions and in small icon view.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXSMSIZE">
+            <summary>
+            The width of small caption buttons, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXVIRTUALSCREEN">
+            <summary>
+            The width of the virtual screen, in pixels. The virtual screen is the bounding rectangle of all display monitors.
+            The XVIRTUALSCREEN metric is the coordinates for the left side of the virtual screen.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CXVSCROLL">
+            <summary>
+            The width of a vertical scroll bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYBORDER">
+            <summary>
+            The height of a window border, in pixels. This is equivalent to the CYEDGE value for windows with the 3-D look.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYCAPTION">
+            <summary>
+            The height of a caption area, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYCURSOR">
+            <summary>
+            The height of a cursor, in pixels. The system cannot create cursors of other sizes.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYDLGFRAME">
+            <summary>
+            This value is the same as CYFIXEDFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYDOUBLECLK">
+            <summary>
+            The height of the rectangle around the location of a first click in a double-click sequence, in pixels.
+            The second click must occur within the rectangle defined by CXDOUBLECLK and CYDOUBLECLK for the system to consider
+            the two clicks a double-click. The two clicks must also occur within a specified time. To set the height of the double-click
+            rectangle, call SystemParametersInfo with SPI_SETDOUBLECLKHEIGHT.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYDRAG">
+            <summary>
+            The number of pixels above and below a mouse-down point that the mouse pointer can move before a drag operation begins.
+            This allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
+            If this value is negative, it is subtracted from above the mouse-down point and added below it.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYEDGE">
+            <summary>
+            The height of a 3-D border, in pixels. This is the 3-D counterpart of CYBORDER.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYFIXEDFRAME">
+            <summary>
+            The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels.
+            CXFIXEDFRAME is the height of the horizontal border, and CYFIXEDFRAME is the width of the vertical border.
+            This value is the same as CYDLGFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYFOCUSBORDER">
+            <summary>
+            The height of the top and bottom edges of the focus rectangle drawn byDrawFocusRect.
+            This value is in pixels.
+            Windows 2000:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYFRAME">
+            <summary>
+            This value is the same as CYSIZEFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYFULLSCREEN">
+            <summary>
+            The height of the client area for a full-screen window on the primary display monitor, in pixels.
+            To get the coordinates of the portion of the screen not obscured by the system taskbar or by application desktop toolbars,
+            call the SystemParametersInfo function with the SPI_GETWORKAREA value.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYHSCROLL">
+            <summary>
+            The height of a horizontal scroll bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYICON">
+            <summary>
+            The default height of an icon, in pixels. The LoadIcon function can load only icons with the dimensions CXICON and CYICON.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYICONSPACING">
+            <summary>
+            The height of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size
+            CXICONSPACING by CYICONSPACING when arranged. This value is always greater than or equal to CYICON.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYKANJIWINDOW">
+            <summary>
+            For double byte character set versions of the system, this is the height of the Kanji window at the bottom of the screen, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMAXIMIZED">
+            <summary>
+            The default height, in pixels, of a maximized top-level window on the primary display monitor.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMAXTRACK">
+            <summary>
+            The default maximum height of a window that has a caption and sizing borders, in pixels. This metric refers to the entire desktop.
+            The user cannot drag the window frame to a size larger than these dimensions. A window can override this value by processing
+            the WM_GETMINMAXINFO message.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMENU">
+            <summary>
+            The height of a single-line menu bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMENUCHECK">
+            <summary>
+            The height of the default menu check-mark bitmap, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMENUSIZE">
+            <summary>
+            The height of menu bar buttons, such as the child window close button that is used in the multiple document interface, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMIN">
+            <summary>
+            The minimum height of a window, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMINIMIZED">
+            <summary>
+            The height of a minimized window, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMINSPACING">
+            <summary>
+            The height of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged.
+            This value is always greater than or equal to CYMINIMIZED.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYMINTRACK">
+            <summary>
+            The minimum tracking height of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions.
+            A window can override this value by processing the WM_GETMINMAXINFO message.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYSCREEN">
+            <summary>
+            The height of the screen of the primary display monitor, in pixels. This is the same value obtained by calling 
+            GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, VERTRES).
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYSIZE">
+            <summary>
+            The height of a button in a window caption or title bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYSIZEFRAME">
+            <summary>
+            The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
+            CXSIZEFRAME is the width of the horizontal border, and CYSIZEFRAME is the height of the vertical border.
+            This value is the same as CYFRAME.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYSMCAPTION">
+            <summary>
+            The height of a small caption, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYSMICON">
+            <summary>
+            The recommended height of a small icon, in pixels. Small icons typically appear in window captions and in small icon view.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYSMSIZE">
+            <summary>
+            The height of small caption buttons, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYVIRTUALSCREEN">
+            <summary>
+            The height of the virtual screen, in pixels. The virtual screen is the bounding rectangle of all display monitors.
+            The YVIRTUALSCREEN metric is the coordinates for the top of the virtual screen.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYVSCROLL">
+            <summary>
+            The height of the arrow bitmap on a vertical scroll bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.CYVTHUMB">
+            <summary>
+            The height of the thumb box in a vertical scroll bar, in pixels.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.DBCSENABLED">
+            <summary>
+            Nonzero if User32.dll supports DBCS; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.DEBUG">
+            <summary>
+            Nonzero if the debug version of User.exe is installed; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.DIGITIZER">
+            <summary>
+            Nonzero if the current operating system is Windows 7 or Windows Server 2008 R2 and the Tablet PC Input
+            service is started; otherwise, 0. The return value is a bitmask that specifies the type of digitizer input supported by the device.
+            For more information, see Remarks.
+            Windows Server 2008, Windows Vista, and Windows XP/2000:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.IMMENABLED">
+            <summary>
+            Nonzero if Input Method Manager/Input Method Editor features are enabled; otherwise, 0.
+            IMMENABLED indicates whether the system is ready to use a Unicode-based IME on a Unicode application.
+            To ensure that a language-dependent IME works, check DBCSENABLED and the system ANSI code page.
+            Otherwise the ANSI-to-Unicode conversion may not be performed correctly, or some components like fonts
+            or registry settings may not be present.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MAXIMUMTOUCHES">
+            <summary>
+            Nonzero if there are digitizers in the system; otherwise, 0. MAXIMUMTOUCHES returns the aggregate maximum of the
+            maximum number of contacts supported by every digitizer in the system. If the system has only single-touch digitizers,
+            the return value is 1. If the system has multi-touch digitizers, the return value is the number of simultaneous contacts
+            the hardware can provide. Windows Server 2008, Windows Vista, and Windows XP/2000:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MEDIACENTER">
+            <summary>
+            Nonzero if the current operating system is the Windows XP, Media Center Edition, 0 if not.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MENUDROPALIGNMENT">
+            <summary>
+            Nonzero if drop-down menus are right-aligned with the corresponding menu-bar item; 0 if the menus are left-aligned.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MIDEASTENABLED">
+            <summary>
+            Nonzero if the system is enabled for Hebrew and Arabic languages, 0 if not.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MOUSEPRESENT">
+            <summary>
+            Nonzero if a mouse is installed; otherwise, 0. This value is rarely zero, because of support for virtual mice and because
+            some systems detect the presence of the port instead of the presence of a mouse.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MOUSEHORIZONTALWHEELPRESENT">
+            <summary>
+            Nonzero if a mouse with a horizontal scroll wheel is installed; otherwise 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.MOUSEWHEELPRESENT">
+            <summary>
+            Nonzero if a mouse with a vertical scroll wheel is installed; otherwise 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.NETWORK">
+            <summary>
+            The least significant bit is set if a network is present; otherwise, it is cleared. The other bits are reserved for future use.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.PENWINDOWS">
+            <summary>
+            Nonzero if the Microsoft Windows for Pen computing extensions are installed; zero otherwise.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.REMOTECONTROL">
+            <summary>
+            This system metric is used in a Terminal Services environment to determine if the current Terminal Server session is
+            being remotely controlled. Its value is nonzero if the current session is remotely controlled; otherwise, 0.
+            You can use terminal services management tools such as Terminal Services Manager (tsadmin.msc) and shadow.exe to
+            control a remote session. When a session is being remotely controlled, another user can view the contents of that session
+            and potentially interact with it.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.REMOTESESSION">
+            <summary>
+            This system metric is used in a Terminal Services environment. If the calling process is associated with a Terminal Services
+            client session, the return value is nonzero. If the calling process is associated with the Terminal Services console session,
+            the return value is 0.
+            Windows Server 2003 and Windows XP:  The console session is not necessarily the physical console.
+            For more information, seeWTSGetActiveConsoleSessionId.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SAMEDISPLAYFORMAT">
+            <summary>
+            Nonzero if all the display monitors have the same color format, otherwise, 0. Two displays can have the same bit depth,
+            but different color formats. For example, the red, green, and blue pixels can be encoded with different numbers of bits,
+            or those bits can be located in different places in a pixel color value.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SECURE">
+            <summary>
+            This system metric should be ignored; it always returns 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SERVERR2">
+            <summary>
+            The build number if the system is Windows Server 2003 R2; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SHOWSOUNDS">
+            <summary>
+            Nonzero if the user requires an application to present information visually in situations where it would otherwise present
+            the information only in audible form; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SHUTTINGDOWN">
+            <summary>
+            Nonzero if the current session is shutting down; otherwise, 0. Windows 2000:  This value is not supported.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SLOWMACHINE">
+            <summary>
+            Nonzero if the computer has a low-end (slow) processor; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.STARTER">
+            <summary>
+            Nonzero if the current operating system is Windows 7 Starter Edition, Windows Vista Starter, or Windows XP Starter Edition; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.SWAPBUTTON">
+            <summary>
+            Nonzero if the meanings of the left and right mouse buttons are swapped; otherwise, 0.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.TABLETPC">
+            <summary>
+            Nonzero if the current operating system is the Windows XP Tablet PC edition or if the current operating system is Windows Vista
+            or Windows 7 and the Tablet PC Input service is started; otherwise, 0. The DIGITIZER setting indicates the type of digitizer
+            input supported by a device running Windows 7 or Windows Server 2008 R2. For more information, see Remarks.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.XVIRTUALSCREEN">
+            <summary>
+            The coordinates for the left side of the virtual screen. The virtual screen is the bounding rectangle of all display monitors.
+            The CXVIRTUALSCREEN metric is the width of the virtual screen.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SM.YVIRTUALSCREEN">
+            <summary>
+            The coordinates for the top of the virtual screen. The virtual screen is the bounding rectangle of all display monitors.
+            The CYVIRTUALSCREEN metric is the height of the virtual screen.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.RegionType.Error">
+            <summary>Region does not exist or an error occurred.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.RegionType.Null">
+            <summary>Region is empty.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.RegionType.Simple">
+            <summary>Region consists of one rectangle.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.RegionType.Complex">
+            <summary>Region is a complex shape.</summary>
+        </member>
+        <member name="T:WinUtilities.WinAPI.FillRgnFlags">
+            <summary>Documentation <a href="https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-setpolyfillmode">here</a></summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.AsyncWindowPos">
+            <summary>If the calling thread and the thread that owns the window are attached to different input queues,
+            the system posts the request to the thread that owns the window. This prevents the calling thread from
+            blocking its execution while other threads process the request.</summary>
+            <remarks>SWP_ASYNCWINDOWPOS</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.DeferErase">
+            <summary>Prevents generation of the WM_SYNCPAINT message.</summary>
+            <remarks>SWP_DEFERERASE</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.DrawFrame">
+            <summary>Draws a frame (defined in the window's class description) around the window.</summary>
+            <remarks>SWP_DRAWFRAME</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.FrameChanged">
+            <summary>Applies new frame styles set using the SetWindowLong function. Sends a WM_NCCALCSIZE message to
+            the window, even if the window's size is not being changed. If this flag is not specified, WM_NCCALCSIZE
+            is sent only when the window's size is being changed.</summary>
+            <remarks>SWP_FRAMECHANGED</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.HideWindow">
+            <summary>Hides the window.</summary>
+            <remarks>SWP_HIDEWINDOW</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoActivate">
+            <summary>Does not activate the window. If this flag is not set, the window is activated and moved to the
+            top of either the topmost or non-topmost group (depending on the setting of the hWndInsertAfter
+            parameter).</summary>
+            <remarks>SWP_NOACTIVATE</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoCopyBits">
+            <summary>Discards the entire contents of the client area. If this flag is not specified, the valid
+            contents of the client area are saved and copied back into the client area after the window is sized or
+            repositioned.</summary>
+            <remarks>SWP_NOCOPYBITS</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoMove">
+            <summary>Retains the current position (ignores X and Y parameters).</summary>
+            <remarks>SWP_NOMOVE</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoOwnerZOrder">
+            <summary>Does not change the owner window's position in the Z order.</summary>
+            <remarks>SWP_NOOWNERZORDER</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoRedraw">
+            <summary>Does not redraw changes. If this flag is set, no repainting of any kind occurs. This applies to
+            the client area, the nonclient area (including the title bar and scroll bars), and any part of the parent
+            window uncovered as a result of the window being moved. When this flag is set, the application must
+            explicitly invalidate or redraw any parts of the window and parent window that need redrawing.</summary>
+            <remarks>SWP_NOREDRAW</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoReposition">
+            <summary>Same as the SWP_NOOWNERZORDER flag.</summary>
+            <remarks>SWP_NOREPOSITION</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoSendChangingEvent">
+            <summary>Prevents the window from receiving the WM_WINDOWPOSCHANGING message.</summary>
+            <remarks>SWP_NOSENDCHANGING</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoSize">
+            <summary>Retains the current size (ignores the cx and cy parameters).</summary>
+            <remarks>SWP_NOSIZE</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.NoZOrder">
+            <summary>Retains the current Z order (ignores the hWndInsertAfter parameter).</summary>
+            <remarks>SWP_NOZORDER</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.WindowPosFlags.ShowWindow">
+            <summary>Displays the window.</summary>
+            <remarks>SWP_SHOWWINDOW</remarks>
+        </member>
+        <member name="F:WinUtilities.WinAPI.AncestorFlags.GetParent">
+            <summary>
+            Retrieves the parent window. This does not include the owner, as it does with the GetParent function.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.AncestorFlags.GetRoot">
+            <summary>
+            Retrieves the root window by walking the chain of parent windows.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.AncestorFlags.GetRootOwner">
+            <summary>
+            Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
+            </summary>
+        </member>
+        <member name="T:WinUtilities.WinAPI.TernaryRasterOperations">
+            <summary>
+                Specifies a raster-operation code. These codes define how the color data for the
+                source rectangle is to be combined with the color data for the destination
+                rectangle to achieve the final color.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.SRCCOPY">
+            <summary>dest = source</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.SRCPAINT">
+            <summary>dest = source OR dest</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.SRCAND">
+            <summary>dest = source AND dest</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.SRCINVERT">
+            <summary>dest = source XOR dest</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.SRCERASE">
+            <summary>dest = source AND (NOT dest)</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.NOTSRCCOPY">
+            <summary>dest = (NOT source)</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.NOTSRCERASE">
+            <summary>dest = (NOT src) AND (NOT dest)</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.MERGECOPY">
+            <summary>dest = (source AND pattern)</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.MERGEPAINT">
+            <summary>dest = (NOT source) OR dest</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.PATCOPY">
+            <summary>dest = pattern</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.PATPAINT">
+            <summary>dest = DPSnoo</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.PATINVERT">
+            <summary>dest = pattern XOR dest</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.DSTINVERT">
+            <summary>dest = (NOT dest)</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.BLACKNESS">
+            <summary>dest = BLACK</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.WHITENESS">
+            <summary>dest = WHITE</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.TernaryRasterOperations.CAPTUREBLT">
+            <summary>
+            Capture window as seen on screen.  This includes layered windows
+            such as WPF windows with AllowsTransparency="true"
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.cbSize">
+            <summary>Size of the structure in bytes</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.fMask">
+            <summary>Mask of info to retrieve</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.min">
+            <summary>Minimum scrolling position</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.max">
+            <summary>Maximum scrolling position</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.nPage">
+            <summary>Page size in device units</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.nPos">
+            <summary>Position of the scrollbox, doesn't change while dragging</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.SCROLLINFO.nTrackPos">
+            <summary>Live position of the scrollbox while dragging</summary>
+        </member>
+        <member name="T:WinUtilities.WinAPI.MONITORINFOEX">
+            <summary>
+            The MONITORINFOEX structure contains information about a display monitor.
+            The GetMonitorInfo function stores information into a MONITORINFOEX structure or a MONITORINFO structure.
+            The MONITORINFOEX structure is a superset of the MONITORINFO structure. The MONITORINFOEX structure adds a string member to contain a name
+            for the display monitor.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.MONITORINFOEX.Size">
+            <summary>
+            The size, in bytes, of the structure. Set this member to sizeof(MONITORINFOEX) (72) before calling the GetMonitorInfo function.
+            Doing so lets the function determine the type of structure you are passing to it.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.MONITORINFOEX.Monitor">
+            <summary>
+            A RECT structure that specifies the display monitor rectangle, expressed in virtual-screen coordinates.
+            Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.MONITORINFOEX.WorkArea">
+            <summary>
+            A RECT structure that specifies the work area rectangle of the display monitor that can be used by applications,
+            expressed in virtual-screen coordinates. Windows uses this rectangle to maximize an application on the monitor.
+            The rest of the area in rcMonitor contains system windows such as the task bar and side bars.
+            Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be negative values.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.MONITORINFOEX.Flags">
+             <summary>
+             The attributes of the display monitor.
+            
+             This member can be the following value:
+               1 : MONITORINFOF_PRIMARY
+             </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.MONITORINFOEX.DeviceName">
+            <summary>
+            A string that specifies the device name of the monitor being used. Most applications have no use for a display monitor name,
+            and so can save some bytes by using a MONITORINFO structure.
+            </summary>
+        </member>
+        <member name="T:WinUtilities.DeviceHook">
+            <summary>Class for subscribing to mouse and keyboard events</summary>
+        </member>
+        <member name="P:WinUtilities.DeviceHook.KeyboardHookRunning">
+            <summary>Receiving keyboard events</summary>
+        </member>
+        <member name="P:WinUtilities.DeviceHook.MouseHookRunning">
+            <summary>Receiving mouse events</summary>
+        </member>
+        <member name="P:WinUtilities.DeviceHook.KeyboardHookEnabled">
+            <summary>Specify if hooking keyboard is allowed</summary>
+        </member>
+        <member name="P:WinUtilities.DeviceHook.MouseHookEnabled">
+            <summary>Specify if hooking mouse is allowed</summary>
+        </member>
+        <member name="E:WinUtilities.DeviceHook.InputEvent">
+            <summary>Subscribe to all hook events</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.StartHooks">
+            <summary>Start hooking device events</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.StopHooks">
+            <summary>Stop hooking device events</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.RestartHooks">
+            <summary>Restart device hooks</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.StartKeyboardHook">
+            <summary>Start hooking keyboard</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.StopKeyboardHook">
+            <summary>Stop hooking keyboard</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.StartMouseHook">
+            <summary>Start hooking mouse</summary>
+        </member>
+        <member name="M:WinUtilities.DeviceHook.StopMouseHook">
+            <summary>Stop hooking mouse</summary>
+        </member>
+        <member name="T:WinUtilities.IDeviceInput">
+            <summary>Interface that represents keyboard or mouse input</summary>
+        </member>
+        <member name="P:WinUtilities.IDeviceInput.Key">
+            <summary>The inputted key</summary>
+        </member>
+        <member name="P:WinUtilities.IDeviceInput.State">
+            <summary>The inputted key's state</summary>
+        </member>
+        <member name="P:WinUtilities.IDeviceInput.Injected">
+            <summary>Specifies if the key was emitted by a process</summary>
+        </member>
+        <member name="P:WinUtilities.IDeviceInput.InjectedLower">
+            <summary>Specifies if the key was emitted by a lower integrity level process</summary>
+        </member>
+        <member name="P:WinUtilities.IDeviceInput.ExtraInfo">
+            <summary>Extra information given by the event source</summary>
+        </member>
+        <member name="P:WinUtilities.IDeviceInput.IsMouse">
+            <summary>Specifies if the event is a mouse key</summary>
+        </member>
+        <member name="T:WinUtilities.KeyboardInput">
+            <summary>Represents a keyboard input event</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.Key">
+            <summary>The inputted key</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.SC">
+            <summary>The inputted key's scan code</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.State">
+            <summary>The inputted key's state</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.SysKey">
+            <summary>Documentation <a href="https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-syskeydown">here</a></summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.Extended">
+            <summary>Specifies if the key has the extended property</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.Injected">
+            <summary>Specifies if the key was emitted by a process</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.InjectedLower">
+            <summary>Specifies if the key was emitted by a lower integrity level process</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.AltDown">
+            <summary>Specifies if an alt key was down while emitting event</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.Release">
+            <summary>Specifies the key was released</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.ExtraInfo">
+            <summary>Extra information given by the event source</summary>
+        </member>
+        <member name="P:WinUtilities.KeyboardInput.IsMouse">
+            <summary>Specifies if the event was a mouse key. Always false.</summary>
+        </member>
+        <member name="M:WinUtilities.KeyboardInput.#ctor(System.IntPtr,WinUtilities.WinAPI.KBDLLHOOKSTRUCT)">
+            <summary>Parse a new keyboard event from a hooked windows message</summary>
+        </member>
+        <member name="M:WinUtilities.KeyboardInput.ToString">
+            <summary>Return the object as a string that shows the main information</summary>
+        </member>
+        <member name="T:WinUtilities.MouseInput">
+            <summary>Represents a mouse input event</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.Key">
+            <summary>The inputted key</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.State">
+            <summary>The inputted key's state</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.Pos">
+            <summary>The screen location of where the mouse event occurred</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.Injected">
+            <summary>Specifies if the key was emitted by a process</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.InjectedLower">
+            <summary>Specifies if the key was emitted by a lower integrity level process</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.ExtraInfo">
+            <summary>Extra information given by the event source</summary>
+        </member>
+        <member name="P:WinUtilities.MouseInput.IsMouse">
+            <summary>Specifies if the event was a mouse key. Always true.</summary>
+        </member>
+        <member name="M:WinUtilities.MouseInput.#ctor(System.IntPtr,WinUtilities.WinAPI.MSLLHOOKSTRUCT)">
+            <summary>Parse a new mouse event from a hooked windows message</summary>
+        </member>
+        <member name="M:WinUtilities.MouseInput.ToString">
+            <summary>Return the object as a string that shows the main information</summary>
+        </member>
+        <member name="T:WinUtilities.KeyState">
+            <summary>A combination of a key and its state</summary>
+        </member>
+        <member name="P:WinUtilities.KeyState.Key">
+            <summary>The key whose state is recorded</summary>
+        </member>
+        <member name="P:WinUtilities.KeyState.State">
+            <summary>The state of the key</summary>
+        </member>
+        <member name="M:WinUtilities.KeyState.#ctor(WinUtilities.Key,System.Boolean)">
+            <summary>Create a new <see cref="T:WinUtilities.KeyState"/> object</summary>
+        </member>
+        <member name="T:WinUtilities.EnhancedKey">
+            <summary>Extension methods for the enhanced Key enum</summary>
+        </member>
+        <member name="P:WinUtilities.EnhancedKey.KeyMap">
+            <summary>Map virtual key codes to the Key enum</summary>
+        </member>
+        <member name="P:WinUtilities.EnhancedKey.KeyExtendedMap">
+            <summary>Map extended versions of virtual key codes to the Key enum</summary>
+        </member>
+        <member name="P:WinUtilities.EnhancedKey.StringToKey">
+            <summary>Map strings to the Key enum</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.HasAny(WinUtilities.Key,WinUtilities.Key)">
+            <summary>Check if key has any of the flags given</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.HasAll(WinUtilities.Key,WinUtilities.Key)">
+            <summary>Check if key has all of the flags given</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsKey(WinUtilities.Key)">
+            <summary>Check if the Key value is a key instead of a flag etc.</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsFlag(WinUtilities.Key)">
+            <summary>Check if the Key value is a flag</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsMask(WinUtilities.Key)">
+            <summary>Check if the Key value is a mask</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsCustom(WinUtilities.Key)">
+            <summary>Check if the Key value is a custom entry</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsModifier(WinUtilities.Key)">
+            <summary>Check if the key is a modifier</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsMouse(WinUtilities.Key)">
+            <summary>Check if the key is a mouse key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsNumpad(WinUtilities.Key)">
+            <summary>Check if the key is a numpad key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsScroll(WinUtilities.Key)">
+            <summary>Check if the key represents a scroll event</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsMouseMove(WinUtilities.Key)">
+            <summary>Check if the Key value represents mouse movement</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsNumber(WinUtilities.Key)">
+            <summary>Check if the key is a number</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsExtended(WinUtilities.Key)">
+            <summary>Check if the key is has the extended property</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsMedia(WinUtilities.Key)">
+            <summary>Check if the key is a media key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsDuplicate(WinUtilities.Key)">
+            <summary>Check if the Key value is an alternate entry for a key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsStateless(WinUtilities.Key)">
+            <summary>Check if the key is stateless. Stateless keys have no up event.</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsToggle(WinUtilities.Key)">
+            <summary>Check if the key is a toggleable key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsKeyboard(WinUtilities.Key)">
+            <summary>Check if the key is a keyboard key instead of a mouse or a custom key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsModifierFlag(WinUtilities.Key)">
+            <summary>Check if the Key value is a modifier flag</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsShift(WinUtilities.Key)">
+            <summary>Check if the key is a left or right shift key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsCtrl(WinUtilities.Key)">
+            <summary>Check if the key is a left or right control key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsWin(WinUtilities.Key)">
+            <summary>Check if the key is a left or right win key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsAlt(WinUtilities.Key)">
+            <summary>Check if the key is a left or right alt key</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsVirtualKey(WinUtilities.Key)">
+            <summary>Get the <see cref="T:WinUtilities.VKey"/> equivalent of this <see cref="T:WinUtilities.Key"/></summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsScanCode(WinUtilities.Key)">
+            <summary>Get the <see cref="T:WinUtilities.ScanCode"/> equivalent of this <see cref="T:WinUtilities.Key"/></summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsVirtualKey(WinUtilities.ScanCode)">
+            <summary>Get the <see cref="T:WinUtilities.VKey"/> equivalent of this <see cref="T:WinUtilities.ScanCode"/></summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsScanCode(WinUtilities.VKey)">
+            <summary>Get the <see cref="T:WinUtilities.ScanCode"/> equivalent of this <see cref="T:WinUtilities.VKey"/></summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsCustom(WinUtilities.ScanCode)">
+            <summary>Get the <see cref="T:WinUtilities.Key"/> equivalent of this <see cref="T:WinUtilities.ScanCode"/></summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsCustom(WinUtilities.VKey,System.Boolean)">
+            <summary>Get the <see cref="T:WinUtilities.Key"/> equivalent of this <see cref="T:WinUtilities.VKey"/>. If an extended key is not found, a non-extended version is returned if possible.</summary>
+            <param name="key">The <see cref="T:WinUtilities.VKey"/> to cast into a <see cref="T:WinUtilities.ScanCode"/></param>
+            <param name="extended">Set true to prioritize the extended version of the key (Example: Enter vs NumpadEnter). Returns non-extended version as fallback if not found and vice versa.</param>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.AsOriginal(WinUtilities.Key)">
+            <summary>If the key is a duplicate, get the non-duplicate version. Otherwise return itself.</summary>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.IsExtended(WinUtilities.ScanCode)">
+            <summary>Check if the <see cref="T:WinUtilities.ScanCode"/> is an extended key</summary>
+        </member>
+        <member name="T:WinUtilities.Key">
+            <summary>An enhanced list of Virtual Keys.</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Custom">
+            <summary>Flag for custom defined keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Modifier">
+            <summary>Flag for modifier keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Mouse">
+            <summary>Flag for mouse keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Numpad">
+            <summary>Flag for numpad keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Scroll">
+            <summary>Flag for scroll keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Number">
+            <summary>Flag for number keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Extended">
+            <summary>Flag for extended keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Media">
+            <summary>Flag for media keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Char">
+            <summary>Flag for keys that produce visible characters</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Duplicate">
+            <summary>Flag for duplicate keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Stateless">
+            <summary>Flag for stateless keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Toggle">
+            <summary>Flag for toggle keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Shift">
+            <summary>Flag for shift keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Ctrl">
+            <summary>Flag for ctrl keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Win">
+            <summary>Flag for win keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Alt">
+            <summary>Flag for alt keys</summary>
+        </member>
+        <member name="F:WinUtilities.Key.M_FlagMask">
+            <summary>Mask for the flag bits</summary>
+        </member>
+        <member name="F:WinUtilities.Key.M_KeyMask">
+            <summary>Mask for the Virtual Key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Undefined">
+            <summary>Key is undefined</summary>
+        </member>
+        <member name="F:WinUtilities.Key.LButton">
+            <summary>Left mouse button</summary>
+        </member>
+        <member name="F:WinUtilities.Key.RButton">
+            <summary>Right mouse button</summary>
+        </member>
+        <member name="F:WinUtilities.Key.MButton">
+            <summary>Middle mouse button</summary>
+        </member>
+        <member name="F:WinUtilities.Key.XButton1">
+            <summary>Extra mouse button 1</summary>
+        </member>
+        <member name="F:WinUtilities.Key.XButton2">
+            <summary>Extra mouse button 2</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D0">
+            <summary>Digit 0</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D1">
+            <summary>Digit 1</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D2">
+            <summary>Digit 2</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D3">
+            <summary>Digit 3</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D4">
+            <summary>Digit 4</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D5">
+            <summary>Digit 5</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D6">
+            <summary>Digit 6</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D7">
+            <summary>Digit 7</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D8">
+            <summary>Digit 8</summary>
+        </member>
+        <member name="F:WinUtilities.Key.D9">
+            <summary>Digit 9</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Left">
+            <summary>Left arrow key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Right">
+            <summary>Right arrow key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Up">
+            <summary>Up arrow key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Down">
+            <summary>Down arrow key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.LShift">
+            <summary>Left shift key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.RShift">
+            <summary>Right shift key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.LCtrl">
+            <summary>Left control key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.RCtrl">
+            <summary>Right control key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.LAlt">
+            <summary>Left alt key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.RAlt">
+            <summary>Right alt key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.LWin">
+            <summary>Left win key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.RWin">
+            <summary>Right win key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.App">
+            <summary>Context menu key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Context">
+            <summary>Context menu key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.PrintScrn">
+            <summary>Print screen key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.BrowserBack">
+            <summary>The general back key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.BrowserForward">
+            <summary>The general forward key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.MediaPlay">
+            <summary>Media play pause key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Umlaut">
+            <summary>The ¨ key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Apostrophe">
+            <summary>The ' key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Ö">
+            <summary>The Ö key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.tilde">
+            <summary>The ´ key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Section">
+            <summary>The § key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Å">
+            <summary>The Å key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Ä">
+            <summary>The Ä key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Less">
+            <summary>The &lt; key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.WheelLeft">
+            <summary>Mouse wheel left</summary>
+        </member>
+        <member name="F:WinUtilities.Key.WheelRight">
+            <summary>Mouse wheel right</summary>
+        </member>
+        <member name="F:WinUtilities.Key.WheelUp">
+            <summary>Mouse wheel up</summary>
+        </member>
+        <member name="F:WinUtilities.Key.WheelDown">
+            <summary>Mouse wheel down</summary>
+        </member>
+        <member name="F:WinUtilities.Key.MouseMove">
+            <summary>Mouse movement</summary>
+        </member>
+        <member name="T:WinUtilities.SendMode">
+            <summary>Specifies what method is used to send the input</summary>
+        </member>
+        <member name="F:WinUtilities.SendMode.Input">
+            <summary>Uses the windows SendInput API. Fast and reliable, but rejected by certain applications.</summary>
+        </member>
+        <member name="F:WinUtilities.SendMode.Event">
+            <summary>Uses the event API. Slower and less reliable, but more compatible with some applications.</summary>
+        </member>
+        <member name="F:WinUtilities.SendMode.Control">
+            <summary>Sends key messages directly. Least reliable, but might be able to send input to background windows directly.</summary>
+        </member>
+        <member name="T:WinUtilities.Input">
+            <summary>Class for sending native windows input</summary>
+        </member>
+        <member name="P:WinUtilities.Input.ParseOpen">
+            <summary>The text character for parsing special input when sending text. Default is '['.</summary>
+        </member>
+        <member name="P:WinUtilities.Input.ParseClose">
+            <summary>The text character for parsing special input when sending text. Default is ']'.</summary>
+        </member>
+        <member name="P:WinUtilities.Input.ShortModifiers">
+            <summary>List of short modifier symbols used in parsed string input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.FromMouseEvent(WinUtilities.WM,System.Int32)">
+            <summary>Retrieve the Key equivalent from a <see cref="T:WinUtilities.WM"/> message</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetKeyState(WinUtilities.Key)">
+            <summary>Get the logical state of a key. Does not differentiate between extended and non-extended keys</summary>
+        </member>
+        <member name="M:WinUtilities.Input.Send(System.String,WinUtilities.SendMode)">
+            <summary>Send text input.</summary>
+            <remarks>
+            The <paramref name="text"/> is parsed for special input when between [ and ]. This behaviour can be escaped with [[ and ]].
+            <para/>Any entity, a single character or a special input [], can be preceded with a modifier set like: [+!][Enter] -> Shift + Alt + Enter -OR- [#]p -> Win + P.
+            <para/>The modifiers supported are RShift(+), RCtrl(^), LAlt(!) or RWin(#). 
+            <para/>The general layout of normal special input is [key up/down (amount) text] where anything besides the key can be omitted or included as needed.
+            <para/>Specifying up or down will send only that event, instead of sending both down and up events.
+            <para/>Specifying 'text' in the special input sends the 'key' as text instead. For example [Enter 5] sends the Enter key five times but [Enter 5 text] sends the text 'Enter' 5 times.
+            <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
+            </remarks>
+        </member>
+        <member name="M:WinUtilities.Input.SendRaw(System.String,WinUtilities.SendMode)">
+            <summary>Send raw text input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.Send(System.Char,WinUtilities.SendMode)">
+            <summary>Send char input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.Send(System.String)">
+            <summary>Send text in Input mode.</summary>
+            <remarks>
+            The <paramref name="text"/> is parsed for special input when between [ and ]. This behaviour can be escaped with [[ and ]].
+            <para/>Any entity, a single character or a special input [], can be preceded with a modifier set like: [+!][Enter] -> Shift + Alt + Enter -OR- [#]p -> Win + P.
+            <para/>The modifiers supported are RShift(+), RCtrl(^), LAlt(!) or RWin(#). 
+            <para/>The general layout of normal special input is [key up/down (amount) text] where anything besides the key can be omitted or included as needed.
+            <para/>Specifying up or down will send only that event, instead of sending both down and up events.
+            <para/>Specifying 'text' in the special input sends the 'key' as text instead. For example [Enter 5] sends the Enter key five times but [Enter 5 text] sends the text 'Enter' 5 times.
+            <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
+            </remarks>
+        </member>
+        <member name="M:WinUtilities.Input.Send(System.Char[])">
+            <summary>Send chars in Input mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.Send(WinUtilities.Key[])">
+            <summary>Send keys in Input mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendDown(WinUtilities.Key[])">
+            <summary>Send down keys in Input mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendUp(WinUtilities.Key[])">
+            <summary>Send up keys in Input mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendRaw(System.String)">
+            <summary>Send raw text in Input mode. This string is not parsed in any way before sending.</summary>
+        </member>
+        <member name="M:WinUtilities.Input.Scroll(WinUtilities.Key,System.Int32)">
+            <summary>Send a scroll event in Input mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.MouseMoveRelative(System.Int32,System.Int32)">
+            <summary>Send relative mouse movement in Input mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendGame(WinUtilities.Key[])">
+            <summary>Send lenghtened key presses that are easily recognized by game like applications in Input mode. Up event is delayed by 20 ms.</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendGame(System.Int32,WinUtilities.Key[])">
+            <summary>Send lenghtened key presses that are easily recognized by game like applications in Input mode</summary>
+            <param name="delay">The amount of time before the up event is sent</param>
+            <param name="keys">The keys to send as input</param>
+        </member>
+        <member name="M:WinUtilities.Input.SendEvent(System.String)">
+            <summary>Send text in Event mode.</summary>
+            <remarks>
+            The <paramref name="text"/> is parsed for special input when between [ and ]. This behaviour can be escaped with [[ and ]].
+            <para/>Any entity, a single character or a special input [], can be preceded with a modifier set like: [+!][Enter] -> Shift + Alt + Enter -OR- [#]p -> Win + P.
+            <para/>The modifiers supported are RShift(+), RCtrl(^), LAlt(!) or RWin(#). 
+            <para/>The general layout of normal special input is [key up/down (amount) text] where anything besides the key can be omitted or included as needed.
+            <para/>Specifying up or down will send only that event, instead of sending both down and up events.
+            <para/>Specifying 'text' in the special input sends the 'key' as text instead. For example [Enter 5] sends the Enter key five times but [Enter 5 text] sends the text 'Enter' 5 times.
+            <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
+            </remarks>
+        </member>
+        <member name="M:WinUtilities.Input.SendEvent(System.Char[])">
+            <summary>Send chars in Event mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEvent(WinUtilities.Key[])">
+            <summary>Send keys in Event mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEventDown(WinUtilities.Key[])">
+            <summary>Send down keys in Event mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEventUp(WinUtilities.Key[])">
+            <summary>Send up keys in Event mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEventRaw(System.String)">
+            <summary>Send raw text in Event mode. This string is not parsed in any way before sending.</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEventGame(WinUtilities.Key[])">
+            <summary>Send lenghtened key presses that are easily recognized by game like applications in Event mode. Up event is delayed by 20 ms.</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEventGame(System.Int32,WinUtilities.Key[])">
+            <summary>Send lenghtened key presses that are easily recognized by game like applications in Event mode</summary>
+            <param name="delay">The amount of time before the up event is sent</param>
+            <param name="keys">The keys to send as input</param>
+        </member>
+        <member name="M:WinUtilities.Input.SendControl(WinUtilities.Window,System.String)">
+            <summary>Send text in Control mode.</summary>
+            <remarks>
+            The <paramref name="text"/> is parsed for special input when between [ and ]. This behaviour can be escaped with [[ and ]].
+            <para/>Any entity, a single character or a special input [], can be preceded with a modifier set like: [+!][Enter] -> Shift + Alt + Enter -OR- [#]p -> Win + P.
+            <para/>The modifiers supported are RShift(+), RCtrl(^), LAlt(!) or RWin(#). 
+            <para/>The general layout of normal special input is [key up/down (amount) text] where anything besides the key can be omitted or included as needed.
+            <para/>Specifying up or down will send only that event, instead of sending both down and up events.
+            <para/>Specifying 'text' in the special input sends the 'key' as text instead. For example [Enter 5] sends the Enter key five times but [Enter 5 text] sends the text 'Enter' 5 times.
+            <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
+            </remarks>
+        </member>
+        <member name="M:WinUtilities.Input.SendControl(WinUtilities.Window,System.Char[])">
+            <summary>Send chars in Control mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendControl(WinUtilities.Window,WinUtilities.Key[])">
+            <summary>Send keys in Control mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendControlDown(WinUtilities.Window,WinUtilities.Key[])">
+            <summary>Send down keys in Control mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendControlUp(WinUtilities.Window,WinUtilities.Key[])">
+            <summary>Send up keys in Control mode</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendControlRaw(WinUtilities.Window,System.String)">
+            <summary>Send raw text in Control mode. This string is not parsed in any way before sending.</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendInput(WinUtilities.WinAPI.INPUT[])">
+            <summary>Send input with the SendInput API</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendEvent(WinUtilities.WinAPI.INPUT[])">
+            <summary>Send input with the event API</summary>
+        </member>
+        <member name="M:WinUtilities.Input.SendControl(WinUtilities.Window,WinUtilities.WinAPI.INPUT[])">
+            <summary>Send input directly to windows</summary>
+        </member>
+        <member name="M:WinUtilities.Input.RawKeyboardInput(WinUtilities.WinAPI.KEYEVENTF,WinUtilities.Key,WinUtilities.ScanCode)">
+            <summary>Build a keyboard input object with given data</summary>
+        </member>
+        <member name="M:WinUtilities.Input.RawMouseInput(WinUtilities.WinAPI.MOUSEEVENTF,System.Int32,System.Int32,System.Int32)">
+            <summary>Build a mouse input object with given data</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetInput(WinUtilities.Key,System.Boolean)">
+            <summary>Get a key as input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetKeyboardInput(WinUtilities.Key,System.Boolean)">
+            <summary>Get a keyboard event as input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetMouseInput(WinUtilities.Key,System.Boolean)">
+            <summary>Get a mouse event as input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetMouseInputX(WinUtilities.Key,System.Boolean)">
+            <summary>Get a mouse extra button event as input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetMouseInputScroll(WinUtilities.Key,System.Int32)">
+            <summary>Get a scroll event as input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetMouseInputMove(System.Int32,System.Int32,System.Boolean)">
+            <summary>Get a mouse move as input</summary>
+        </member>
+        <member name="M:WinUtilities.Input.GetCharInput(System.Char)">
+            <summary>Get an input object from a character</summary>
+        </member>
+        <member name="M:WinUtilities.Input.ToInputList(WinUtilities.Key[],System.Nullable{System.Boolean})">
+            <summary>Turn an array of keys into inputs</summary>
+        </member>
+        <member name="M:WinUtilities.Input.ToInputList(System.String)">
+            <summary>Parse a string to a list of inputs</summary>
+        </member>
+        <member name="M:WinUtilities.Input.IndexOfNext``1(``0[],``0,System.Int32)">
+            <summary>Return the index of the next matching item of an array</summary>
+        </member>
+        <member name="T:WinUtilities.Input.InputParseObject">
+            <summary>Object used to parse special text input</summary>
+        </member>
+        <member name="T:WinUtilities.Monitor">
+            <summary>Class for the retrieving of info and the control of monitors</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Name">
+            <summary>The device name of the monitor</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.IsPrimary">
+            <summary>Check if the monitor is the primary monitor</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Area">
+            <summary>The area of the monitor</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.WorkArea">
+            <summary>The work area of the monitor, excludes the taskbar</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Handle">
+            <summary>Handle to the monitor</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Primary">
+            <summary>Retrieve the current primary monitor</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Screen">
+            <summary>Get the total screen area</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Count">
+            <summary>The amount of current monitors</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.ScreenImage">
+            <summary>Get the entire screen as an image</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.IsPortrait">
+            <summary>Check if the monitor is in portrait mode instead of landscape</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Image">
+            <summary>Get the monitor's area as an image</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.#ctor(System.String,System.Boolean,System.IntPtr,WinUtilities.Area,WinUtilities.Area)">
+            <summary>Create a new monitor object</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
+            <summary>Find the monitor the that contains the specified point</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromPoint(WinUtilities.Coord,WinUtilities.MonitorDefault)">
+            <summary>Find the monitor the that contains the specified point</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromMouse">
+            <summary>Find the monitor the mouse is on currently</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromWindow(WinUtilities.Window,WinUtilities.MonitorDefault)">
+            <summary>Find the monitor the specified window is on currently</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromArea(WinUtilities.Area,WinUtilities.MonitorDefault)">
+            <summary>Find the best fitting monitor for the specified area</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromIndex(System.Int32)">
+            <summary>Find a monitor with a specific index. Don't rely on the index staying the same between restarts or monitor disconnects.</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.SetIdle(System.Boolean)">
+            <summary>Sets the monitors into a 'sleep' state, any user activity wakes them up</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetImage(WinUtilities.Area)">
+            <summary>Retrieve an image from the current screen</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.SetPrimary">
+            <summary>Set as the current primary monitor</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.SetOrientation(WinUtilities.Monitor.Orientation)">
+            <summary>Set the orientation of the monitor</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.HandleFromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
+            <summary>Retrieve a handle to a monitor that contains the given point</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.HandleFromPoint(WinUtilities.Coord,WinUtilities.MonitorDefault)">
+            <summary>Retrieve a handle to a monitor that contains the given point</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.HandleFromWindow(WinUtilities.Window,WinUtilities.MonitorDefault)">
+            <summary>Retrieve a handle to a monitor that contains the given window</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.HandleFromArea(WinUtilities.Area,WinUtilities.MonitorDefault)">
+            <summary>Retrieve a handle to a monitor that best fits the given area</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.HandleFromIndex(System.Int32)">
+            <summary>Retrieve a handle to a monitor with an index</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetMonitor(System.IntPtr)">
+            <summary>Retrieve a monitor with a handle</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetMonitors">
+            <summary>Retrieve all current monitors as a list</summary>
+        </member>
+        <member name="T:WinUtilities.Monitor.Orientation">
+            <summary>Representation of a monitor orientation</summary>
+        </member>
+        <member name="F:WinUtilities.Monitor.Orientation.Landscape">
+            <summary>Image pointed up</summary>
+        </member>
+        <member name="F:WinUtilities.Monitor.Orientation.Portrait">
+            <summary>Image pointed left</summary>
+        </member>
+        <member name="F:WinUtilities.Monitor.Orientation.LandscapeFlipped">
+            <summary>Image pointed down</summary>
+        </member>
+        <member name="F:WinUtilities.Monitor.Orientation.PortraitFlipped">
+            <summary>Image pointed right</summary>
+        </member>
+        <member name="T:WinUtilities.Mouse">
+            <summary>Class for controlling the mouse</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.Position">
+            <summary>Position of the mouse</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.IsVisible">
+            <summary>Check if the mouse is visible</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.IsConfined">
+            <summary>Check if the mouse if confined to an area</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.ConfinedArea">
+            <summary>Retrieve the area the mouse is contained in</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.CursorType">
+            <summary>Retrieve the current type of the mouse</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.ButtonAmount">
+            <summary>Check how many buttons the mouse has</summary>
+        </member>
+        <member name="P:WinUtilities.Mouse.IsHidden">
+            <summary>Check if the mouse is hidden by this process</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.Click">
+            <summary>Send a left click</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.RightClick">
+            <summary>Send a right click</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.MiddleClick">
+            <summary>Send a middle click</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.DoubleClick">
+            <summary>Send a double click</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.Scroll(WinUtilities.Key,System.Double)">
+            <summary>Send a scroll wheel event</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.Scroll(WinUtilities.Key,System.Int32)">
+            <summary>Send a scroll wheel event</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.Move(System.Int32,System.Int32,WinUtilities.CoordRelation)">
+            <summary>Move the mouse to a point</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.Move(WinUtilities.Coord,WinUtilities.CoordRelation)">
+            <summary>Move the mouse to a point</summary>
+        </member>
+        <member name="M:WinUtilities.Mouse.ConfineToArea(System.Nullable{WinUtilities.Area})">
+            <summary>Restrict cursor movement to within the specified area.</summary>
+            <param name="area">Set null to free the cursor.</param>
+        </member>
+        <member name="M:WinUtilities.Mouse.Hide(System.Boolean)">
+            <summary>This will fuck up cursor if the program exits while the cursor is hidden.</summary>
+        </member>
+        <member name="T:WinUtilities.CursorTypes">
+            <summary>Helper class for controlling the look of the cursor</summary>
+        </member>
+        <member name="P:WinUtilities.CursorTypes.Types">
+            <summary>Dictionary of handle -> Type of the different cursors</summary>
+        </member>
+        <member name="P:WinUtilities.CursorTypes.Reverse">
+            <summary>Dictionary of Type -> Handle of the different cursors</summary>
+        </member>
+        <member name="P:WinUtilities.CursorTypes.Invisible">
+            <summary>Handle to an invisible cursor</summary>
+        </member>
+        <member name="P:WinUtilities.CursorTypes.Arrow">
+            <summary>Handle to the default cursor</summary>
+        </member>
+        <member name="M:WinUtilities.CursorTypes.FromHandle(System.IntPtr)">
+            <summary>Get the type of a cursor from its handle</summary>
+        </member>
+        <member name="M:WinUtilities.CursorTypes.FromType(WinUtilities.CursorType)">
+            <summary>Get the handle of a cursor from its type</summary>
+        </member>
+        <member name="M:WinUtilities.CursorTypes.CreateInvisibleCursor">
+            <summary>Create an instance of an invisible cursor</summary>
+        </member>
+        <member name="T:WinUtilities.SystemUtils">
+            <summary>Some utilities used to perform system actions</summary>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.Lock">
+            <summary>Go to windows lock screen</summary>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.Internet(System.Boolean)">
+            <summary>Enable/disable current internet connection</summary>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.Shutdown(System.Int32)">
+            <summary>Shutdown the computer</summary>
+            <param name="delay">Delay until activation in seconds</param>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.Restart(System.Int32)">
+            <summary>Restart the computer</summary>
+            <param name="delay">Delay until activation in seconds</param>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.Sleep(System.Int32)">
+            <summary>Put the computer to sleep</summary>
+            <param name="delay">Delay until activation in seconds</param>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.StopShutdown">
+            <summary>Stops Shutdown, Restart or Sleep started from this process</summary>
+        </member>
+        <member name="T:WinUtilities.IMatchObject">
+            <summary>A window match object for checking and finding windows</summary>
+        </member>
+        <member name="P:WinUtilities.IMatchObject.AsList">
+            <summary>Get whitelisted matches as a list</summary>
+        </member>
+        <member name="P:WinUtilities.IMatchObject.Reverse">
+            <summary>Reverse the result of the match</summary>
+        </member>
+        <member name="P:WinUtilities.IMatchObject.AsReverse">
+            <summary>Get a reversed match</summary>
+        </member>
+        <member name="M:WinUtilities.IMatchObject.Match(WinUtilities.Window)">
+            <summary>Check if the given window matches</summary>
+        </member>
+        <member name="M:WinUtilities.IMatchObject.Match(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32)">
+            <summary>Check if the given properties match</summary>
+        </member>
+        <member name="T:WinUtilities.BorderlessInfo">
+            <summary>An object that specifies additional borderless settings for all matching windows</summary>
+        </member>
+        <member name="F:WinUtilities.BorderlessInfo.match">
+            <summary>Specifies which windows are affected by this setting</summary>
+        </member>
+        <member name="F:WinUtilities.BorderlessInfo.offset">
+            <summary></summary>
+        </member>
+        <member name="M:WinUtilities.BorderlessInfo.#ctor(WinUtilities.IMatchObject,WinUtilities.Area)">
+            <summary>An object that specifies additional borderless settings for all matching windows</summary>
+            <param name="match">Specifies which windows are affected by this setting</param>
+            <param name="offset">Amount cropped inwards from each edge of the window. Width and height here mean the amount cropped from right and bottom.</param>
+        </member>
+        <member name="M:WinUtilities.BorderlessInfo.#ctor(WinUtilities.IMatchObject,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>An object that specifies additional borderless settings for all matching windows</summary>
+            <param name="match">Specifies which windows are affected by this setting</param>
+            <param name="left">Amount cropped inwards from the left edge</param>
+            <param name="top">Amount cropped inwards from the top edge</param>
+            <param name="right">Amount cropped inwards from the right edge</param>
+            <param name="bottom">Amount cropped inwards from the bottom edge</param>
+        </member>
+        <member name="T:WinUtilities.Window">
+            <summary>A wrapper object for a windows window</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Hwnd">
+            <summary>The handle of the window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Title">
+            <summary>The title of the window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Class">
+            <summary>The class of the window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Exe">
+            <summary>The name of this window's <see cref="T:System.Diagnostics.Process"/>' .exe file. The .exe part is excluded.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.ExePath">
+            <summary>The path of this window's exe file.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.PID">
+            <summary>The process handle of this window's <see cref="T:System.Diagnostics.Process"/>.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Process">
+            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.ThreadID">
+            <summary>The ID of the system thread that spawned this window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsVisible">
+            <summary>Check if the window is not hidden.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsEnabled">
+            <summary>Check if the window is interactable.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsActive">
+            <summary>Check if the window is the foreground window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Exists">
+            <summary>Check if a window with this handle still exists.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsAlwaysOnTop">
+            <summary>Check if this is a top level window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsClickThrough">
+            <summary>Check if clicks go through the window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsChild">
+            <summary>Check if this is a child window of some other window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsMaximized">
+            <summary>Check if the window is maximized.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsMinimized">
+            <summary>Check if the window is minimized.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsFullscreen">
+            <summary>Check if the window is fullscreen.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsBorderless">
+            <summary>Check if the window is set to borderless mode.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsApp">
+            <summary>Check if the window is a proper foreground window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Style">
+            <summary>Full combination of the associated Window Styles.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.ExStyle">
+            <summary>Full combination of the associated Window Ex Styles.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Opacity">
+            <summary>The percentage of how see-through the window is.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Transcolor">
+            <summary>The color of the window that is rendered as fully transparent.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.HasRegion">
+            <summary>Check if a window has a region.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.RegionType">
+            <summary>Check the type of the region.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.RegionBounds">
+            <summary>Get the bounding area of the current region. Relative to raw window coordinates.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.CalculateRealArea(System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area})">
+            <summary>Attempt at reusing area information because getting them is somewhat costly.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Area">
+            <summary>A corrected version of the window's area.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.RawArea">
+            <summary>The area of the window as given by the OS.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.ClientArea">
+            <summary>The client area of the window. Excludes the caption and the borders.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.BorderlessArea">
+            <summary>The visible area of the window when in borderless mode</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsNone">
+            <summary>The object points to nothing</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsValid">
+            <summary>The object points to a real window</summary>
+        </member>
+        <member name="P:WinUtilities.Window.BorderlessSettings">
+            <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
+        </member>
+        <member name="P:WinUtilities.Window.None">
+            <summary>A window object that doesn't point to any window</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Active">
+            <summary>Retrieves the active window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.FromMouse">
+            <summary>Retrieves the first window under the mouse.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.This">
+            <summary>Retrieves the current process's windows.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Parent">
+            <summary>The parent of the window.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Ancestor">
+            <summary>The topmost window in the window's parent chain.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Owner">
+            <summary>The topmost window in the window's parent chain on a deeper level than <see cref="P:WinUtilities.Window.Ancestor"/>.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Siblings">
+            <summary>Retrieves all window of the same process.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Monitor">
+            <summary>Handle of the <see cref="T:WinUtilities.Monitor"/> the window is on.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Match(WinUtilities.IMatchObject)">
+            <summary>Check if the window matches with the given description.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ContainsPoint(WinUtilities.Coord)">
+            <summary>Check if the <paramref name="point"/> is inside the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ContainsPoint(System.Int32,System.Int32)">
+            <summary>Check if the point is inside the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ContainsMouse">
+            <summary>Check if the <see cref="T:WinUtilities.Mouse"/> is inside the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetSection(System.Int32,System.Int32)">
+            <summary>Check what part of the window the given point is a part of.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetSection(WinUtilities.Coord)">
+            <summary>Check what part of the window the given <paramref name="point"/> is a part of.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.IsTitlebar(System.Int32,System.Int32)">
+            <summary>Check if the given point is part of the titlebar.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.IsTitlebar(WinUtilities.Coord)">
+            <summary>Check if the given <paramref name="point"/> is part of the titlebar.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.HasStyle(WinUtilities.WS)">
+            <summary>Check for individual Window Styles.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.HasExStyle(WinUtilities.WS_EX)">
+            <summary>Check for individual Window Ex Styles.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Activate">
+            <summary>Set the window as the foreground window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Enable(System.Boolean)">
+            <summary>Enable/disable the window. Disabled windows cannot be interacted with.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Kill">
+            <summary>Kill the process associated with the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Close">
+            <summary>Send a request to close to the window. Returns true on success.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Minimize">
+            <summary>Minimize the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Maximize">
+            <summary>Maximize the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Restore">
+            <summary>Restore the window from a minimized or a maximized state to normal.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetVisible(System.Boolean)">
+            <summary>Set window visibility. False hides the window from the user completely. It's more complex than simple transparency.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetVisibleSoft(System.Boolean)">
+            <summary>Normally hidden windows often have weird alternate behaviour. This version is less prone to that while not 'truly' hiding a window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.PostMessage(WinUtilities.WM,System.Int32,System.Int32)">
+            <summary>Post a message to the window's message pump. Returns true on success.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SendMessage(WinUtilities.WM,System.Int32,System.Int32)">
+            <summary>Send a message the window's message pump. Waits for a reply from the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetStyle(WinUtilities.WS,System.Boolean)">
+            <summary>Set individual Window Styles on and off.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetExStyle(WinUtilities.WS_EX,System.Boolean)">
+            <summary>Set individual Window Ex Styles on and off.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.MoveTop">
+            <summary>Brings the window to the top of visibility.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.MoveBottom">
+            <summary>Drop the window to the bottom of visibility.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.MoveUnder(WinUtilities.Window)">
+            <summary>Move this window under the specified window in visibility.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetAlwaysOnTop(System.Boolean)">
+            <summary>Make a window always stay visible.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetClickThrough(System.Boolean)">
+            <summary>Make clicks phase through the window to the windows below.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetOpacity(System.Double)">
+            <summary>Set the degree of see-through of the window in percentages.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetTranscolor(System.Drawing.Color)">
+            <summary>Set the color of the window that is rendered as fully transparent.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetTransOff">
+            <summary>Fully disable transparency. Might improve performance after window transparency has been tweaked.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.UnlockSize">
+            <summary>Disable the resizing limits of the window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Move(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32},WinUtilities.CoordType)">
+            <summary>Move the window to the new coordinates.</summary>
+            <param name="x">Left edge of the window. Null to not change.</param>
+            <param name="y">Top edge of the window. Null to not change.</param>
+            <param name="w">Width of the window. Null to not change.</param>
+            <param name="h">Height of the window. Null to not change.</param>
+            <param name="type">Set what the coordinates are relative to.</param>
+        </member>
+        <member name="M:WinUtilities.Window.Move(System.Nullable{WinUtilities.Coord},System.Nullable{WinUtilities.Coord},WinUtilities.CoordType)">
+            <summary>Move the window to the new coordinates.</summary>
+            <param name="point">Location of the window. Null to not move the window.</param>
+            <param name="size">Size of the window. Null to not resize the window.</param>
+            <param name="type">Set what the coordinates are relative to.</param>
+        </member>
+        <member name="M:WinUtilities.Window.Move(WinUtilities.Area,WinUtilities.CoordType)">
+            <summary>Move the window to the new coordinates.</summary>
+            <param name="pos">The target area of the window.</param>
+            <param name="type">Set what the coordinates are relative to.</param>
+        </member>
+        <member name="M:WinUtilities.Window.OffsetMove(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Move a window by using an offset.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Center(System.Boolean)">
+            <summary>Center the window to the specified monitor.</summary>
+            <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
+        </member>
+        <member name="M:WinUtilities.Window.Center(WinUtilities.Coord,System.Boolean)">
+            <summary>Center the window to the specified monitor.</summary>
+            <param name="size">Set the target size of the window before centering.</param>
+            <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
+        </member>
+        <member name="M:WinUtilities.Window.Center(System.Nullable{System.Int32},System.Nullable{WinUtilities.Coord},System.Boolean)">
+            <summary>Center the window to the specified monitor.</summary>
+            <param name="monitor">Index of the target monitor. Null targets current monitor. Zero based indexing.</param>
+            <param name="size">Set the target size of the window before centering.</param>
+            <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
+        </member>
+        <member name="M:WinUtilities.Window.SetRegion(WinUtilities.Area)">
+            <summary>Set only a specified area of a window visible.</summary>
+            <param name="region">Relative to raw window coordinates.</param>
+        </member>
+        <member name="M:WinUtilities.Window.SetRoundedRegion(WinUtilities.Area,System.Int32,System.Int32)">
+            <summary>Set only a specified area of a window visible. Has rounded corners.</summary>
+            <param name="region">Relative to raw window coordinates.</param>
+            <param name="horizontalRounding">Amount of horizontal rounding</param>
+            <param name="verticalRounding">Amount of vertical rounding</param>
+        </member>
+        <member name="M:WinUtilities.Window.SetEllipticRegion(WinUtilities.Area)">
+            <summary>Set only a specified area of a window visible. Has an elliptic shape.</summary>
+            <param name="region">Relative to raw window coordinates.</param>
+        </member>
+        <member name="M:WinUtilities.Window.SetComplexRegion(WinUtilities.Area[])">
+            <summary>Set only a specified area of a window visible. Create a region with multiple areas.</summary>
+            <param name="regions">Relative to raw window coordinates.</param>
+        </member>
+        <member name="M:WinUtilities.Window.SetComplexRegion(WinUtilities.Coord[])">
+            <summary>Set only a specified area of a window visible. Create a polygon shape with multiple points.</summary>
+            <param name="points">Relative to raw window coordinates.</param>
+        </member>
+        <member name="M:WinUtilities.Window.SetComplexRegion(WinUtilities.WinAPI.FillRgnFlags,WinUtilities.Coord[])">
+            <summary>Set only a specified area of a window visible. Create a polygon shape with multiple points.</summary>
+            <param name="fillType">Set the fill logic of when lines intersect</param>
+            <param name="points">Relative to raw window coordinates</param>
+        </member>
+        <member name="M:WinUtilities.Window.RemoveRegion">
+            <summary>Remove the window's region to display the full window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetBorderless(System.Boolean)">
+            <summary>Set the window to borderless mode.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.CalculateBorderlessRegion(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Return region.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.CalculateBorderlessArea(WinUtilities.Area)">
+            <summary>Return screen coordinates of the visible area when borderless.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetImage(System.Boolean)">
+            <summary>Get an image of the window using BitBlt</summary>
+            <param name="clientOnly">Capture only the client area</param>
+        </member>
+        <member name="M:WinUtilities.Window.GetImage(WinUtilities.Area,System.Boolean)">
+            <summary>Get a cropped image of the window using BitBlt</summary>
+            <param name="subArea">Set the capture sub area relative to the full capture area</param>
+            <param name="clientOnly">Capture only the client area</param>
+        </member>
+        <member name="M:WinUtilities.Window.GetImagePrint(System.Boolean)">
+            <summary>Get an image of the window using WindowPrint API. Capable of imaging off screen windows.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetImageDesktop(System.Boolean)">
+            <summary>Get an image of the window based on what's visible on the desktop currently</summary>
+            <param name="clientOnly">Capture only the client area</param>
+        </member>
+        <member name="M:WinUtilities.Window.GetImageDesktop(WinUtilities.Area,System.Boolean)">
+            <summary>Get a cropped image of the window based on what's visible on the desktop currently</summary>
+            <param name="subArea">Set the capture sub area relative to the full capture area</param>
+            <param name="clientOnly">Capture only the client area</param>
+        </member>
+        <member name="M:WinUtilities.Window.Send(System.String)">
+            <summary>Send text to the window using <see cref="M:WinUtilities.Input.SendControl(WinUtilities.Window,System.String)"/></summary>
+        </member>
+        <member name="M:WinUtilities.Window.SendRaw(System.String)">
+            <summary>Send raw text to the window using <see cref="M:WinUtilities.Input.SendControlRaw(WinUtilities.Window,System.String)"/></summary>
+        </member>
+        <member name="M:WinUtilities.Window.Send(WinUtilities.Key[])">
+            <summary>Send key events to the window using <see cref="M:WinUtilities.Input.SendControl(WinUtilities.Window,WinUtilities.Key[])"/></summary>
+        </member>
+        <member name="M:WinUtilities.Window.SendDown(WinUtilities.Key[])">
+            <summary>Send key down events to the window using <see cref="M:WinUtilities.Input.SendControlDown(WinUtilities.Window,WinUtilities.Key[])"/></summary>
+        </member>
+        <member name="M:WinUtilities.Window.SendUp(WinUtilities.Key[])">
+            <summary>Send key up events to the window using <see cref="M:WinUtilities.Input.SendControlUp(WinUtilities.Window,WinUtilities.Key[])"/></summary>
+        </member>
+        <member name="M:WinUtilities.Window.Click(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.RightClick(WinUtilities.Coord,WinUtilities.CoordRelation)">
+            <summary>Emulates a right click at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.MiddleClick(WinUtilities.Coord,WinUtilities.CoordRelation)">
+            <summary>Emulates a middle click at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ClickNA(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.DoubleClick(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.DoubleClickNA(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ClickDown(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ClickDownNA(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ClickUp(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ClickUpNA(WinUtilities.Coord,WinUtilities.Key,WinUtilities.CoordRelation)">
+            <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.MouseMove(WinUtilities.Coord,WinUtilities.CoordRelation)">
+            <summary>Emulates a mouse move event at the specified position.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.HwndExists(WinUtilities.WinHandle)">
+            <summary>Check if a window with the specified handle exists.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.HwndActive(WinUtilities.WinHandle)">
+            <summary>Check if a window with the specified handle is active.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Find(WinUtilities.IMatchObject,System.Boolean)">
+            <summary>Find a window that matches the given description.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Find(System.String,System.Boolean)">
+            <summary>Find a window that matches the given title.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FindByExe(System.String,System.Boolean)">
+            <summary>Find a window that matches the given .exe name.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FindByClass(System.String,System.Boolean)">
+            <summary>Find a window that matches the given class.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FindByPid(System.UInt32,System.Boolean)">
+            <summary>Find a window whose process's id matches the given id</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetAllWindows">
+            <summary>Find all windows. Includes hidden windows.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetWindows(System.Boolean)">
+            <summary>Find all windows that match the criteria.</summary>
+            <param name="hidden">Include hidden windows.</param>
+        </member>
+        <member name="M:WinUtilities.Window.GetWindows(WinUtilities.IMatchObject,System.Boolean)">
+            <summary>Find all windows that match the criteria.</summary>
+            <param name="match">Null to match all windows.</param>
+            <param name="hidden">Include hidden windows.</param>
+        </member>
+        <member name="M:WinUtilities.Window.GetActiveWindow">
+            <summary>Get the handle of the active window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
+            <summary>Get the handle of the topmost window of the given point.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FromPoint(WinUtilities.Coord)">
+            <summary>Get the handle of the topmost window of the given point.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Wait(WinUtilities.IMatchObject,System.Nullable{System.Int64},System.Boolean,System.Int32)">
+            <summary>Wait for a matching window to exist.</summary>
+            <param name="match">Set what kind of window to wait for</param>
+            <param name="timeout">Time until the wait fails</param>
+            <param name="ignoreCurrent">If true, only new windows will be considered.</param>
+            <param name="checkDelay">Set how often the windows are scanned for the target window</param>
+        </member>
+        <member name="M:WinUtilities.Window.WaitActive(WinUtilities.IMatchObject,System.Nullable{System.Int64},System.Boolean,System.Int32)">
+            <summary>Wait for a matching window to become active.</summary>
+            <param name="match">Set what kind of window to wait for</param>
+            <param name="timeout">Time until the wait fails</param>
+            <param name="ignoreCurrent">If true, only new windows will be considered.</param>
+            <param name="checkDelay">Set how often the active window is checked for the target window</param>
+        </member>
+        <member name="T:WinUtilities.WinGroup">
+            <summary>A match object that can have multiple match conditions</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Whitelist">
+            <summary>List of conditions to match</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Blacklist">
+            <summary>List of conditions that prevent a whitelist match</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Size">
+            <summary>Number of conditions in the whitelist</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Reverse">
+            <summary>Reverse the result of the match</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.AsReverse">
+            <summary>Get a reversed match</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.AsList">
+            <summary>Get whitelisted matches as a list</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Desktop">
+            <summary>Matches the desktop</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.#ctor(WinUtilities.IMatchObject[])">
+            <summary>A group of window descriptions that can match a variety of windows.</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.Add(WinUtilities.IMatchObject[])">
+            <summary>Add window descriptions to the Whitelist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.Add(WinUtilities.Window[])">
+            <summary>Add windows to the Whitelist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.AddBlacklist(WinUtilities.IMatchObject[])">
+            <summary>Add window descriptions to the Blacklist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.AddBlacklist(WinUtilities.Window[])">
+            <summary>Add windows to the Blacklist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.Match(WinUtilities.Window)">
+            <summary>Check if a window matches this description group.</summary>
+            <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
+        </member>
+        <member name="M:WinUtilities.WinGroup.Match(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32)">
+            <summary>Check if a window matches this description group.</summary>
+            <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
+        </member>
+        <member name="T:WinUtilities.WinHandle">
+            <summary>A wrapper object for a window handle</summary>
+        </member>
+        <member name="P:WinUtilities.WinHandle.Raw">
+            <summary>Pointer to the window</summary>
+        </member>
+        <member name="P:WinUtilities.WinHandle.IsZero">
+            <summary>The object points to a nonexistent window</summary>
+        </member>
+        <member name="P:WinUtilities.WinHandle.IsValid">
+            <summary>The object points to a real window</summary>
+        </member>
+        <member name="P:WinUtilities.WinHandle.Zero">
+            <summary>A handle that points to nothing</summary>
+        </member>
+        <member name="P:WinUtilities.WinHandle.Broadcast">
+            <summary>A handle that points to all windows. Used with some win32 API calls.</summary>
+        </member>
+        <member name="M:WinUtilities.WinHandle.#ctor(System.IntPtr)">
+            <summary>Create wrapper for a window handle</summary>
+        </member>
+        <member name="T:WinUtilities.WinMatchType">
+            <summary>Specifies how string matching is performed</summary>
+        </member>
+        <member name="F:WinUtilities.WinMatchType.RegEx">
+            <summary>Uses regex expression matching</summary>
+        </member>
+        <member name="F:WinUtilities.WinMatchType.Full">
+            <summary>The string must match</summary>
+        </member>
+        <member name="F:WinUtilities.WinMatchType.Partial">
+            <summary>The string must be contained in the target</summary>
+        </member>
+        <member name="T:WinUtilities.WinMatch">
+            <summary>A condition that matches some windows</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.Hwnd">
+            <summary>Matched window handle</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.Title">
+            <summary>Matched window title</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.Class">
+            <summary>Matched window class</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.Exe">
+            <summary>Matched window exe</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.PID">
+            <summary>Matched window process id</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.Reverse">
+            <summary>Reverse the result of the match</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.AsReverse">
+            <summary>Get a reversed match</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.AsList">
+            <summary>Get whitelisted matches as a list</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.Type">
+            <summary>Specifies how the strings are matched</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.#ctor(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32,WinUtilities.WinMatchType)">
+            <summary>Create a new match condition</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.Match(WinUtilities.Window)">
+            <summary>Check if the given window matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.Match(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32)">
+            <summary>Check if the given properties match</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.MatchHwnd(System.Nullable{WinUtilities.WinHandle})">
+            <summary>Check if the window handle matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.MatchTitle(System.String)">
+            <summary>Check if the window title matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.MatchClass(System.String)">
+            <summary>Check if the window class matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.MatchExe(System.String)">
+            <summary>Check if the window exe matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.MatchPID(System.UInt32)">
+            <summary>Check if the window process id matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.op_Explicit(WinUtilities.Window)~WinUtilities.WinMatch">
+            <summary>Get a match object that matches the given window</summary>
+        </member>
+    </members>
+</doc>
