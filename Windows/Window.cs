@@ -292,10 +292,7 @@ namespace WinUtilities {
         public bool IsValid => Hwnd.IsValid;
 
         /// <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
-        public static List<BorderlessInfo> BorderlessSettings { get; set; } = new List<BorderlessInfo> {
-            new BorderlessInfo(new WinMatch(exe: "brave"), 0, 76, 0, 0),
-            new BorderlessInfo(new WinMatch(exe: "chrome"), 0, 28, 0, 0)
-        };
+        public static List<BorderlessInfo> BorderlessSettings { get; set; } = new List<BorderlessInfo>();
 
         /// <summary>A window object that doesn't point to any window</summary>
         public static Window None => new Window(IntPtr.Zero);
