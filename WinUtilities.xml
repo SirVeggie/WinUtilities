@@ -43,6 +43,9 @@
         <member name="M:WinUtilities.Edge.#ctor(WinUtilities.EdgeType,WinUtilities.Coord)">
             <summary>Create a new <see cref="T:WinUtilities.Edge"/></summary>
         </member>
+        <member name="M:WinUtilities.Edge.ToString">
+            <summary></summary>
+        </member>
         <member name="T:WinUtilities.Area">
             <summary>Specifies a rectangular area in [x, y] coordinates.</summary>
         </member>
@@ -92,7 +95,10 @@
             <summary>Get or set the center of the area.</summary>
         </member>
         <member name="P:WinUtilities.Area.Corners">
-            <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight].</summary>
+            <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight]</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Edges">
+            <summary>Returns a list of the edges' center positions in order of [Left, Right, Top, Bottom]</summary>
         </member>
         <member name="P:WinUtilities.Area.TopLeft">
             <summary>Get or set the Top Left corner of the area.</summary>
@@ -146,18 +152,30 @@
             <summary>Create a copy while modifying the size using percentages.</summary>
         </member>
         <member name="M:WinUtilities.Area.Round">
-            <summary>Rounds all components to closest integer.</summary>
+            <summary>Rounds all components to closest integer</summary>
             <returns>A copy of itself.</returns>
         </member>
         <member name="M:WinUtilities.Area.FillNaN(WinUtilities.Area)">
-            <summary>Fills the current NaN values with the new ones.</summary>
-            <returns>A copy of itself.</returns>
+            <summary>Fills the current NaN values with the new ones</summary>
+            <returns>A copy of itself</returns>
         </member>
         <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord)">
-            <summary>Returns the Coord of the closest corner.</summary>
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
         </member>
         <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord,System.Double@)">
-            <summary>Returns the Coord of the closest corner.</summary>
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestEdge(WinUtilities.Coord)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestEdge(WinUtilities.Coord,System.Double@)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCornerOrEdge(WinUtilities.Coord)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner or center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCornerOrEdge(WinUtilities.Coord,System.Double@)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner or center of an edge</summary>
         </member>
         <member name="M:WinUtilities.Area.SetEdge(WinUtilities.Edge,System.Boolean,System.Boolean)">
             <summary>Moves the area's edges using dynamic selection.</summary>

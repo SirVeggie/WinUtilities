@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace WinUtilities {
 
+    #region additional structs
     /// <summary>An object that specifies additional borderless settings for all matching windows</summary>
     public struct BorderlessInfo {
         /// <summary>Specifies which windows are affected by this setting</summary>
@@ -35,6 +36,7 @@ namespace WinUtilities {
             offset = new Area(left, top, right, bottom);
         }
     }
+    #endregion
 
     /// <summary>A wrapper object for a windows window</summary>
     [DataContract]
@@ -230,7 +232,7 @@ namespace WinUtilities {
             get {
                 return CalculateRealArea();
             }
-            set {
+            private set {
                 Area raw = RawArea;
                 Area client = ClientArea;
                 Area? region = IsBorderless ? (Area?) RegionBounds : null;
@@ -251,7 +253,7 @@ namespace WinUtilities {
                 WinAPI.GetWindowRect(Hwnd.Raw, ref rect);
                 return new Area(rect.Left, rect.Top, rect.Width, rect.Height);
             }
-            set {
+            private set {
                 Area target = value.IsValid ? value : value.FillNaN(RawArea);
                 WinAPI.SetWindowPos(Hwnd.Raw, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
             }
@@ -268,7 +270,7 @@ namespace WinUtilities {
 
                 return new Area(point.X, point.Y, rect.Width, rect.Height);
             }
-            set => OffsetMove(value, ClientArea);
+            private set => OffsetMove(value, ClientArea);
         }
 
         /// <summary>The visible area of the window when in borderless mode</summary>
@@ -278,7 +280,7 @@ namespace WinUtilities {
                     return CalculateBorderlessArea(ClientArea);
                 return CalculateRegionArea(RawArea);
             }
-            set {
+            private set {
                 if (!IsBorderless)
                     OffsetMove(value, BorderlessArea);
                 Area = value;

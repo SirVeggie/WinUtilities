@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace WinUtilities {
@@ -29,11 +30,11 @@ namespace WinUtilities {
     [Flags]
     public enum EdgeType {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        None,
-        Left,
-        Right,
-        Top,
-        Bottom,
+        None = 0,
+        Left = 1,
+        Right = 2,
+        Top = 4,
+        Bottom = 8,
         TopLeft = Top | Left,
         TopRight = Top | Right,
         BottomLeft = Bottom | Left,
@@ -53,6 +54,9 @@ namespace WinUtilities {
             Type = type;
             Pos = pos;
         }
+
+        /// <summary></summary>
+        public override string ToString() => $"{{Edge: {Type}, {Pos}}}";
     }
     #endregion
 
@@ -105,7 +109,7 @@ namespace WinUtilities {
             set => point = value - size / 2;
         }
 
-        /// <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight].</summary>
+        /// <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight]</summary>
         public Edge[] Corners {
             get => new Edge[] {
                 new Edge(EdgeType.TopLeft, TopLeft),
@@ -113,6 +117,20 @@ namespace WinUtilities {
                 new Edge(EdgeType.BottomLeft, BottomLeft),
                 new Edge(EdgeType.BottomRight, BottomRight)
             };
+        }
+
+        /// <summary>Returns a list of the edges' center positions in order of [Left, Right, Top, Bottom]</summary>
+        public Edge[] Edges {
+            get {
+                var center = Center;
+
+                return new Edge[] {
+                    new Edge(EdgeType.Left, new Coord(Left, center.Y)),
+                    new Edge(EdgeType.Right, new Coord(Right, center.Y)),
+                    new Edge(EdgeType.Top, new Coord(center.X, Top)),
+                    new Edge(EdgeType.Bottom, new Coord(center.X, Bottom))
+                };
+            }
         }
 
         #region corners and sides
@@ -297,7 +315,7 @@ namespace WinUtilities {
             return copy;
         }
 
-        /// <summary>Rounds all components to closest integer.</summary>
+        /// <summary>Rounds all components to closest integer</summary>
         /// <returns>A copy of itself.</returns>
         public Area Round() {
             point.Round();
@@ -305,17 +323,45 @@ namespace WinUtilities {
             return this;
         }
 
-        /// <summary>Fills the current NaN values with the new ones.</summary>
-        /// <returns>A copy of itself.</returns>
+        /// <summary>Fills the current NaN values with the new ones</summary>
+        /// <returns>A copy of itself</returns>
         public Area FillNaN(Area p) {
             point.Fill(p.Point);
             size.Fill(p.Size);
             return this;
         }
 
-        /// <summary>Returns the Coord of the closest corner.</summary>
-        public Edge ClosestCorner(Coord point) => ClosestCorner(point, out var d);
-        /// <summary>Returns the Coord of the closest corner.</summary>
+        /// <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
+        /// <param name="x">Between 0 and 1. Giving 0 targets the area's left edge and 1 targets the right edge. Giving 0.5 would target the center.</param>
+        /// <param name="y">Between 0 and 1. Giving 0 targets the area's top edge and 1 targets the bottom edge. Giving 0.5 would target the center.</param>
+        public Coord GetRelativePoint(double x, double y) => Point + new Coord(W * x, H * y);
+
+        /// <summary>Get the <see cref="Edge"/> of a given <see cref="EdgeType"/></summary>
+        public Edge GetEdge(EdgeType type) {
+            if (type == EdgeType.Left) {
+                return new Edge(type, GetRelativePoint(0, 0.5));
+            } else if (type == EdgeType.Right) {
+                return new Edge(type, GetRelativePoint(1, 0.5));
+            } else if (type == EdgeType.Top) {
+                return new Edge(type, GetRelativePoint(0.5, 0));
+            } else if (type == EdgeType.Bottom) {
+                return new Edge(type, GetRelativePoint(0.5, 1));
+            } else if (type == EdgeType.TopLeft) {
+                return new Edge(type, TopLeft);
+            } else if (type == EdgeType.TopRight) {
+                return new Edge(type, TopRight);
+            } else if (type == EdgeType.BottomLeft) {
+                return new Edge(type, BottomLeft);
+            } else if (type == EdgeType.BottomRight) {
+                return new Edge(type, BottomRight);
+            }
+
+            throw new ArgumentException("Illegal edge type, must be one of the main types");
+        }
+
+        /// <summary>Returns the <see cref="Edge"/> of the closest corner</summary>
+        public Edge ClosestCorner(Coord point) => ClosestCorner(point, out _);
+        /// <summary>Returns the <see cref="Edge"/> of the closest corner</summary>
         public Edge ClosestCorner(Coord point, out double distance) {
             double min = double.MaxValue;
             Edge res = default;
@@ -325,6 +371,52 @@ namespace WinUtilities {
                 if (dist < min) {
                     min = dist;
                     res = corner;
+                }
+            }
+
+            distance = min;
+            return res;
+        }
+
+        /// <summary>Returns the <see cref="Edge"/> of the closest center of an edge</summary>
+        public Edge ClosestEdge(Coord point) => ClosestEdge(point, out _);
+        /// <summary>Returns the <see cref="Edge"/> of the closest center of an edge</summary>
+        public Edge ClosestEdge(Coord point, out double distance) {
+            double min = double.MaxValue;
+            Edge res = default;
+
+            foreach (var edge in Edges) {
+                var dist = point.Distance(edge.Pos);
+                if (dist < min) {
+                    min = dist;
+                    res = edge;
+                }
+            }
+
+            distance = min;
+            return res;
+        }
+
+        /// <summary>Returns the <see cref="Edge"/> of the closest corner or center of an edge</summary>
+        public Edge ClosestCornerOrEdge(Coord point) => ClosestCornerOrEdge(point, out _);
+        /// <summary>Returns the <see cref="Edge"/> of the closest corner or center of an edge</summary>
+        public Edge ClosestCornerOrEdge(Coord point, out double distance) {
+            double min = double.MaxValue;
+            Edge res = default;
+
+            foreach (var corner in Corners) {
+                var dist = point.Distance(corner.Pos);
+                if (dist < min) {
+                    min = dist;
+                    res = corner;
+                }
+            }
+
+            foreach (var edge in Edges) {
+                var dist = point.Distance(edge.Pos);
+                if (dist < min) {
+                    min = dist;
+                    res = edge;
                 }
             }
 
