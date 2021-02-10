@@ -3273,58 +3273,61 @@
             <summary>The ID of the system thread that spawned this window.</summary>
         </member>
         <member name="P:WinUtilities.Window.IsVisible">
-            <summary>Check if the window is not hidden.</summary>
+            <summary>Check if the window is not hidden</summary>
         </member>
         <member name="P:WinUtilities.Window.IsEnabled">
-            <summary>Check if the window is interactable.</summary>
+            <summary>Check if the window is interactable</summary>
         </member>
         <member name="P:WinUtilities.Window.IsActive">
-            <summary>Check if the window is the foreground window.</summary>
+            <summary>Check if the window is the foreground window</summary>
         </member>
         <member name="P:WinUtilities.Window.Exists">
-            <summary>Check if a window with this handle still exists.</summary>
+            <summary>Check if a window with this handle still exists</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsOnCurrentDesktop">
+            <summary>Check if the window resides on the current virtual desktop</summary>
         </member>
         <member name="P:WinUtilities.Window.IsAlwaysOnTop">
-            <summary>Check if this is a top level window.</summary>
+            <summary>Check if this is a top level window</summary>
         </member>
         <member name="P:WinUtilities.Window.IsClickThrough">
-            <summary>Check if clicks go through the window.</summary>
+            <summary>Check if clicks go through the window</summary>
         </member>
         <member name="P:WinUtilities.Window.IsChild">
-            <summary>Check if this is a child window of some other window.</summary>
+            <summary>Check if this is a child window of some other window</summary>
         </member>
         <member name="P:WinUtilities.Window.IsMaximized">
-            <summary>Check if the window is maximized.</summary>
+            <summary>Check if the window is maximized</summary>
         </member>
         <member name="P:WinUtilities.Window.IsMinimized">
-            <summary>Check if the window is minimized.</summary>
+            <summary>Check if the window is minimized</summary>
         </member>
         <member name="P:WinUtilities.Window.IsFullscreen">
-            <summary>Check if the window is fullscreen.</summary>
+            <summary>Check if the window is fullscreen</summary>
         </member>
         <member name="P:WinUtilities.Window.IsBorderless">
-            <summary>Check if the window is set to borderless mode.</summary>
+            <summary>Check if the window is set to borderless mode</summary>
         </member>
         <member name="P:WinUtilities.Window.IsApp">
-            <summary>Check if the window is a proper foreground window.</summary>
+            <summary>Check if the window is a proper foreground window</summary>
         </member>
         <member name="P:WinUtilities.Window.Style">
-            <summary>Full combination of the associated Window Styles.</summary>
+            <summary>Full combination of the associated Window Styles</summary>
         </member>
         <member name="P:WinUtilities.Window.ExStyle">
-            <summary>Full combination of the associated Window Ex Styles.</summary>
+            <summary>Full combination of the associated Window Ex Styles</summary>
         </member>
         <member name="P:WinUtilities.Window.Opacity">
-            <summary>The percentage of how see-through the window is.</summary>
+            <summary>The percentage of how see-through the window is</summary>
         </member>
         <member name="P:WinUtilities.Window.Transcolor">
-            <summary>The color of the window that is rendered as fully transparent.</summary>
+            <summary>The color of the window that is rendered as fully transparent</summary>
         </member>
         <member name="P:WinUtilities.Window.HasRegion">
-            <summary>Check if a window has a region.</summary>
+            <summary>Check if a window has a region</summary>
         </member>
         <member name="P:WinUtilities.Window.RegionType">
-            <summary>Check the type of the region.</summary>
+            <summary>Check the type of the region</summary>
         </member>
         <member name="P:WinUtilities.Window.RegionBounds">
             <summary>Get the bounding area of the current region. Relative to raw window coordinates.</summary>
@@ -3379,6 +3382,9 @@
         </member>
         <member name="P:WinUtilities.Window.Monitor">
             <summary>Handle of the <see cref="T:WinUtilities.Monitor"/> the window is on.</summary>
+        </member>
+        <member name="P:WinUtilities.Window.Desktop">
+            <summary>Get the id of the virtual desktop the window is on</summary>
         </member>
         <member name="M:WinUtilities.Window.Match(WinUtilities.IMatchObject)">
             <summary>Check if the window matches with the given description.</summary>
@@ -3513,6 +3519,9 @@
             <param name="size">Set the target size of the window before centering.</param>
             <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
         </member>
+        <member name="M:WinUtilities.Window.MoveToDesktop(System.Guid)">
+            <summary>Move the window to a virtual desktop with the specifid id</summary>
+        </member>
         <member name="M:WinUtilities.Window.SetRegion(WinUtilities.Area)">
             <summary>Set only a specified area of a window visible.</summary>
             <param name="region">Relative to raw window coordinates.</param>
@@ -3621,12 +3630,6 @@
         <member name="M:WinUtilities.Window.MouseMove(WinUtilities.Coord,WinUtilities.CoordRelation)">
             <summary>Emulates a mouse move event at the specified position.</summary>
         </member>
-        <member name="M:WinUtilities.Window.HwndExists(WinUtilities.WinHandle)">
-            <summary>Check if a window with the specified handle exists.</summary>
-        </member>
-        <member name="M:WinUtilities.Window.HwndActive(WinUtilities.WinHandle)">
-            <summary>Check if a window with the specified handle is active.</summary>
-        </member>
         <member name="M:WinUtilities.Window.Find(WinUtilities.IMatchObject,System.Boolean)">
             <summary>Find a window that matches the given description.</summary>
         </member>
@@ -3654,9 +3657,6 @@
             <param name="match">Null to match all windows.</param>
             <param name="hidden">Include hidden windows.</param>
         </member>
-        <member name="M:WinUtilities.Window.GetActiveWindow">
-            <summary>Get the handle of the active window.</summary>
-        </member>
         <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
             <summary>Get the handle of the topmost window of the given point.</summary>
         </member>
@@ -3676,6 +3676,15 @@
             <param name="timeout">Time until the wait fails</param>
             <param name="ignoreCurrent">If true, only new windows will be considered.</param>
             <param name="checkDelay">Set how often the active window is checked for the target window</param>
+        </member>
+        <member name="M:WinUtilities.Window.HwndExists(WinUtilities.WinHandle)">
+            <summary>Check if a window with the specified handle exists.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.HwndActive(WinUtilities.WinHandle)">
+            <summary>Check if a window with the specified handle is active.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.GetActiveHandle">
+            <summary>Get the handle of the active window.</summary>
         </member>
         <member name="T:WinUtilities.WinGroup">
             <summary>A match object that can have multiple match conditions</summary>

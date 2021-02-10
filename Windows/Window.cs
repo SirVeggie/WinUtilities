@@ -128,29 +128,31 @@ namespace WinUtilities {
         #endregion
 
         #region state
-        /// <summary>Check if the window is not hidden.</summary>
+        /// <summary>Check if the window is not hidden</summary>
         public bool IsVisible => WinAPI.IsWindowVisible(Hwnd.Raw);
-        /// <summary>Check if the window is interactable.</summary>
+        /// <summary>Check if the window is interactable</summary>
         public bool IsEnabled => WinAPI.IsWindowEnabled(Hwnd.Raw);
-        /// <summary>Check if the window is the foreground window.</summary>
+        /// <summary>Check if the window is the foreground window</summary>
         public bool IsActive => HwndActive(Hwnd);
-        /// <summary>Check if a window with this handle still exists.</summary>
+        /// <summary>Check if a window with this handle still exists</summary>
         public bool Exists => HwndExists(Hwnd);
-        /// <summary>Check if this is a top level window.</summary>
+        /// <summary>Check if the window resides on the current virtual desktop</summary>
+        public bool IsOnCurrentDesktop => SimpleDesktop.IsOnCurrent(this);
+        /// <summary>Check if this is a top level window</summary>
         public bool IsAlwaysOnTop => HasExStyle(WS_EX.TOPMOST);
-        /// <summary>Check if clicks go through the window.</summary>
+        /// <summary>Check if clicks go through the window</summary>
         public bool IsClickThrough => HasExStyle(WS_EX.TRANSPARENT | WS_EX.LAYERED);
-        /// <summary>Check if this is a child window of some other window.</summary>
+        /// <summary>Check if this is a child window of some other window</summary>
         public bool IsChild => HasStyle(WS.CHILD);
-        /// <summary>Check if the window is maximized.</summary>
+        /// <summary>Check if the window is maximized</summary>
         public bool IsMaximized => WinAPI.IsZoomed(Hwnd.Raw);
-        /// <summary>Check if the window is minimized.</summary>
+        /// <summary>Check if the window is minimized</summary>
         public bool IsMinimized => WinAPI.IsIconic(Hwnd.Raw);
-        /// <summary>Check if the window is fullscreen.</summary>
+        /// <summary>Check if the window is fullscreen</summary>
         public bool IsFullscreen => !HasStyle(WS.CAPTION) && !HasStyle(WS.BORDER) && Area == Monitor.Area;
-        /// <summary>Check if the window is set to borderless mode.</summary>
+        /// <summary>Check if the window is set to borderless mode</summary>
         public bool IsBorderless => HasRegion;
-        /// <summary>Check if the window is a proper foreground window.</summary>
+        /// <summary>Check if the window is a proper foreground window</summary>
         public bool IsApp {
             get {
                 var ex = ExStyle;
@@ -171,23 +173,23 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Full combination of the associated Window Styles.</summary>
+        /// <summary>Full combination of the associated Window Styles</summary>
         public WS Style => (WS) (long) WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWL_STYLE);
-        /// <summary>Full combination of the associated Window Ex Styles.</summary>
+        /// <summary>Full combination of the associated Window Ex Styles</summary>
         public WS_EX ExStyle => (WS_EX) (long) WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWL_EXSTYLE);
-        /// <summary>The percentage of how see-through the window is.</summary>
+        /// <summary>The percentage of how see-through the window is</summary>
         public double Opacity {
             get => throw new NotImplementedException();
             set => SetOpacity(value);
         }
-        /// <summary>The color of the window that is rendered as fully transparent.</summary>
+        /// <summary>The color of the window that is rendered as fully transparent</summary>
         public Color Transcolor {
             get => throw new NotImplementedException();
             set => SetTranscolor(value);
         }
-        /// <summary>Check if a window has a region.</summary>
+        /// <summary>Check if a window has a region</summary>
         public bool HasRegion => WinAPI.GetWindowRgnBox(Hwnd.Raw, out _) != WinAPI.RegionType.Error;
-        /// <summary>Check the type of the region.</summary>
+        /// <summary>Check the type of the region</summary>
         public WinAPI.RegionType RegionType => WinAPI.GetWindowRgnBox(Hwnd.Raw, out _);
         /// <summary>Get the bounding area of the current region. Relative to raw window coordinates.</summary>
         public Area RegionBounds {
@@ -299,7 +301,7 @@ namespace WinUtilities {
         /// <summary>A window object that doesn't point to any window</summary>
         public static Window None => new Window(IntPtr.Zero);
         /// <summary>Retrieves the active window.</summary>
-        public static Window Active => new Window(GetActiveWindow());
+        public static Window Active => new Window(GetActiveHandle());
         /// <summary>Retrieves the first window under the mouse.</summary>
         public static Window FromMouse => FromPoint(Mouse.Position);
         /// <summary>Retrieves the current process's windows.</summary>
@@ -316,6 +318,8 @@ namespace WinUtilities {
 
         /// <summary>Handle of the <see cref="WinUtilities.Monitor"/> the window is on.</summary>
         public Monitor Monitor => Monitor.FromWindow(this);
+        /// <summary>Get the id of the virtual desktop the window is on</summary>
+        public Guid Desktop => SimpleDesktop.GetDesktopID(this);
         #endregion
 
         #region constructors
@@ -549,6 +553,12 @@ namespace WinUtilities {
             var area = ignoreTaskbar ? mon.Area : mon.WorkArea;
 
             return Move(new Area(area.Center - newSize / 2, newSize));
+        }
+
+        /// <summary>Move the window to a virtual desktop with the specifid id</summary>
+        public Window MoveToDesktop(Guid desktop) {
+            SimpleDesktop.MoveWindow(this, desktop);
+            return this;
         }
         #endregion
 
@@ -954,14 +964,13 @@ namespace WinUtilities {
 
         #region static
 
-        /// <summary>Check if a window with the specified handle exists.</summary>
-        public static bool HwndExists(WinHandle hwnd) => WinAPI.IsWindow(hwnd.Raw);
-        /// <summary>Check if a window with the specified handle is active.</summary>
-        public static bool HwndActive(WinHandle hwnd) => hwnd == GetActiveWindow();
-
         #region find
         /// <summary>Find a window that matches the given description.</summary>
-        public static Window Find(IMatchObject match, bool hidden = false) => GetWindows(match, hidden).FirstOrDefault();
+        public static Window Find(IMatchObject match, bool hidden = false) {
+            var win = GetWindows(match, hidden).FirstOrDefault();
+            return win ?? None;
+        }
+
         /// <summary>Find a window that matches the given title.</summary>
         public static Window Find(string title, bool hidden = false) => Find(new WinMatch(title: title), hidden);
         /// <summary>Find a window that matches the given .exe name.</summary>
@@ -1010,9 +1019,6 @@ namespace WinUtilities {
 
             return true;
         }
-
-        /// <summary>Get the handle of the active window.</summary>
-        public static WinHandle GetActiveWindow() => new WinHandle(WinAPI.GetForegroundWindow());
 
         /// <summary>Get the handle of the topmost window of the given point.</summary>
         public static Window FromPoint(int x, int y) => FromPoint(new Coord(x, y));
@@ -1075,6 +1081,14 @@ namespace WinUtilities {
             return null;
         }
         #endregion
+
+        /// <summary>Check if a window with the specified handle exists.</summary>
+        private static bool HwndExists(WinHandle hwnd) => WinAPI.IsWindow(hwnd.Raw);
+        /// <summary>Check if a window with the specified handle is active.</summary>
+        private static bool HwndActive(WinHandle hwnd) => hwnd == GetActiveHandle();
+
+        /// <summary>Get the handle of the active window.</summary>
+        private static WinHandle GetActiveHandle() => new WinHandle(WinAPI.GetForegroundWindow());
 
         #endregion
 
