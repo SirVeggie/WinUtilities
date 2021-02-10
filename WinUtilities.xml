@@ -159,6 +159,14 @@
             <summary>Fills the current NaN values with the new ones</summary>
             <returns>A copy of itself</returns>
         </member>
+        <member name="M:WinUtilities.Area.GetRelativePoint(System.Double,System.Double)">
+            <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
+            <param name="x">Between 0 and 1. Giving 0 targets the area's left edge and 1 targets the right edge. Giving 0.5 would target the center.</param>
+            <param name="y">Between 0 and 1. Giving 0 targets the area's top edge and 1 targets the bottom edge. Giving 0.5 would target the center.</param>
+        </member>
+        <member name="M:WinUtilities.Area.GetEdge(WinUtilities.EdgeType)">
+            <summary>Get the <see cref="T:WinUtilities.Edge"/> of a given <see cref="T:WinUtilities.EdgeType"/></summary>
+        </member>
         <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord)">
             <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
         </member>

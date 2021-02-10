@@ -268,13 +268,13 @@ namespace WinUtilities {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static implicit operator Area(WinAPI.RECT r) => new Area(r.X, r.Y, r.Width, r.Height);
         public static implicit operator WinAPI.RECT(Area a) {
-            a.Round();
+            a = a.Round();
             return new WinAPI.RECT((int) a.Left, (int) a.Top, (int) a.Right, (int) a.Bottom);
         }
 
         public static implicit operator Area(Rectangle r) => new Area(r.X, r.Y, r.Width, r.Height);
         public static implicit operator Rectangle(Area a) {
-            a.Round();
+            a = a.Round();
             return new Rectangle((int) a.Left, (int) a.Top, (int) a.Right, (int) a.Bottom);
         }
 
@@ -303,8 +303,8 @@ namespace WinUtilities {
         #endregion
 
         #region methods
-        /// <summary>Create a copy while modifying the size using percentages.</summary>
-        public Area Copy(double wStart, double wEnd, double hStart, double hEnd) {
+        /// <summary>Create a copy while modifying the size using percentages</summary>
+        public Area Slice(double wStart, double wEnd, double hStart, double hEnd) {
             if (wEnd < wStart || hEnd < hStart)
                 throw new Exception("Values cannot overlap");
             var copy = this;
@@ -316,20 +316,10 @@ namespace WinUtilities {
         }
 
         /// <summary>Rounds all components to closest integer</summary>
-        /// <returns>A copy of itself.</returns>
-        public Area Round() {
-            point.Round();
-            size.Round();
-            return this;
-        }
+        public Area Round() => new Area(point.Round(), size.Round());
 
         /// <summary>Fills the current NaN values with the new ones</summary>
-        /// <returns>A copy of itself</returns>
-        public Area FillNaN(Area p) {
-            point.Fill(p.Point);
-            size.Fill(p.Size);
-            return this;
-        }
+        public Area FillNaN(Area p) => new Area(point.Fill(p.Point), size.Fill(p.Size));
 
         /// <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
         /// <param name="x">Between 0 and 1. Giving 0 targets the area's left edge and 1 targets the right edge. Giving 0.5 would target the center.</param>
@@ -430,39 +420,41 @@ namespace WinUtilities {
         public Area SetEdge(EdgeType type, double pos, bool resize = false, bool relative = false) => SetEdge(type, new Coord(pos, pos), resize, relative);
         /// <summary>Moves the area's edges using dynamic selection.</summary>
         public Area SetEdge(EdgeType type, Coord pos, bool resize = false, bool relative = false) {
+            var area = this;
+
             if (type.HasFlag(EdgeType.Left)) {
                 if (resize) {
-                    LeftR = relative ? Left + pos.X : pos.X;
+                    area.LeftR = relative ? Left + pos.X : pos.X;
                 } else {
-                    Left = relative ? Left + pos.X : pos.X;
+                    area.Left = relative ? Left + pos.X : pos.X;
                 }
             }
 
             if (type.HasFlag(EdgeType.Right)) {
                 if (resize) {
-                    RightR = relative ? Right + pos.X : pos.X;
+                    area.RightR = relative ? Right + pos.X : pos.X;
                 } else {
-                    Right = relative ? Right + pos.X : pos.X;
+                    area.Right = relative ? Right + pos.X : pos.X;
                 }
             }
 
             if (type.HasFlag(EdgeType.Top)) {
                 if (resize) {
-                    TopR = relative ? Top + pos.Y : pos.Y;
+                    area.TopR = relative ? Top + pos.Y : pos.Y;
                 } else {
-                    Top = relative ? Top + pos.Y : pos.Y;
+                    area.Top = relative ? Top + pos.Y : pos.Y;
                 }
             }
 
             if (type.HasFlag(EdgeType.Bottom)) {
                 if (resize) {
-                    BottomR = relative ? Bottom + pos.Y : pos.Y;
+                    area.BottomR = relative ? Bottom + pos.Y : pos.Y;
                 } else {
-                    Bottom = relative ? Bottom + pos.Y : pos.Y;
+                    area.Bottom = relative ? Bottom + pos.Y : pos.Y;
                 }
             }
 
-            return this;
+            return area;
         }
 
         /// <summary>Add another area's point to this area's point.</summary>
@@ -473,9 +465,9 @@ namespace WinUtilities {
         public Area SetPoint(Area other) => SetPoint(other.Point);
         /// <summary>Set the area's point. Helps with dotting into code.</summary>
         public Area SetPoint(Coord point) {
-            Area n = this;
-            n.Point = point;
-            return n;
+            Area area = this;
+            area.Point = point;
+            return area;
         }
 
         /// <summary>Add another area's size to this area's size.</summary>
@@ -486,17 +478,13 @@ namespace WinUtilities {
         public Area SetSize(Area other) => SetSize(other.Size);
         /// <summary>Set the area's size. Helps with dotting into code.</summary>
         public Area SetSize(Coord size) {
-            Area n = this;
-            n.Size = size;
-            return n;
+            Area area = this;
+            area.Size = size;
+            return area;
         }
 
-        /// <summary>Turns screen coordinates relative to parent area.</summary>
-        public Coord Relative(double x, double y) => Relative(new Coord(x, y));
-        /// <summary>Turns screen coordinates relative to parent area.</summary>
-        public Coord Relative(Coord point) => point - Point;
-        /// <summary>Turns screen coordinates relative to parent area.</summary>
-        public Area Relative(Area area) => area.SetPoint(Relative(area.Point));
+        /// <summary>Turns this area relative to the given area</summary>
+        public Area Relative(Area area) => new Area(this).AddPoint(-area.Point);
 
         /// <summary>Checks if the given point is within the area.</summary>
         public bool Contains(Coord point) => Contains(point.X, point.Y);
@@ -527,36 +515,52 @@ namespace WinUtilities {
 
         /// <summary>Grows the area outwards by the specified value. Shrinks if negative.</summary>
         public Area Grow(double value) {
-            var temp = new Area(this);
-            temp.X -= value;
-            temp.Y -= value;
-            temp.W += value * 2;
-            temp.H += value * 2;
-            return temp;
+            var area = new Area(this);
+            area.X -= value;
+            area.Y -= value;
+            area.W += value * 2;
+            area.H += value * 2;
+            return area;
         }
 
-        /// <summary>Clamp the given <paramref name="area"/> to the parent area.</summary>
-        public Area Clamp(Area area) => Clamp(area, this);
-        /// <summary>Moves the given area to within the clamp area. Area is resized if necessary.</summary>
-        public static Area Clamp(Area pos, Area clamp) {
-            if (pos.Left < clamp.Left) pos.Left = clamp.Left;
-            if (pos.Right > clamp.Right) pos.RightR = clamp.Right;
-            if (pos.Top < clamp.Top) pos.Top = clamp.Top;
-            if (pos.Bottom > clamp.Bottom) pos.BottomR = clamp.Bottom;
-            return pos;
+        /// <summary>Return a new area that is clamped within the clamp area</summary>
+        public Area ClampWithin(Area clamp) {
+            var area = this;
+            if (Left < clamp.Left) area.Left = clamp.Left;
+            if (Right > clamp.Right) area.RightR = clamp.Right;
+            if (Top < clamp.Top) area.Top = clamp.Top;
+            if (Bottom > clamp.Bottom) area.BottomR = clamp.Bottom;
+            return area;
         }
 
-        /// <summary>Clamp the given <paramref name="point"/> to the parent area.</summary>
-        public Coord Clamp(Coord point) => Clamp(point, this);
-        /// <summary>Moves the given point within the clamped area.</summary>
-        public static Coord Clamp(Coord point, Area clamp) {
-            if (point.X < clamp.Left) point.X = clamp.Left;
-            else if (point.X >= clamp.Right) point.X = clamp.Right - 1;
+        /// <summary>Return a new area that has been resized to contain the given area</summary>
+        public Area ClampContain(Area areaToContain) {
+            var area = this;
+            if (Left > areaToContain.Left) area.Left = areaToContain.Left;
+            if (Right < areaToContain.Right) area.RightR = areaToContain.Right;
+            if (Top > areaToContain.Top) area.Top = areaToContain.Top;
+            if (Bottom < areaToContain.Bottom) area.BottomR = areaToContain.Bottom;
+            return area;
+        }
 
-            if (point.Y < clamp.Top) point.Y = clamp.Top;
-            else if (point.Y >= clamp.Bottom) point.Y = clamp.Bottom - 1;
+        /// <summary>Return a new area whose values have been restricted between the given areas</summary>
+        public Area Clamp(Area min, Area max) {
+            var x = ClampBidirection(X, min.X, max.X);
+            var y = ClampBidirection(Y, min.Y, max.Y);
+            var w = ClampBidirection(W, min.W, max.W);
+            var h = ClampBidirection(H, min.H, max.H);
+            return new Area(x, y, w, h);
+        }
 
-            return point;
+        private double ClampBidirection(double value, double bound1, double bound2) {
+            if (bound1 <= bound2)
+                return Math.Min(Math.Max(bound1, value), bound2);
+            return Math.Min(Math.Max(bound2, value), bound1);
+        }
+
+        /// <summary>Return a new area that has been clamped linearly between the given areas</summary>
+        public Area ClampLinear(Area start, Area end) {
+            throw new NotImplementedException();
         }
 
         /// <summary>Takes the mutual area between two areas.</summary>
@@ -691,24 +695,27 @@ namespace WinUtilities {
         /// <summary>Fills the current Coord's NaN values with the other one.</summary>
         /// <returns>A copy of itself.</returns>
         public Coord Fill(Coord c) {
-            X = double.IsNaN(X) ? c.X : X;
-            Y = double.IsNaN(Y) ? c.Y : Y;
-            return this;
+            var x = double.IsNaN(X) ? c.X : X;
+            var y = double.IsNaN(Y) ? c.Y : Y;
+            return new Coord(x, y);
         }
 
         /// <summary>Rounds all components to closest integer.</summary>
         /// <returns>A copy of itself.</returns>
         public Coord Round() {
-            X = Math.Round(X);
-            Y = Math.Round(Y);
-            return this;
+            var x = Math.Round(X);
+            var y = Math.Round(Y);
+            return new Coord(x, y);
         }
 
-        /// <summary>Turns screen coordinates relative to parent coordinates.</summary>
+        /// <summary>Turns these coordinates relative to the given coordinates</summary>
         public Coord Relative(double x, double y) => Relative(new Coord(x, y));
 
-        /// <summary>Turns screen coordinates relative to parent coordinates.</summary>
-        public Coord Relative(Coord point) => point - this;
+        /// <summary>Turns these coordinates relative to the given coordinates</summary>
+        public Coord Relative(Coord point) => this - point;
+
+        /// <summary>Turns these coordinates relative to the given coordinates</summary>
+        public Coord Relative(Area area) => this - area.Point;
 
         /// <summary>Distance to the given point.</summary>
         public double Distance(double x, double y) => Distance(new Coord(x, y));
@@ -727,12 +734,37 @@ namespace WinUtilities {
         }
 
         /// <summary>Rotate as a vector.</summary>
-        public void Rotate(double degrees) {
-            var old = this;
+        public Coord Rotate(double degrees) {
             var rad = Math.PI / 180 * degrees;
+            var x = X * Math.Cos(rad) - Y * Math.Sin(rad);
+            var y = X * Math.Sin(rad) + Y * Math.Cos(rad);
+            return new Coord(x, y);
+        }
 
-            X = old.X * Math.Cos(rad) - old.Y * Math.Sin(rad);
-            Y = old.X * Math.Sin(rad) + old.Y * Math.Cos(rad);
+        /// <summary>Clamp this point inside the specified area</summary>
+        public Coord Clamp(Area clamp) {
+            var x = Math.Min(Math.Max(clamp.X, X), clamp.X + clamp.W);
+            var y = Math.Min(Math.Max(clamp.Y, Y), clamp.Y + clamp.H);
+            return new Coord(x, y);
+        }
+
+        /// <summary>Clamp this point to a line between the given points</summary>
+        public Coord ClampLinear(Coord point1, Coord point2) {
+            throw new NotImplementedException();
+
+            var proj = ProjectToLine(point1, point2);
+
+            if (proj.X < Math.Min(point1.X, point2.X)) {
+
+            } else if (proj.X > Math.Max(point1.X, point2.X)) {
+
+            } else {
+                return proj;
+            }
+        }
+
+        public Coord ProjectToLine(Coord point1, Coord point2) {
+            throw new NotImplementedException();
         }
         #endregion
     }

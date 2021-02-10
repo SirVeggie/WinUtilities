@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.4</Version>
+    <Version>0.4.1</Version>
     <Authors>SirVeggie</Authors>
     <Company>SirVeggie</Company>
     <Product />
@@ -23,8 +23,7 @@ The wrapper is mainly centered around the Window class, since in Windows automat
 
 The project is only tested to work on Windows 10, but it should work on earlier versions as well.
 The project is also still under development so later versions can contain breaking changes.</Description>
-    <PackageReleaseNotes>Fixed Window Edge functionality
-Added Edge center points</PackageReleaseNotes>
+    <PackageReleaseNotes>Added GetRelativePoint and GetEdge to Area struct</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
