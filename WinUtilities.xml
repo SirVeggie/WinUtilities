@@ -148,16 +148,14 @@
         <member name="P:WinUtilities.Area.BottomR">
             <summary>Resize from Bottom edge of the area.</summary>
         </member>
-        <member name="M:WinUtilities.Area.Copy(System.Double,System.Double,System.Double,System.Double)">
-            <summary>Create a copy while modifying the size using percentages.</summary>
+        <member name="M:WinUtilities.Area.Slice(System.Double,System.Double,System.Double,System.Double)">
+            <summary>Create a copy while modifying the size using percentages</summary>
         </member>
         <member name="M:WinUtilities.Area.Round">
             <summary>Rounds all components to closest integer</summary>
-            <returns>A copy of itself.</returns>
         </member>
         <member name="M:WinUtilities.Area.FillNaN(WinUtilities.Area)">
             <summary>Fills the current NaN values with the new ones</summary>
-            <returns>A copy of itself</returns>
         </member>
         <member name="M:WinUtilities.Area.GetRelativePoint(System.Double,System.Double)">
             <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
@@ -218,14 +216,8 @@
         <member name="M:WinUtilities.Area.SetSize(WinUtilities.Coord)">
             <summary>Set the area's size. Helps with dotting into code.</summary>
         </member>
-        <member name="M:WinUtilities.Area.Relative(System.Double,System.Double)">
-            <summary>Turns screen coordinates relative to parent area.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Relative(WinUtilities.Coord)">
-            <summary>Turns screen coordinates relative to parent area.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Relative(WinUtilities.Area)">
-            <summary>Turns screen coordinates relative to parent area.</summary>
+        <member name="M:WinUtilities.Area.SetRelative(WinUtilities.Area)">
+            <summary>Turns this area relative to the given area</summary>
         </member>
         <member name="M:WinUtilities.Area.Contains(WinUtilities.Coord)">
             <summary>Checks if the given point is within the area.</summary>
@@ -245,17 +237,17 @@
         <member name="M:WinUtilities.Area.Grow(System.Double)">
             <summary>Grows the area outwards by the specified value. Shrinks if negative.</summary>
         </member>
-        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Area)">
-            <summary>Clamp the given <paramref name="area"/> to the parent area.</summary>
+        <member name="M:WinUtilities.Area.ClampWithin(WinUtilities.Area)">
+            <summary>Return a new area that is clamped within the clamp area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampContain(WinUtilities.Area)">
+            <summary>Return a new area that has been resized to contain the given area</summary>
         </member>
         <member name="M:WinUtilities.Area.Clamp(WinUtilities.Area,WinUtilities.Area)">
-            <summary>Moves the given area to within the clamp area. Area is resized if necessary.</summary>
+            <summary>Return a new area whose values have been restricted between the given areas</summary>
         </member>
-        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Coord)">
-            <summary>Clamp the given <paramref name="point"/> to the parent area.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Coord,WinUtilities.Area)">
-            <summary>Moves the given point within the clamped area.</summary>
+        <member name="M:WinUtilities.Area.ClampLinear(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Return a new area that has been clamped linearly between the given areas</summary>
         </member>
         <member name="M:WinUtilities.Area.Mutual(WinUtilities.Area,WinUtilities.Area)">
             <summary>Takes the mutual area between two areas.</summary>
@@ -315,11 +307,14 @@
             <summary>Rounds all components to closest integer.</summary>
             <returns>A copy of itself.</returns>
         </member>
-        <member name="M:WinUtilities.Coord.Relative(System.Double,System.Double)">
-            <summary>Turns screen coordinates relative to parent coordinates.</summary>
+        <member name="M:WinUtilities.Coord.SetRelative(System.Double,System.Double)">
+            <summary>Turns these coordinates relative to the given coordinates</summary>
         </member>
-        <member name="M:WinUtilities.Coord.Relative(WinUtilities.Coord)">
-            <summary>Turns screen coordinates relative to parent coordinates.</summary>
+        <member name="M:WinUtilities.Coord.SetRelative(WinUtilities.Coord)">
+            <summary>Turns these coordinates relative to the given coordinates</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SetRelative(WinUtilities.Area)">
+            <summary>Turns these coordinates relative to the given coordinates</summary>
         </member>
         <member name="M:WinUtilities.Coord.Distance(System.Double,System.Double)">
             <summary>Distance to the given point.</summary>
@@ -335,6 +330,12 @@
         </member>
         <member name="M:WinUtilities.Coord.Rotate(System.Double)">
             <summary>Rotate as a vector.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Clamp(WinUtilities.Area)">
+            <summary>Clamp this point inside the specified area</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.ClampLinear(WinUtilities.Coord,WinUtilities.Coord)">
+            <summary>Clamp this point to a line between the given points</summary>
         </member>
         <member name="T:WinUtilities.WM">
             <summary>Enum of all Window Messages.</summary>

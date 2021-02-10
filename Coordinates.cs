@@ -484,7 +484,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Turns this area relative to the given area</summary>
-        public Area Relative(Area area) => new Area(this).AddPoint(-area.Point);
+        public Area SetRelative(Area area) => new Area(this).AddPoint(-area.Point);
 
         /// <summary>Checks if the given point is within the area.</summary>
         public bool Contains(Coord point) => Contains(point.X, point.Y);
@@ -709,13 +709,13 @@ namespace WinUtilities {
         }
 
         /// <summary>Turns these coordinates relative to the given coordinates</summary>
-        public Coord Relative(double x, double y) => Relative(new Coord(x, y));
+        public Coord SetRelative(double x, double y) => SetRelative(new Coord(x, y));
 
         /// <summary>Turns these coordinates relative to the given coordinates</summary>
-        public Coord Relative(Coord point) => this - point;
+        public Coord SetRelative(Coord point) => this - point;
 
         /// <summary>Turns these coordinates relative to the given coordinates</summary>
-        public Coord Relative(Area area) => this - area.Point;
+        public Coord SetRelative(Area area) => this - area.Point;
 
         /// <summary>Distance to the given point.</summary>
         public double Distance(double x, double y) => Distance(new Coord(x, y));

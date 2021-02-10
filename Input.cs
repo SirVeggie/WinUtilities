@@ -303,29 +303,29 @@ namespace WinUtilities {
             if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.LEFTDOWN)) {
                 message = WM.LBUTTONDOWN;
                 wParam = 1;
-                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+                lParam = Mouse.Position.SetRelative(window.ClientArea).AsValue;
 
             } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.LEFTUP)) {
                 message = WM.LBUTTONUP;
-                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+                lParam = Mouse.Position.SetRelative(window.ClientArea).AsValue;
 
             } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.RIGHTDOWN)) {
                 message = WM.RBUTTONDOWN;
                 wParam = 2;
-                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+                lParam = Mouse.Position.SetRelative(window.ClientArea).AsValue;
 
             } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.RIGHTUP)) {
                 message = WM.RBUTTONUP;
-                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+                lParam = Mouse.Position.SetRelative(window.ClientArea).AsValue;
 
             } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.MIDDLEDOWN)) {
                 message = WM.MBUTTONDOWN;
                 wParam = 16;
-                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+                lParam = Mouse.Position.SetRelative(window.ClientArea).AsValue;
 
             } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.MIDDLEUP)) {
                 message = WM.MBUTTONUP;
-                lParam = window.ClientArea.Relative(Mouse.Position).AsValue;
+                lParam = Mouse.Position.SetRelative(window.ClientArea).AsValue;
 
             } else if (input.flags.HasFlag(WinAPI.MOUSEEVENTF.MOVE) || input.flags.HasFlag(WinAPI.MOUSEEVENTF.MOVE_NOCOALESCE)) {
                 message = WM.MOUSEMOVE;

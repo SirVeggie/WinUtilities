@@ -809,7 +809,7 @@ namespace WinUtilities {
             }
 
             if (rel == CoordRelation.Screen) {
-                pos = RawArea.Relative(pos);
+                pos = pos.SetRelative(RawArea);
             } else if (rel == CoordRelation.Mouse) {
                 pos = RawArea.Point + Mouse.Position + pos;
             }
@@ -850,7 +850,7 @@ namespace WinUtilities {
             }
 
             if (rel == CoordRelation.Screen) {
-                pos = RawArea.Relative(pos);
+                pos = pos.SetRelative(RawArea);
             } else if (rel == CoordRelation.Mouse) {
                 pos = RawArea.Point + Mouse.Position + pos;
             }
@@ -884,7 +884,7 @@ namespace WinUtilities {
             }
 
             if (rel == CoordRelation.Screen) {
-                pos = RawArea.Relative(pos);
+                pos = pos.SetRelative(RawArea);
             } else if (rel == CoordRelation.Mouse) {
                 pos = RawArea.Point + Mouse.Position + pos;
             }
@@ -918,7 +918,7 @@ namespace WinUtilities {
             }
 
             if (rel == CoordRelation.Screen) {
-                pos = RawArea.Relative(pos);
+                pos = pos.SetRelative(RawArea);
             } else if (rel == CoordRelation.Mouse) {
                 pos = RawArea.Point + Mouse.Position + pos;
             }
@@ -940,7 +940,7 @@ namespace WinUtilities {
         /// <summary>Emulates a mouse move event at the specified position.</summary>
         public Window MouseMove(Coord pos, CoordRelation rel = CoordRelation.ActiveWindow) {
             if (rel == CoordRelation.Screen) {
-                pos = RawArea.Relative(pos);
+                pos = pos.SetRelative(RawArea);
             } else if (rel == CoordRelation.Mouse) {
                 pos = RawArea.Point + Mouse.Position + pos;
             }
