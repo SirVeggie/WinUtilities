@@ -133,6 +133,18 @@ namespace WinUtilities {
             }
         }
 
+        /// <summary>A 4D vector-like magnitude</summary>
+        public double Magnitude {
+            get => Math.Sqrt(Math.Pow(X, 2) + Math.Pow(W, 2) + Math.Pow(W, 2) + Math.Pow(H, 2));
+            set {
+                var mult = value / Magnitude;
+                X *= mult;
+                Y *= mult;
+                W *= mult;
+                H *= mult;
+            }
+        }
+
         #region corners and sides
         /// <summary>Get or set the Top Left corner of the area.</summary>
         public Coord TopLeft {
@@ -617,7 +629,6 @@ namespace WinUtilities {
                 var mult = value / Magnitude;
                 X *= mult;
                 Y *= mult;
-                var a = (this.Magnitude = 1);
             }
         }
 
