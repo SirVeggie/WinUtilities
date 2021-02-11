@@ -239,9 +239,6 @@ namespace WinUtilities {
 
         // -------------------------- //
 
-        /// <summary>Key is undefined</summary>
-        Undefined = VKey.UNDEFINED,
-
         /// <summary>Left mouse button</summary>
         LButton = VKey.LBUTTON | F_Mouse,
         /// <summary>Right mouse button</summary>
@@ -500,17 +497,23 @@ namespace WinUtilities {
 
         // Custom //
 
+        /// <summary>This represents a key that does not exist</summary>
+        None = 1 | F_Custom,
+
+        /// <summary>This represents a key that was not recognized</summary>
+        Unknown = 2 | F_Custom,
+
         /// <summary>Mouse wheel left</summary>
-        WheelLeft = 1 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
+        WheelLeft = 3 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
         /// <summary>Mouse wheel right</summary>
-        WheelRight = 2 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
+        WheelRight = 4 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
         /// <summary>Mouse wheel up</summary>
-        WheelUp = 3 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
+        WheelUp = 5 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
         /// <summary>Mouse wheel down</summary>
-        WheelDown = 4 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
+        WheelDown = 6 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
 
         /// <summary>Mouse movement</summary>
-        MouseMove = 5 | F_Mouse | F_Custom | F_Stateless
+        MouseMove = 7 | F_Mouse | F_Custom | F_Stateless
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     #endregion
