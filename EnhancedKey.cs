@@ -120,6 +120,8 @@ namespace WinUtilities {
         public static bool IsExtended(this Key key) => key.HasFlag(Key.F_Extended) && key.HasAny(Key.M_KeyMask);
         /// <summary>Check if the key is a media key</summary>
         public static bool IsMedia(this Key key) => key.HasFlag(Key.F_Media);
+        /// <summary>Check if the key produces a character when typed</summary>
+        public static bool IsChar(this Key key) => key.HasFlag(Key.F_Char);
         /// <summary>Check if the key is stateless. Stateless keys have no up event.</summary>
         public static bool IsStateless(this Key key) => key.HasFlag(Key.F_Stateless);
         /// <summary>Check if the key is a toggleable key</summary>

@@ -2547,6 +2547,9 @@
         <member name="M:WinUtilities.EnhancedKey.IsMedia(WinUtilities.Key)">
             <summary>Check if the key is a media key</summary>
         </member>
+        <member name="M:WinUtilities.EnhancedKey.IsChar(WinUtilities.Key)">
+            <summary>Check if the key produces a character when typed</summary>
+        </member>
         <member name="M:WinUtilities.EnhancedKey.IsStateless(WinUtilities.Key)">
             <summary>Check if the key is stateless. Stateless keys have no up event.</summary>
         </member>

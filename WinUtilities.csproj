@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
     <Authors>SirVeggie</Authors>
     <Company>SirVeggie</Company>
     <Product />
@@ -23,7 +23,7 @@ The wrapper is mainly centered around the Window class, since in Windows automat
 
 The project is only tested to work on Windows 10, but it should work on earlier versions as well.
 The project is also still under development so later versions can contain breaking changes.</Description>
-    <PackageReleaseNotes>Removed F_Duplicate flag from EnhancedKey to make comparing more straight forward</PackageReleaseNotes>
+    <PackageReleaseNotes>Add missing IsChar() to EnhancedKey</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
