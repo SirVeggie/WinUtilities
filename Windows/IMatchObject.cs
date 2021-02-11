@@ -8,7 +8,7 @@ namespace WinUtilities {
         /// <summary>Get whitelisted matches as a list</summary>
         WinMatch[] AsList { get; }
         /// <summary>Reverse the result of the match</summary>
-        bool Reverse { get; set; }
+        bool IsReverse { get; set; }
         /// <summary>Get a reversed match</summary>
         IMatchObject AsReverse { get; }
 

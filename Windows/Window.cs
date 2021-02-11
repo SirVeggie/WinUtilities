@@ -152,8 +152,8 @@ namespace WinUtilities {
         public bool IsFullscreen => !HasStyle(WS.CAPTION) && !HasStyle(WS.BORDER) && Area == Monitor.Area;
         /// <summary>Check if the window is set to borderless mode</summary>
         public bool IsBorderless => HasRegion;
-        /// <summary>Check if the window is a proper foreground window</summary>
-        public bool IsApp {
+        /// <summary>Check if the window is a proper visible foreground window</summary>
+        public bool IsTopLevel {
             get {
                 var ex = ExStyle;
 
@@ -320,6 +320,8 @@ namespace WinUtilities {
         public Monitor Monitor => Monitor.FromWindow(this);
         /// <summary>Get the id of the virtual desktop the window is on</summary>
         public Guid Desktop => SimpleDesktop.GetDesktopID(this);
+        /// <summary>Get a match object that only matches this window</summary>
+        public WinMatch AsMatch => new WinMatch(hwnd: Hwnd);
         #endregion
 
         #region constructors
@@ -992,29 +994,38 @@ namespace WinUtilities {
         /// <summary>Find all windows that match the criteria.</summary>
         /// <param name="match">Null to match all windows.</param>
         /// <param name="hidden">Include hidden windows.</param>
-        public static List<Window> GetWindows(IMatchObject match, bool hidden = false) {
+        public static List<Window> GetWindows(IMatchObject match, bool hidden = false) => GetWindows(match, hidden, true);
+
+
+        /// <summary>Find all windows that match the criteria on current virtual desktop.</summary>
+        /// <param name="hidden">Include hidden windows.</param>
+        public static List<Window> GetDesktopWindows(bool hidden = false) => GetWindows(null, hidden, false);
+
+        /// <summary>Find all windows that match the criteria on current virtual desktop.</summary>
+        /// <param name="match">Null to match all windows.</param>
+        /// <param name="hidden">Include hidden windows.</param>
+        public static List<Window> GetDesktopWindows(IMatchObject match, bool hidden = false) => GetWindows(match, hidden, false);
+
+        private static List<Window> GetWindows(IMatchObject match, bool hidden, bool otherDesktops) {
             var windows = new List<Window>();
 
-            if (hidden && WinAPI.EnumWindows(Collector, IntPtr.Zero)) {
+            if (WinAPI.EnumWindows(Collector, IntPtr.Zero))
                 return windows;
-            } else if (WinAPI.EnumDesktopWindows(IntPtr.Zero, Collector, IntPtr.Zero)) {
-                return windows;
-            } else {
-                return new List<Window>();
-            }
+            return new List<Window>();
 
             bool Collector(IntPtr hwnd, int lParam) {
                 Window win = new Window(hwnd);
 
-                if (!CheckMatchValidity(win, match, hidden)) return true;
+                if (!MatchFilter(win, match, hidden, otherDesktops)) return true;
 
                 windows.Add(win);
                 return true;
             }
         }
 
-        private static bool CheckMatchValidity(Window win, IMatchObject match, bool hidden) {
-            if (!hidden && !win.IsApp) return false;
+        private static bool MatchFilter(Window win, IMatchObject match, bool hidden, bool otherDesktops) {
+            if (!hidden && !win.IsTopLevel) return false;
+            if (!otherDesktops && !win.IsOnCurrentDesktop) return false;
             if (match != null && !match.Match(win)) return false;
 
             return true;
@@ -1098,6 +1109,7 @@ namespace WinUtilities {
         public static bool operator !=(Window a, Window b) => !(a == b);
         public override bool Equals(object obj) => obj is Window && this == (Window) obj;
         public override int GetHashCode() => -640239398 + Hwnd.GetHashCode();
+        public override string ToString() => $"{{Window: {Hwnd.Raw}}}";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }

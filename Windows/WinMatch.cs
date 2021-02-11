@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 namespace WinUtilities {
@@ -58,12 +59,12 @@ namespace WinUtilities {
 
         /// <summary>Reverse the result of the match</summary>
         [DataMember]
-        public bool Reverse { get; set; }
+        public bool IsReverse { get; set; }
         /// <summary>Get a reversed match</summary>
         public IMatchObject AsReverse {
             get {
                 var match = this;
-                match.Reverse ^= true;
+                match.IsReverse ^= true;
                 return match;
             }
         }
@@ -90,7 +91,7 @@ namespace WinUtilities {
             _exe = exe;
             PID = pid;
 
-            Reverse = false;
+            IsReverse = false;
             Type = type;
 
             rTitle = new Regex(title ?? "", rOptions);
@@ -105,20 +106,22 @@ namespace WinUtilities {
 
         /// <summary>Check if the given properties match</summary>
         public bool Match(WinHandle? hwnd, string title, string className, string exe, uint pid) {
-            return Reverse ^ (MatchHwnd(hwnd) && MatchTitle(title) && MatchClass(className) && MatchExe(exe) && MatchPID(pid));
+            if (IsReverse)
+                return !(!MatchHwnd(hwnd) && !MatchTitle(title) && !MatchClass(className) && !MatchExe(exe) && !MatchPID(pid));
+            return MatchHwnd(hwnd) && MatchTitle(title) && MatchClass(className) && MatchExe(exe) && MatchPID(pid);
         }
 
         #region single matching
         /// <summary>Check if the window handle matches</summary>
-        public bool MatchHwnd(WinHandle? hwnd) => Reverse ^ (Hwnd == null || Hwnd == hwnd);
+        public bool MatchHwnd(WinHandle? hwnd) => IsReverse ^ (Hwnd == null || Hwnd == hwnd);
         /// <summary>Check if the window title matches</summary>
-        public bool MatchTitle(string title) => Reverse ^ MatchSingle(title, Title, rTitle);
+        public bool MatchTitle(string title) => IsReverse ^ MatchSingle(title, Title, rTitle);
         /// <summary>Check if the window class matches</summary>
-        public bool MatchClass(string className) => Reverse ^ MatchSingle(className, Class, rClass);
+        public bool MatchClass(string className) => IsReverse ^ MatchSingle(className, Class, rClass);
         /// <summary>Check if the window exe matches</summary>
-        public bool MatchExe(string exe) => Reverse ^ MatchSingle(exe, Exe, rExe);
+        public bool MatchExe(string exe) => IsReverse ^ MatchSingle(exe, Exe, rExe);
         /// <summary>Check if the window process id matches</summary>
-        public bool MatchPID(uint pid) => Reverse ^ (PID == 0 || PID == pid);
+        public bool MatchPID(uint pid) => IsReverse ^ (PID == 0 || PID == pid);
 
         private bool MatchSingle(string window, string match, Regex regex) {
             if (match == null) {

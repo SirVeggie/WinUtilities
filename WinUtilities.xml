@@ -3211,7 +3211,7 @@
         <member name="P:WinUtilities.IMatchObject.AsList">
             <summary>Get whitelisted matches as a list</summary>
         </member>
-        <member name="P:WinUtilities.IMatchObject.Reverse">
+        <member name="P:WinUtilities.IMatchObject.IsReverse">
             <summary>Reverse the result of the match</summary>
         </member>
         <member name="P:WinUtilities.IMatchObject.AsReverse">
@@ -3308,8 +3308,8 @@
         <member name="P:WinUtilities.Window.IsBorderless">
             <summary>Check if the window is set to borderless mode</summary>
         </member>
-        <member name="P:WinUtilities.Window.IsApp">
-            <summary>Check if the window is a proper foreground window</summary>
+        <member name="P:WinUtilities.Window.IsTopLevel">
+            <summary>Check if the window is a proper visible foreground window</summary>
         </member>
         <member name="P:WinUtilities.Window.Style">
             <summary>Full combination of the associated Window Styles</summary>
@@ -3385,6 +3385,9 @@
         </member>
         <member name="P:WinUtilities.Window.Desktop">
             <summary>Get the id of the virtual desktop the window is on</summary>
+        </member>
+        <member name="P:WinUtilities.Window.AsMatch">
+            <summary>Get a match object that only matches this window</summary>
         </member>
         <member name="M:WinUtilities.Window.Match(WinUtilities.IMatchObject)">
             <summary>Check if the window matches with the given description.</summary>
@@ -3657,6 +3660,15 @@
             <param name="match">Null to match all windows.</param>
             <param name="hidden">Include hidden windows.</param>
         </member>
+        <member name="M:WinUtilities.Window.GetDesktopWindows(System.Boolean)">
+            <summary>Find all windows that match the criteria on current virtual desktop.</summary>
+            <param name="hidden">Include hidden windows.</param>
+        </member>
+        <member name="M:WinUtilities.Window.GetDesktopWindows(WinUtilities.IMatchObject,System.Boolean)">
+            <summary>Find all windows that match the criteria on current virtual desktop.</summary>
+            <param name="match">Null to match all windows.</param>
+            <param name="hidden">Include hidden windows.</param>
+        </member>
         <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
             <summary>Get the handle of the topmost window of the given point.</summary>
         </member>
@@ -3698,7 +3710,7 @@
         <member name="P:WinUtilities.WinGroup.Size">
             <summary>Number of conditions in the whitelist</summary>
         </member>
-        <member name="P:WinUtilities.WinGroup.Reverse">
+        <member name="P:WinUtilities.WinGroup.IsReverse">
             <summary>Reverse the result of the match</summary>
         </member>
         <member name="P:WinUtilities.WinGroup.AsReverse">
@@ -3784,7 +3796,7 @@
         <member name="P:WinUtilities.WinMatch.PID">
             <summary>Matched window process id</summary>
         </member>
-        <member name="P:WinUtilities.WinMatch.Reverse">
+        <member name="P:WinUtilities.WinMatch.IsReverse">
             <summary>Reverse the result of the match</summary>
         </member>
         <member name="P:WinUtilities.WinMatch.AsReverse">

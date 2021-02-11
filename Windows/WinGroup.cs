@@ -37,12 +37,12 @@ namespace WinUtilities {
 
         /// <summary>Reverse the result of the match</summary>
         [DataMember]
-        public bool Reverse { get; set; }
+        public bool IsReverse { get; set; }
         /// <summary>Get a reversed match</summary>
         public IMatchObject AsReverse {
             get {
                 var match = this;
-                match.Reverse ^= true;
+                match.IsReverse ^= true;
                 return match;
             }
         }
@@ -59,7 +59,7 @@ namespace WinUtilities {
 
         /// <summary>A group of window descriptions that can match a variety of windows.</summary>
         public WinGroup(params IMatchObject[] matchlist) {
-            Reverse = false;
+            IsReverse = false;
             whitelist = new List<IMatchObject>();
             blacklist = new List<IMatchObject>();
             whitelist.AddRange(matchlist);
@@ -85,10 +85,10 @@ namespace WinUtilities {
         /// <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
         public bool Match(WinHandle? hwnd, string title, string className, string exe, uint pid) {
             if (MatchList(Blacklist, hwnd, title, className, exe, pid)) {
-                return Reverse ^ false;
+                return IsReverse ^ false;
             }
 
-            return Reverse ^ MatchList(Whitelist, hwnd, title, className, exe, pid);
+            return IsReverse ^ MatchList(Whitelist, hwnd, title, className, exe, pid);
         }
 
         private bool MatchList(List<IMatchObject> list, WinHandle? hwnd, string title, string className, string exe, uint pid) {
