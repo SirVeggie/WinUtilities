@@ -3249,7 +3249,7 @@
             <summary>A wrapper object for a windows window</summary>
         </member>
         <member name="P:WinUtilities.Window.Hwnd">
-            <summary>The handle of the window.</summary>
+            <summary>The handle of the window</summary>
         </member>
         <member name="P:WinUtilities.Window.Title">
             <summary>The title of the window.</summary>
@@ -3330,7 +3330,7 @@
             <summary>Check the type of the region</summary>
         </member>
         <member name="P:WinUtilities.Window.RegionBounds">
-            <summary>Get the bounding area of the current region. Relative to raw window coordinates.</summary>
+            <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
         </member>
         <member name="M:WinUtilities.Window.CalculateRealArea(System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area})">
             <summary>Attempt at reusing area information because getting them is somewhat costly.</summary>
@@ -3360,28 +3360,28 @@
             <summary>A window object that doesn't point to any window</summary>
         </member>
         <member name="P:WinUtilities.Window.Active">
-            <summary>Retrieves the active window.</summary>
+            <summary>Retrieves the active window</summary>
         </member>
         <member name="P:WinUtilities.Window.FromMouse">
-            <summary>Retrieves the first window under the mouse.</summary>
+            <summary>Retrieves the first window under the mouse</summary>
         </member>
         <member name="P:WinUtilities.Window.This">
-            <summary>Retrieves the current process's windows.</summary>
+            <summary>Retrieves the current process's windows</summary>
         </member>
         <member name="P:WinUtilities.Window.Parent">
-            <summary>The parent of the window.</summary>
+            <summary>The parent of the window</summary>
         </member>
         <member name="P:WinUtilities.Window.Ancestor">
-            <summary>The topmost window in the window's parent chain.</summary>
+            <summary>The topmost window in the window's parent chain</summary>
         </member>
         <member name="P:WinUtilities.Window.Owner">
-            <summary>The topmost window in the window's parent chain on a deeper level than <see cref="P:WinUtilities.Window.Ancestor"/>.</summary>
+            <summary>The topmost window in the window's parent chain on a deeper level than <see cref="P:WinUtilities.Window.Ancestor"/></summary>
         </member>
         <member name="P:WinUtilities.Window.Siblings">
             <summary>Retrieves all window of the same process.</summary>
         </member>
         <member name="P:WinUtilities.Window.Monitor">
-            <summary>Handle of the <see cref="T:WinUtilities.Monitor"/> the window is on.</summary>
+            <summary>Handle of the <see cref="T:WinUtilities.Monitor"/> the window is on</summary>
         </member>
         <member name="P:WinUtilities.Window.Desktop">
             <summary>Get the id of the virtual desktop the window is on</summary>
@@ -3634,26 +3634,26 @@
             <summary>Emulates a mouse move event at the specified position.</summary>
         </member>
         <member name="M:WinUtilities.Window.Find(WinUtilities.IMatchObject,System.Boolean)">
-            <summary>Find a window that matches the given description.</summary>
+            <summary>Find a window that matches the given description</summary>
         </member>
         <member name="M:WinUtilities.Window.Find(System.String,System.Boolean)">
-            <summary>Find a window that matches the given title.</summary>
+            <summary>Find a window that matches the given title</summary>
         </member>
         <member name="M:WinUtilities.Window.FindByExe(System.String,System.Boolean)">
-            <summary>Find a window that matches the given .exe name.</summary>
+            <summary>Find a window that matches the given .exe name</summary>
         </member>
         <member name="M:WinUtilities.Window.FindByClass(System.String,System.Boolean)">
-            <summary>Find a window that matches the given class.</summary>
+            <summary>Find a window that matches the given class</summary>
         </member>
         <member name="M:WinUtilities.Window.FindByPid(System.UInt32,System.Boolean)">
             <summary>Find a window whose process's id matches the given id</summary>
         </member>
         <member name="M:WinUtilities.Window.GetAllWindows">
-            <summary>Find all windows. Includes hidden windows.</summary>
+            <summary>Find all windows. Includes hidden windows</summary>
         </member>
         <member name="M:WinUtilities.Window.GetWindows(System.Boolean)">
-            <summary>Find all windows that match the criteria.</summary>
-            <param name="hidden">Include hidden windows.</param>
+            <summary>Find all windows that match the criteria</summary>
+            <param name="hidden">Include hidden windows</param>
         </member>
         <member name="M:WinUtilities.Window.GetWindows(WinUtilities.IMatchObject,System.Boolean)">
             <summary>Find all windows that match the criteria</summary>
@@ -3668,33 +3668,33 @@
             <param name="match">Null to match all windows</param>
         </member>
         <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
-            <summary>Get the handle of the topmost window of the given point.</summary>
+            <summary>Get the handle of the topmost window of the given point</summary>
         </member>
         <member name="M:WinUtilities.Window.FromPoint(WinUtilities.Coord)">
-            <summary>Get the handle of the topmost window of the given point.</summary>
+            <summary>Get the handle of the topmost window of the given point</summary>
         </member>
         <member name="M:WinUtilities.Window.Wait(WinUtilities.IMatchObject,System.Nullable{System.Int64},System.Boolean,System.Int32)">
-            <summary>Wait for a matching window to exist.</summary>
+            <summary>Wait for a matching window to exist</summary>
             <param name="match">Set what kind of window to wait for</param>
             <param name="timeout">Time until the wait fails</param>
-            <param name="ignoreCurrent">If true, only new windows will be considered.</param>
+            <param name="ignoreCurrent">If true, only new windows will be considered</param>
             <param name="checkDelay">Set how often the windows are scanned for the target window</param>
         </member>
         <member name="M:WinUtilities.Window.WaitActive(WinUtilities.IMatchObject,System.Nullable{System.Int64},System.Boolean,System.Int32)">
-            <summary>Wait for a matching window to become active.</summary>
+            <summary>Wait for a matching window to become active</summary>
             <param name="match">Set what kind of window to wait for</param>
             <param name="timeout">Time until the wait fails</param>
-            <param name="ignoreCurrent">If true, only new windows will be considered.</param>
+            <param name="ignoreCurrent">If true, only new windows will be considered</param>
             <param name="checkDelay">Set how often the active window is checked for the target window</param>
         </member>
         <member name="M:WinUtilities.Window.HwndExists(WinUtilities.WinHandle)">
-            <summary>Check if a window with the specified handle exists.</summary>
+            <summary>Check if a window with the specified handle exists</summary>
         </member>
         <member name="M:WinUtilities.Window.HwndActive(WinUtilities.WinHandle)">
-            <summary>Check if a window with the specified handle is active.</summary>
+            <summary>Check if a window with the specified handle is active</summary>
         </member>
         <member name="M:WinUtilities.Window.GetActiveHandle">
-            <summary>Get the handle of the active window.</summary>
+            <summary>Get the handle of the active window</summary>
         </member>
         <member name="T:WinUtilities.WinGroup">
             <summary>A match object that can have multiple match conditions</summary>
