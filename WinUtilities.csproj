@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.4.2</Version>
+    <Version>0.5</Version>
     <Authors>SirVeggie</Authors>
     <Company>SirVeggie</Company>
     <Product />
@@ -25,7 +25,8 @@ The project is only tested to work on Windows 10, but it should work on earlier 
 The project is also still under development so later versions can contain breaking changes.</Description>
     <PackageReleaseNotes>Added simple virtual desktop functionality
 Fixed reverse WinMatch functionality
-Rename Window.IsApp -&gt; IsTopLevel</PackageReleaseNotes>
+Rename Window.IsApp -&gt; IsTopLevel
+Add WindowInfo class</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

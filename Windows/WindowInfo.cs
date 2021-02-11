@@ -119,8 +119,10 @@ namespace WinUtilities.Windows {
         private bool isvisible;
         public bool IsVisible {
             get {
-                if (!isvisibleChecked)
+                if (!isvisibleChecked) {
+                    isvisibleChecked = true;
                     isvisible = Window.IsVisible;
+                }
                 return isvisible;
             }
         }
@@ -129,8 +131,10 @@ namespace WinUtilities.Windows {
         private bool isenabled;
         public bool IsEnabled {
             get {
-                if (!isenabledChecked)
+                if (!isenabledChecked) {
+                    isenabledChecked = true;
                     isenabled = Window.IsEnabled;
+                }
                 return isenabled;
             }
         }
@@ -139,8 +143,10 @@ namespace WinUtilities.Windows {
         private bool isactive;
         public bool IsActive {
             get {
-                if (!isactiveChecked)
+                if (!isactiveChecked) {
+                    isactiveChecked = true;
                     isactive = Window.IsActive;
+                }
                 return isactive;
             }
         }
@@ -149,8 +155,10 @@ namespace WinUtilities.Windows {
         private bool exists;
         public bool Exists {
             get {
-                if (!existsChecked)
+                if (!existsChecked) {
+                    existsChecked = true;
                     exists = Window.Exists;
+                }
                 return exists;
             }
         }
@@ -159,8 +167,10 @@ namespace WinUtilities.Windows {
         private bool isoncurrentdesktop;
         public bool IsOnCurrentDesktop {
             get {
-                if (!isoncurrentdesktopChecked)
+                if (!isoncurrentdesktopChecked) {
+                    isoncurrentdesktopChecked = true;
                     isoncurrentdesktop = Window.IsOnCurrentDesktop;
+                }
                 return isoncurrentdesktop;
             }
         }
@@ -169,8 +179,10 @@ namespace WinUtilities.Windows {
         private bool isalwaysontop;
         public bool IsAlwaysOnTop {
             get {
-                if (!isalwaysontopChecked)
+                if (!isalwaysontopChecked) {
+                    isalwaysontopChecked = true;
                     isalwaysontop = Window.IsAlwaysOnTop;
+                }
                 return isalwaysontop;
             }
         }
@@ -179,8 +191,10 @@ namespace WinUtilities.Windows {
         private bool isclickthrough;
         public bool IsClickThrough {
             get {
-                if (!isclickthroughChecked)
+                if (!isclickthroughChecked) {
+                    isclickthroughChecked = true;
                     isclickthrough = Window.IsClickThrough;
+                }
                 return isclickthrough;
             }
         }
@@ -189,8 +203,10 @@ namespace WinUtilities.Windows {
         private bool ischild;
         public bool IsChild {
             get {
-                if (!ischildChecked)
+                if (!ischildChecked) {
+                    ischildChecked = true;
                     ischild = Window.IsChild;
+                }
                 return ischild;
             }
         }
@@ -199,8 +215,10 @@ namespace WinUtilities.Windows {
         private bool ismax;
         public bool IsMaximized {
             get {
-                if (!ismaxChecked)
+                if (!ismaxChecked) {
+                    ismaxChecked = true;
                     ismax = Window.IsMaximized;
+                }
                 return ismax;
             }
         }
@@ -209,8 +227,10 @@ namespace WinUtilities.Windows {
         private bool ismin;
         public bool IsMinimized {
             get {
-                if (!isminChecked)
+                if (!isminChecked) {
+                    isminChecked = true;
                     ismin = Window.IsMinimized;
+                }
                 return ismin;
             }
         }
@@ -219,8 +239,10 @@ namespace WinUtilities.Windows {
         private bool isfull;
         public bool IsFullscreen {
             get {
-                if (!isfullChecked)
+                if (!isfullChecked) {
+                    isfullChecked = true;
                     isfull = Window.IsFullscreen;
+                }
                 return isfull;
             }
         }
@@ -229,8 +251,10 @@ namespace WinUtilities.Windows {
         private bool isborderless;
         public bool IsBorderless {
             get {
-                if (!isborderlessChecked)
+                if (!isborderlessChecked) {
+                    isborderlessChecked = true;
                     isborderless = Window.IsBorderless;
+                }
                 return isborderless;
             }
         }
@@ -239,8 +263,10 @@ namespace WinUtilities.Windows {
         private bool istoplevel;
         public bool IsTopLevel {
             get {
-                if (!istoplevelChecked)
+                if (!istoplevelChecked) {
+                    istoplevelChecked = true;
                     istoplevel = Window.IsTopLevel;
+                }
                 return istoplevel;
             }
         }
@@ -267,8 +293,10 @@ namespace WinUtilities.Windows {
         private bool hasregion;
         public bool HasRegion {
             get {
-                if (!hasregionChecked)
+                if (!hasregionChecked) {
+                    hasregionChecked = true;
                     hasregion = Window.HasRegion;
+                }
                 return hasregion;
             }
         }
@@ -277,8 +305,10 @@ namespace WinUtilities.Windows {
         private WinAPI.RegionType regiontype;
         public WinAPI.RegionType RegionType {
             get {
-                if (!regiontypeChecked)
+                if (!regiontypeChecked) {
+                    regiontypeChecked = true;
                     regiontype = Window.RegionType;
+                }
                 return regiontype;
             }
         }
@@ -294,8 +324,29 @@ namespace WinUtilities.Windows {
         #endregion
 
         #region other
-        public bool IsNone;
-        public bool IsValid;
+        private bool isnoneChecked;
+        private bool isnone;
+        public bool IsNone {
+            get {
+                if (!isnoneChecked) {
+                    isnoneChecked = true;
+                    isnone = Window.IsNone;
+                }
+                return isnone;
+            }
+        }
+
+        private bool isvalidChecked;
+        private bool isvalid;
+        public bool IsValid {
+            get {
+                if (!isvalidChecked) {
+                    isvalidChecked = true;
+                    isvalid = Window.IsValid;
+                }
+                return isvalid;
+            }
+        }
 
         private Window parent;
         public Window Parent {
@@ -357,8 +408,6 @@ namespace WinUtilities.Windows {
         /// <summary></summary>
         public WindowInfo(Window window) {
             Window = window;
-            IsNone = window.IsNone;
-            IsValid = window.IsValid;
         }
     }
 }
