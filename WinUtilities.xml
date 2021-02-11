@@ -2445,7 +2445,7 @@
         <member name="P:WinUtilities.KeyboardInput.IsMouse">
             <summary>Specifies if the event was a mouse key. Always false.</summary>
         </member>
-        <member name="M:WinUtilities.KeyboardInput.#ctor(System.IntPtr,WinUtilities.WinAPI.KBDLLHOOKSTRUCT)">
+        <member name="M:WinUtilities.KeyboardInput.#ctor(System.IntPtr,System.IntPtr)">
             <summary>Parse a new keyboard event from a hooked windows message</summary>
         </member>
         <member name="M:WinUtilities.KeyboardInput.ToString">
@@ -2475,7 +2475,7 @@
         <member name="P:WinUtilities.MouseInput.IsMouse">
             <summary>Specifies if the event was a mouse key. Always true.</summary>
         </member>
-        <member name="M:WinUtilities.MouseInput.#ctor(System.IntPtr,WinUtilities.WinAPI.MSLLHOOKSTRUCT)">
+        <member name="M:WinUtilities.MouseInput.#ctor(System.IntPtr,System.IntPtr)">
             <summary>Parse a new mouse event from a hooked windows message</summary>
         </member>
         <member name="M:WinUtilities.MouseInput.ToString">
@@ -2547,9 +2547,6 @@
         <member name="M:WinUtilities.EnhancedKey.IsMedia(WinUtilities.Key)">
             <summary>Check if the key is a media key</summary>
         </member>
-        <member name="M:WinUtilities.EnhancedKey.IsDuplicate(WinUtilities.Key)">
-            <summary>Check if the Key value is an alternate entry for a key</summary>
-        </member>
         <member name="M:WinUtilities.EnhancedKey.IsStateless(WinUtilities.Key)">
             <summary>Check if the key is stateless. Stateless keys have no up event.</summary>
         </member>
@@ -2594,9 +2591,6 @@
             <param name="key">The <see cref="T:WinUtilities.VKey"/> to cast into a <see cref="T:WinUtilities.ScanCode"/></param>
             <param name="extended">Set true to prioritize the extended version of the key (Example: Enter vs NumpadEnter). Returns non-extended version as fallback if not found and vice versa.</param>
         </member>
-        <member name="M:WinUtilities.EnhancedKey.AsOriginal(WinUtilities.Key)">
-            <summary>If the key is a duplicate, get the non-duplicate version. Otherwise return itself.</summary>
-        </member>
         <member name="M:WinUtilities.EnhancedKey.IsExtended(WinUtilities.ScanCode)">
             <summary>Check if the <see cref="T:WinUtilities.ScanCode"/> is an extended key</summary>
         </member>
@@ -2629,9 +2623,6 @@
         </member>
         <member name="F:WinUtilities.Key.F_Char">
             <summary>Flag for keys that produce visible characters</summary>
-        </member>
-        <member name="F:WinUtilities.Key.F_Duplicate">
-            <summary>Flag for duplicate keys</summary>
         </member>
         <member name="F:WinUtilities.Key.F_Stateless">
             <summary>Flag for stateless keys</summary>
@@ -3252,25 +3243,25 @@
             <summary>The handle of the window</summary>
         </member>
         <member name="P:WinUtilities.Window.Title">
-            <summary>The title of the window.</summary>
+            <summary>The title of the window</summary>
         </member>
         <member name="P:WinUtilities.Window.Class">
-            <summary>The class of the window.</summary>
+            <summary>The class of the window</summary>
         </member>
         <member name="P:WinUtilities.Window.Exe">
-            <summary>The name of this window's <see cref="T:System.Diagnostics.Process"/>' .exe file. The .exe part is excluded.</summary>
+            <summary>The name of this window's <see cref="T:System.Diagnostics.Process"/>' .exe file. The .exe part is excluded</summary>
         </member>
         <member name="P:WinUtilities.Window.ExePath">
-            <summary>The path of this window's exe file.</summary>
+            <summary>The path of this window's exe file</summary>
         </member>
         <member name="P:WinUtilities.Window.PID">
-            <summary>The process handle of this window's <see cref="T:System.Diagnostics.Process"/>.</summary>
+            <summary>The process handle of this window's <see cref="T:System.Diagnostics.Process"/></summary>
         </member>
         <member name="P:WinUtilities.Window.Process">
-            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to.</summary>
+            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to</summary>
         </member>
         <member name="P:WinUtilities.Window.ThreadID">
-            <summary>The ID of the system thread that spawned this window.</summary>
+            <summary>The ID of the system thread that spawned this window</summary>
         </member>
         <member name="P:WinUtilities.Window.IsVisible">
             <summary>Check if the window is not hidden</summary>
@@ -3333,16 +3324,16 @@
             <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
         </member>
         <member name="M:WinUtilities.Window.CalculateRealArea(System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area})">
-            <summary>Attempt at reusing area information because getting them is somewhat costly.</summary>
+            <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
         </member>
         <member name="P:WinUtilities.Window.Area">
-            <summary>A corrected version of the window's area.</summary>
+            <summary>A corrected version of the window's area</summary>
         </member>
         <member name="P:WinUtilities.Window.RawArea">
-            <summary>The area of the window as given by the OS.</summary>
+            <summary>The area of the window as given by the OS</summary>
         </member>
         <member name="P:WinUtilities.Window.ClientArea">
-            <summary>The client area of the window. Excludes the caption and the borders.</summary>
+            <summary>The client area of the window. Excludes the caption and the borders</summary>
         </member>
         <member name="P:WinUtilities.Window.BorderlessArea">
             <summary>The visible area of the window when in borderless mode</summary>
@@ -3695,6 +3686,12 @@
         </member>
         <member name="M:WinUtilities.Window.GetActiveHandle">
             <summary>Get the handle of the active window</summary>
+        </member>
+        <member name="T:WinUtilities.Windows.WindowInfo">
+            <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
+        </member>
+        <member name="M:WinUtilities.Windows.WindowInfo.#ctor(WinUtilities.Window)">
+            <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
         </member>
         <member name="T:WinUtilities.WinGroup">
             <summary>A match object that can have multiple match conditions</summary>

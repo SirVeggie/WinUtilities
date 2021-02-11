@@ -85,8 +85,7 @@ namespace WinUtilities {
         #region private
         private static IntPtr KeyboardCallback(int nCode, IntPtr wParam, IntPtr lParam) {
             if (nCode >= 0) {
-                var raw = (WinAPI.KBDLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof(WinAPI.KBDLLHOOKSTRUCT));
-                var input = new KeyboardInput(wParam, raw);
+                var input = new KeyboardInput(wParam, lParam);
 
                 if (InputEvent(input)) {
                     return BlockCode;
@@ -98,8 +97,7 @@ namespace WinUtilities {
 
         private static IntPtr MouseCallback(int nCode, IntPtr wParam, IntPtr lParam) {
             if (nCode >= 0) {
-                var raw = (WinAPI.MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof(WinAPI.MSLLHOOKSTRUCT));
-                var input = new MouseInput(wParam, raw);
+                var input = new MouseInput(wParam, lParam);
 
                 if (InputEvent(input)) {
                     return BlockCode;
@@ -169,7 +167,9 @@ namespace WinUtilities {
         public bool IsMouse { get; } = false;
 
         /// <summary>Parse a new keyboard event from a hooked windows message</summary>
-        public KeyboardInput(IntPtr wParam, WinAPI.KBDLLHOOKSTRUCT raw) {
+        public KeyboardInput(IntPtr wParam, IntPtr lParam) {
+            var raw = (WinAPI.KBDLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof(WinAPI.KBDLLHOOKSTRUCT));
+
             SC = (ScanCode) raw.scanCode;
 
             WM state = (WM) wParam;
@@ -213,7 +213,9 @@ namespace WinUtilities {
         public bool IsMouse { get; } = true;
 
         /// <summary>Parse a new mouse event from a hooked windows message</summary>
-        public MouseInput(IntPtr wParam, WinAPI.MSLLHOOKSTRUCT raw) {
+        public MouseInput(IntPtr wParam, IntPtr lParam) {
+            var raw = (WinAPI.MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof(WinAPI.MSLLHOOKSTRUCT));
+
             var res = Input.FromMouseEvent((WM) wParam, raw.mouseData);
 
             Key = res.Key;

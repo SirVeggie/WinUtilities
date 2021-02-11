@@ -53,8 +53,11 @@ namespace WinUtilities {
             var dict = new Dictionary<VKey, Key>();
 
             foreach (Key key in Enum.GetValues(typeof(Key))) {
-                if (!key.IsCustom() && key.IsKey() && !key.IsDuplicate() && !key.IsExtended()) {
-                    dict.Add(key.AsVirtualKey(), key);
+                if (!key.IsCustom() && key.IsKey() && !key.IsExtended()) {
+                    var vkey = key.AsVirtualKey();
+                    if (!dict.ContainsKey(vkey)) {
+                        dict.Add(vkey, key);
+                    }
                 }
             }
 
@@ -65,8 +68,11 @@ namespace WinUtilities {
             var dict = new Dictionary<VKey, Key>();
 
             foreach (Key key in Enum.GetValues(typeof(Key))) {
-                if (key.IsExtended() && !key.IsDuplicate()) {
-                    dict.Add(key.AsVirtualKey(), key);
+                if (key.IsExtended()) {
+                    var vkey = key.AsVirtualKey();
+                    if (dict.ContainsKey(vkey)) {
+                        dict.Add(vkey, key);
+                    }
                 }
             }
 
@@ -114,8 +120,6 @@ namespace WinUtilities {
         public static bool IsExtended(this Key key) => key.HasFlag(Key.F_Extended) && key.HasAny(Key.M_KeyMask);
         /// <summary>Check if the key is a media key</summary>
         public static bool IsMedia(this Key key) => key.HasFlag(Key.F_Media);
-        /// <summary>Check if the Key value is an alternate entry for a key</summary>
-        public static bool IsDuplicate(this Key key) => key.HasFlag(Key.F_Duplicate);
         /// <summary>Check if the key is stateless. Stateless keys have no up event.</summary>
         public static bool IsStateless(this Key key) => key.HasFlag(Key.F_Stateless);
         /// <summary>Check if the key is a toggleable key</summary>
@@ -178,12 +182,6 @@ namespace WinUtilities {
 
             throw new Exception("This virtual key is not defined in the Key enum.");
         }
-
-        /// <summary>If the key is a duplicate, get the non-duplicate version. Otherwise return itself.</summary>
-        public static Key AsOriginal(this Key key) {
-            if (!key.IsDuplicate()) return key;
-            return key ^ Key.F_Duplicate;
-        }
         #endregion
 
         private static ushort scMask = 0xFF00;
@@ -215,8 +213,6 @@ namespace WinUtilities {
         F_Media = F_Custom << 7,
         /// <summary>Flag for keys that produce visible characters</summary>
         F_Char = F_Custom << 8,
-        /// <summary>Flag for duplicate keys</summary>
-        F_Duplicate = F_Custom << 9,
         /// <summary>Flag for stateless keys</summary>
         F_Stateless = F_Custom << 10,
         /// <summary>Flag for toggle keys</summary>
@@ -394,7 +390,7 @@ namespace WinUtilities {
         /// <summary>Context menu key</summary>
         App = VKey.APPS,
         /// <summary>Context menu key</summary>
-        Context = App | F_Duplicate,
+        Context = App,
 
         /// <summary>Print screen key</summary>
         PrintScrn = VKey.SNAPSHOT | F_Extended,
@@ -453,20 +449,20 @@ namespace WinUtilities {
         /// <summary>The &lt; key</summary>
         Less = VKey.OEM_102 | F_Char,
 
-        OEM_1 = Umlaut | F_Duplicate,
-        OEM_2 = Apostrophe | F_Duplicate,
-        OEM_3 = Ö | F_Duplicate,
-        OEM_4 = tilde | F_Duplicate,
-        OEM_5 = Section | F_Duplicate,
-        OEM_6 = Å | F_Duplicate,
-        OEM_7 = Ä | F_Duplicate,
+        OEM_1 = Umlaut,
+        OEM_2 = Apostrophe,
+        OEM_3 = Ö,
+        OEM_4 = tilde,
+        OEM_5 = Section,
+        OEM_6 = Å,
+        OEM_7 = Ä,
         OEM_8 = VKey.OEM_8,
-        OEM_102 = Less | F_Duplicate,
+        OEM_102 = Less,
         OEM_Clear = VKey.OEM_CLEAR,
-        OEM_Plus = Plus | F_Duplicate,
-        OEM_Minus = Minus | F_Duplicate,
-        OEM_Comma = Comma | F_Duplicate,
-        OEM_Period = Period | F_Duplicate,
+        OEM_Plus = Plus,
+        OEM_Minus = Minus,
+        OEM_Comma = Comma,
+        OEM_Period = Period,
 
         // Other //
 

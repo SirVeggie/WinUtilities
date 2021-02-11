@@ -405,7 +405,7 @@ namespace WinUtilities.Windows {
         public WinMatch AsMatch => Window.AsMatch;
         #endregion
 
-        /// <summary></summary>
+        /// <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
         public WindowInfo(Window window) {
             Window = window;
         }
