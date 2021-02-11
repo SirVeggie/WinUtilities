@@ -70,7 +70,7 @@ namespace WinUtilities {
             foreach (Key key in Enum.GetValues(typeof(Key))) {
                 if (key.IsExtended()) {
                     var vkey = key.AsVirtualKey();
-                    if (dict.ContainsKey(vkey)) {
+                    if (!dict.ContainsKey(vkey)) {
                         dict.Add(vkey, key);
                     }
                 }
@@ -83,7 +83,10 @@ namespace WinUtilities {
             var toKey = new Dictionary<string, Key>();
 
             foreach (Key key in Enum.GetValues(typeof(Key))) {
-                toKey.Add(key.ToString().ToLower(), key);
+                var s = key.ToString().ToLower();
+                if (!toKey.ContainsKey(s)) {
+                    toKey.Add(s, key);
+                }
             }
 
             return toKey;
