@@ -5,6 +5,8 @@ The project is made with C# .NET Standard 2.0.
 
 The project is only tested to work on Windows 10, but it should work on earlier versions as well.
 
+Currently the project is still in an alpha-like state so some breaking changes are to be expected, so beware.
+
 ## Core idea
 
 The wrapper contains some user32, gdi32 etc... API calls as well as structs and enums that were necessary while implementing the features of the project.
