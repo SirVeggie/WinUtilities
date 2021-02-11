@@ -100,6 +100,9 @@
         <member name="P:WinUtilities.Area.Edges">
             <summary>Returns a list of the edges' center positions in order of [Left, Right, Top, Bottom]</summary>
         </member>
+        <member name="P:WinUtilities.Area.Magnitude">
+            <summary>A 4D vector-like magnitude</summary>
+        </member>
         <member name="P:WinUtilities.Area.TopLeft">
             <summary>Get or set the Top Left corner of the area.</summary>
         </member>
@@ -252,6 +255,12 @@
         <member name="M:WinUtilities.Area.Mutual(WinUtilities.Area,WinUtilities.Area)">
             <summary>Takes the mutual area between two areas.</summary>
         </member>
+        <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,System.Double)">
+            <summary>Lerp to target area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,WinUtilities.Area,System.Double)">
+            <summary>Lerp between two areas</summary>
+        </member>
         <member name="T:WinUtilities.Coord">
             <summary>
             Has coordinate (point), vector and rectangle (size) properties.
@@ -336,6 +345,12 @@
         </member>
         <member name="M:WinUtilities.Coord.ClampLinear(WinUtilities.Coord,WinUtilities.Coord)">
             <summary>Clamp this point to a line between the given points</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,System.Double)">
+            <summary>Lerp to the target coordinate</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,WinUtilities.Coord,System.Double)">
+            <summary>Lerp between two coordinates</summary>
         </member>
         <member name="T:WinUtilities.WM">
             <summary>Enum of all Window Messages.</summary>
@@ -2633,6 +2648,9 @@
         <member name="F:WinUtilities.Key.F_Toggle">
             <summary>Flag for toggle keys</summary>
         </member>
+        <member name="F:WinUtilities.Key.F_Special">
+            <summary>Flag for keys that are out of the norm somehow</summary>
+        </member>
         <member name="F:WinUtilities.Key.Shift">
             <summary>Flag for shift keys</summary>
         </member>
@@ -2651,8 +2669,8 @@
         <member name="F:WinUtilities.Key.M_KeyMask">
             <summary>Mask for the Virtual Key</summary>
         </member>
-        <member name="F:WinUtilities.Key.Undefined">
-            <summary>Key is undefined</summary>
+        <member name="F:WinUtilities.Key.NoMapping">
+            <summary>This key doesn't (shouldn't) do anything</summary>
         </member>
         <member name="F:WinUtilities.Key.LButton">
             <summary>Left mouse button</summary>
@@ -2776,6 +2794,12 @@
         </member>
         <member name="F:WinUtilities.Key.Less">
             <summary>The &lt; key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.None">
+            <summary>This represents a key that does not exist</summary>
+        </member>
+        <member name="F:WinUtilities.Key.Unknown">
+            <summary>This represents a key that was not recognized</summary>
         </member>
         <member name="F:WinUtilities.Key.WheelLeft">
             <summary>Mouse wheel left</summary>

@@ -219,9 +219,11 @@ namespace WinUtilities {
         /// <summary>Flag for keys that produce visible characters</summary>
         F_Char = F_Custom << 8,
         /// <summary>Flag for stateless keys</summary>
-        F_Stateless = F_Custom << 10,
+        F_Stateless = F_Custom << 9,
         /// <summary>Flag for toggle keys</summary>
-        F_Toggle = F_Custom << 11,
+        F_Toggle = F_Custom << 10,
+        /// <summary>Flag for keys that are out of the norm somehow</summary>
+        F_Special = F_Custom << 11,
 
         /// <summary>Flag for shift keys</summary>
         Shift = F_Custom << 20 | F_Modifier,
@@ -238,6 +240,9 @@ namespace WinUtilities {
         M_KeyMask = 0xFF,
 
         // -------------------------- //
+
+        /// <summary>This key doesn't (shouldn't) do anything</summary>
+        NoMapping = 0xFF | F_Special,
 
         /// <summary>Left mouse button</summary>
         LButton = VKey.LBUTTON | F_Mouse,

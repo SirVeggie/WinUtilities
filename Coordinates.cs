@@ -584,6 +584,11 @@ namespace WinUtilities {
             res.BottomR = Math.Min(a.Bottom, b.Bottom);
             return res;
         }
+
+        /// <summary>Lerp to target area</summary>
+        public Area Lerp(Area target, double t) => Lerp(this, target, t);
+        /// <summary>Lerp between two areas</summary>
+        public static Area Lerp(Area from, Area to, double t) => new Area(from.Point.Lerp(to.Point, t), from.Size.Lerp(to.Size, t));
         #endregion
     }
 
@@ -773,6 +778,12 @@ namespace WinUtilities {
                 return proj;
             }
         }
+
+        /// <summary>Lerp to the target coordinate</summary>
+        public Coord Lerp(Coord target, double t) => Lerp(this, target, t);
+
+        /// <summary>Lerp between two coordinates</summary>
+        public static Coord Lerp(Coord a, Coord b, double t) => new Coord(a.X * (1 - t) + b.X * t, a.Y * (1 - t) + b.Y * t);
 
         public Coord ProjectToLine(Coord point1, Coord point2) {
             throw new NotImplementedException();
