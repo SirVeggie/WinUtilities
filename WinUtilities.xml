@@ -3656,18 +3656,16 @@
             <param name="hidden">Include hidden windows.</param>
         </member>
         <member name="M:WinUtilities.Window.GetWindows(WinUtilities.IMatchObject,System.Boolean)">
-            <summary>Find all windows that match the criteria.</summary>
-            <param name="match">Null to match all windows.</param>
-            <param name="hidden">Include hidden windows.</param>
+            <summary>Find all windows that match the criteria</summary>
+            <param name="match">Null to match all windows</param>
+            <param name="hidden">Include hidden windows</param>
         </member>
-        <member name="M:WinUtilities.Window.GetDesktopWindows(System.Boolean)">
-            <summary>Find all windows that match the criteria on current virtual desktop.</summary>
-            <param name="hidden">Include hidden windows.</param>
+        <member name="M:WinUtilities.Window.GetDesktopWindows">
+            <summary>Find all windows on the current virtual desktop</summary>
         </member>
-        <member name="M:WinUtilities.Window.GetDesktopWindows(WinUtilities.IMatchObject,System.Boolean)">
-            <summary>Find all windows that match the criteria on current virtual desktop.</summary>
-            <param name="match">Null to match all windows.</param>
-            <param name="hidden">Include hidden windows.</param>
+        <member name="M:WinUtilities.Window.GetDesktopWindows(WinUtilities.IMatchObject)">
+            <summary>Find all windows that match the criteria on the current virtual desktop</summary>
+            <param name="match">Null to match all windows</param>
         </member>
         <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
             <summary>Get the handle of the topmost window of the given point.</summary>

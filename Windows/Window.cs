@@ -42,7 +42,7 @@ namespace WinUtilities {
     [DataContract]
     public class Window {
 
-        /// <summary>The handle of the window.</summary>
+        /// <summary>The handle of the window</summary>
         [DataMember]
         public WinHandle Hwnd { get; set; }
         private Process process;
@@ -191,7 +191,7 @@ namespace WinUtilities {
         public bool HasRegion => WinAPI.GetWindowRgnBox(Hwnd.Raw, out _) != WinAPI.RegionType.Error;
         /// <summary>Check the type of the region</summary>
         public WinAPI.RegionType RegionType => WinAPI.GetWindowRgnBox(Hwnd.Raw, out _);
-        /// <summary>Get the bounding area of the current region. Relative to raw window coordinates.</summary>
+        /// <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
         public Area RegionBounds {
             get {
                 if (WinAPI.GetWindowRgnBox(Hwnd.Raw, out WinAPI.RECT rect) != WinAPI.RegionType.Error)
@@ -300,23 +300,23 @@ namespace WinUtilities {
 
         /// <summary>A window object that doesn't point to any window</summary>
         public static Window None => new Window(IntPtr.Zero);
-        /// <summary>Retrieves the active window.</summary>
+        /// <summary>Retrieves the active window</summary>
         public static Window Active => new Window(GetActiveHandle());
-        /// <summary>Retrieves the first window under the mouse.</summary>
+        /// <summary>Retrieves the first window under the mouse</summary>
         public static Window FromMouse => FromPoint(Mouse.Position);
-        /// <summary>Retrieves the current process's windows.</summary>
+        /// <summary>Retrieves the current process's windows</summary>
         public static List<Window> This => GetWindows(new WinMatch(pid: (uint) Process.GetCurrentProcess().Id), true);
 
-        /// <summary>The parent of the window.</summary>
+        /// <summary>The parent of the window</summary>
         public Window Parent => new Window(WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWLP_HWNDPARENT));
-        /// <summary>The topmost window in the window's parent chain.</summary>
+        /// <summary>The topmost window in the window's parent chain</summary>
         public Window Ancestor => new Window(WinAPI.GetAncestor(Hwnd.Raw, WinAPI.AncestorFlags.GetRoot));
-        /// <summary>The topmost window in the window's parent chain on a deeper level than <see cref="Ancestor"/>.</summary>
+        /// <summary>The topmost window in the window's parent chain on a deeper level than <see cref="Ancestor"/></summary>
         public Window Owner => new Window(WinAPI.GetAncestor(Hwnd.Raw, WinAPI.AncestorFlags.GetRootOwner));
         /// <summary>Retrieves all window of the same process.</summary>
         public List<Window> Siblings => GetWindows(new WinMatch(pid: PID), true);
 
-        /// <summary>Handle of the <see cref="WinUtilities.Monitor"/> the window is on.</summary>
+        /// <summary>Handle of the <see cref="WinUtilities.Monitor"/> the window is on</summary>
         public Monitor Monitor => Monitor.FromWindow(this);
         /// <summary>Get the id of the virtual desktop the window is on</summary>
         public Guid Desktop => SimpleDesktop.GetDesktopID(this);
@@ -967,44 +967,42 @@ namespace WinUtilities {
         #region static
 
         #region find
-        /// <summary>Find a window that matches the given description.</summary>
+        /// <summary>Find a window that matches the given description</summary>
         public static Window Find(IMatchObject match, bool hidden = false) {
             var win = GetWindows(match, hidden).FirstOrDefault();
             return win ?? None;
         }
 
-        /// <summary>Find a window that matches the given title.</summary>
+        /// <summary>Find a window that matches the given title</summary>
         public static Window Find(string title, bool hidden = false) => Find(new WinMatch(title: title), hidden);
-        /// <summary>Find a window that matches the given .exe name.</summary>
+        /// <summary>Find a window that matches the given .exe name</summary>
         public static Window FindByExe(string exe, bool hidden = false) => Find(new WinMatch(exe: exe), hidden);
-        /// <summary>Find a window that matches the given class.</summary>
+        /// <summary>Find a window that matches the given class</summary>
         public static Window FindByClass(string className, bool hidden = false) => Find(new WinMatch(className: className), hidden);
         /// <summary>Find a window whose process's id matches the given id</summary>
         public static Window FindByPid(uint pid, bool hidden = false) => Find(new WinMatch(pid: pid), hidden);
         #endregion
 
         #region get windows
-        /// <summary>Find all windows. Includes hidden windows.</summary>
+        /// <summary>Find all windows. Includes hidden windows</summary>
         public static List<Window> GetAllWindows() => GetWindows(hidden: true);
 
-        /// <summary>Find all windows that match the criteria.</summary>
-        /// <param name="hidden">Include hidden windows.</param>
+        /// <summary>Find all windows that match the criteria</summary>
+        /// <param name="hidden">Include hidden windows</param>
         public static List<Window> GetWindows(bool hidden = false) => GetWindows(null, hidden);
 
-        /// <summary>Find all windows that match the criteria.</summary>
-        /// <param name="match">Null to match all windows.</param>
-        /// <param name="hidden">Include hidden windows.</param>
+        /// <summary>Find all windows that match the criteria</summary>
+        /// <param name="match">Null to match all windows</param>
+        /// <param name="hidden">Include hidden windows</param>
         public static List<Window> GetWindows(IMatchObject match, bool hidden = false) => GetWindows(match, hidden, true);
 
 
-        /// <summary>Find all windows that match the criteria on current virtual desktop.</summary>
-        /// <param name="hidden">Include hidden windows.</param>
-        public static List<Window> GetDesktopWindows(bool hidden = false) => GetWindows(null, hidden, false);
+        /// <summary>Find all windows on the current virtual desktop</summary>
+        public static List<Window> GetDesktopWindows() => GetWindows(null, false, false);
 
-        /// <summary>Find all windows that match the criteria on current virtual desktop.</summary>
-        /// <param name="match">Null to match all windows.</param>
-        /// <param name="hidden">Include hidden windows.</param>
-        public static List<Window> GetDesktopWindows(IMatchObject match, bool hidden = false) => GetWindows(match, hidden, false);
+        /// <summary>Find all windows that match the criteria on the current virtual desktop</summary>
+        /// <param name="match">Null to match all windows</param>
+        public static List<Window> GetDesktopWindows(IMatchObject match) => GetWindows(match, false, false);
 
         private static List<Window> GetWindows(IMatchObject match, bool hidden, bool otherDesktops) {
             var windows = new List<Window>();
@@ -1031,18 +1029,18 @@ namespace WinUtilities {
             return true;
         }
 
-        /// <summary>Get the handle of the topmost window of the given point.</summary>
+        /// <summary>Get the handle of the topmost window of the given point</summary>
         public static Window FromPoint(int x, int y) => FromPoint(new Coord(x, y));
 
-        /// <summary>Get the handle of the topmost window of the given point.</summary>
+        /// <summary>Get the handle of the topmost window of the given point</summary>
         public static Window FromPoint(Coord point) => new Window(WinAPI.WindowFromPoint(point)).Ancestor;
         #endregion
 
         #region winwait
-        /// <summary>Wait for a matching window to exist.</summary>
+        /// <summary>Wait for a matching window to exist</summary>
         /// <param name="match">Set what kind of window to wait for</param>
         /// <param name="timeout">Time until the wait fails</param>
-        /// <param name="ignoreCurrent">If true, only new windows will be considered.</param>
+        /// <param name="ignoreCurrent">If true, only new windows will be considered</param>
         /// <param name="checkDelay">Set how often the windows are scanned for the target window</param>
         public static async Task<Window> Wait(IMatchObject match, long? timeout = null, bool ignoreCurrent = true, int checkDelay = 10) {
             var watch = Stopwatch.StartNew();
@@ -1068,10 +1066,10 @@ namespace WinUtilities {
             return null;
         }
 
-        /// <summary>Wait for a matching window to become active.</summary>
+        /// <summary>Wait for a matching window to become active</summary>
         /// <param name="match">Set what kind of window to wait for</param>
         /// <param name="timeout">Time until the wait fails</param>
-        /// <param name="ignoreCurrent">If true, only new windows will be considered.</param>
+        /// <param name="ignoreCurrent">If true, only new windows will be considered</param>
         /// <param name="checkDelay">Set how often the active window is checked for the target window</param>
         public static async Task<Window> WaitActive(IMatchObject match, long? timeout = null, bool ignoreCurrent = true, int checkDelay = 10) {
             var watch = Stopwatch.StartNew();
@@ -1093,12 +1091,12 @@ namespace WinUtilities {
         }
         #endregion
 
-        /// <summary>Check if a window with the specified handle exists.</summary>
+        /// <summary>Check if a window with the specified handle exists</summary>
         private static bool HwndExists(WinHandle hwnd) => WinAPI.IsWindow(hwnd.Raw);
-        /// <summary>Check if a window with the specified handle is active.</summary>
+        /// <summary>Check if a window with the specified handle is active</summary>
         private static bool HwndActive(WinHandle hwnd) => hwnd == GetActiveHandle();
 
-        /// <summary>Get the handle of the active window.</summary>
+        /// <summary>Get the handle of the active window</summary>
         private static WinHandle GetActiveHandle() => new WinHandle(WinAPI.GetForegroundWindow());
 
         #endregion
