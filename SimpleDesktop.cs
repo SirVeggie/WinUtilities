@@ -5,6 +5,19 @@ using System.Text;
 
 namespace WinUtilities {
 
+    /* Functionality missing for full virtual desktop control:
+     * 
+     * Create desktop
+     * Close desktop
+     * Switch to desktop
+     * 
+     * Pin/unpin/check window
+     * Pin/unpin/check process
+     * 
+     * Enumerate desktops
+     * Get current desktop
+     */
+
     internal static class SimpleDesktop {
         private static IVirtualDesktopManager manager = (IVirtualDesktopManager) new VirtualDesktopManager();
 

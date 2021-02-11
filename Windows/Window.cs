@@ -59,7 +59,7 @@ namespace WinUtilities {
         #region properties
 
         #region basic
-        /// <summary>The title of the window.</summary>
+        /// <summary>The title of the window</summary>
         public string Title {
             get {
                 int length = WinAPI.GetWindowTextLength(Hwnd.Raw);
@@ -69,7 +69,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The class of the window.</summary>
+        /// <summary>The class of the window</summary>
         public string Class {
             get {
                 while (@class == null)
@@ -78,7 +78,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The name of this window's <see cref="System.Diagnostics.Process"/>' .exe file. The .exe part is excluded.</summary>
+        /// <summary>The name of this window's <see cref="System.Diagnostics.Process"/>' .exe file. The .exe part is excluded</summary>
         public string Exe {
             get {
                 if (exe == null) {
@@ -90,7 +90,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The path of this window's exe file.</summary>
+        /// <summary>The path of this window's exe file</summary>
         public string ExePath {
             get {
                 while (exepath == null)
@@ -99,7 +99,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The process handle of this window's <see cref="System.Diagnostics.Process"/>.</summary>
+        /// <summary>The process handle of this window's <see cref="System.Diagnostics.Process"/></summary>
         public uint PID {
             get {
                 while (pid == 0)
@@ -108,7 +108,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The <see cref="System.Diagnostics.Process"/> this window belongs to.</summary>
+        /// <summary>The <see cref="System.Diagnostics.Process"/> this window belongs to</summary>
         public Process Process {
             get {
                 if (process == null)
@@ -117,7 +117,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The ID of the system thread that spawned this window.</summary>
+        /// <summary>The ID of the system thread that spawned this window</summary>
         public int ThreadID {
             get {
                 if (threadID == 0)
@@ -202,7 +202,7 @@ namespace WinUtilities {
         #endregion
 
         #region positions
-        /// <summary>Attempt at reusing area information because getting them is somewhat costly.</summary>
+        /// <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
         private Area CalculateRealArea(Area? raw = null, Area? client = null, Area? region = null) {
             if (IsMaximized) {
                 return Monitor.Area;
@@ -229,7 +229,7 @@ namespace WinUtilities {
             return realRegion.AddPoint(realRaw);
         }
 
-        /// <summary>A corrected version of the window's area.</summary>
+        /// <summary>A corrected version of the window's area</summary>
         public Area Area {
             get {
                 return CalculateRealArea();
@@ -248,7 +248,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The area of the window as given by the OS.</summary>
+        /// <summary>The area of the window as given by the OS</summary>
         public Area RawArea {
             get {
                 WinAPI.RECT rect = new WinAPI.RECT();
@@ -261,7 +261,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>The client area of the window. Excludes the caption and the borders.</summary>
+        /// <summary>The client area of the window. Excludes the caption and the borders</summary>
         public Area ClientArea {
             get {
                 WinAPI.POINT point = new WinAPI.POINT();
