@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-namespace WinUtilities.Windows {
+namespace WinUtilities {
 
     /// <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
     public class WindowInfo {

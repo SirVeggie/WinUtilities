@@ -123,6 +123,7 @@ namespace WinUtilities {
         #endregion
     }
 
+    #region input objects
     /// <summary>Interface that represents keyboard or mouse input</summary>
     public interface IDeviceInput {
         /// <summary>The inputted key</summary>
@@ -233,4 +234,5 @@ namespace WinUtilities {
                 + " Scroll: " + Key.IsScroll() + " Injected: " + Injected + " Extra: " + ExtraInfo + "}";
         }
     }
+    #endregion
 }
