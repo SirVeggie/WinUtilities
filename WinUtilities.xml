@@ -3366,10 +3366,10 @@
             <summary>The visible area of the window when in borderless mode</summary>
         </member>
         <member name="P:WinUtilities.Window.IsNone">
-            <summary>The object points to nothing</summary>
+            <summary>Check if the hwnd is zero meaning it points to nothing</summary>
         </member>
         <member name="P:WinUtilities.Window.IsValid">
-            <summary>The object points to a real window</summary>
+            <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the exe name.</summary>
         </member>
         <member name="P:WinUtilities.Window.BorderlessSettings">
             <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
@@ -3714,10 +3714,10 @@
         <member name="M:WinUtilities.Window.GetActiveHandle">
             <summary>Get the handle of the active window</summary>
         </member>
-        <member name="T:WinUtilities.Windows.WindowInfo">
+        <member name="T:WinUtilities.WindowInfo">
             <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
         </member>
-        <member name="M:WinUtilities.Windows.WindowInfo.#ctor(WinUtilities.Window)">
+        <member name="M:WinUtilities.WindowInfo.#ctor(WinUtilities.Window)">
             <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
         </member>
         <member name="T:WinUtilities.WinGroup">

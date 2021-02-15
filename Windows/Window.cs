@@ -72,8 +72,11 @@ namespace WinUtilities {
         /// <summary>The class of the window</summary>
         public string Class {
             get {
-                while (@class == null)
+                if (@class == null) {
                     @class = WinAPI.GetClassFromHwnd(Hwnd.Raw);
+                    if (@class == null) return "";
+                }
+
                 return @class;
             }
         }
@@ -82,7 +85,8 @@ namespace WinUtilities {
         public string Exe {
             get {
                 if (exe == null) {
-                    var s = ExePath.Split('\\').Last().Split('.');
+                    var s = ExePath?.Split('\\').Last().Split('.');
+                    if (s == null) return "";
                     exe = string.Join(".", s.Take(s.Length - 1));
                 }
 
@@ -93,8 +97,11 @@ namespace WinUtilities {
         /// <summary>The path of this window's exe file</summary>
         public string ExePath {
             get {
-                while (exepath == null)
+                if (exepath == null) {
                     exepath = WinAPI.GetPathFromPid(PID);
+                    if (exepath == null) return "";
+                }
+
                 return exepath;
             }
         }
@@ -102,7 +109,7 @@ namespace WinUtilities {
         /// <summary>The process handle of this window's <see cref="System.Diagnostics.Process"/></summary>
         public uint PID {
             get {
-                while (pid == 0)
+                if (pid == 0)
                     pid = WinAPI.GetPidFromHwnd(Hwnd.Raw);
                 return pid;
             }
@@ -290,10 +297,10 @@ namespace WinUtilities {
         }
         #endregion
 
-        /// <summary>The object points to nothing</summary>
+        /// <summary>Check if the hwnd is zero meaning it points to nothing</summary>
         public bool IsNone => Hwnd.IsZero;
-        /// <summary>The object points to a real window</summary>
-        public bool IsValid => Hwnd.IsValid;
+        /// <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the exe name.</summary>
+        public bool IsValid => Hwnd.IsValid && Exists && Exe == new Window(Hwnd).Exe;
 
         /// <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
         public static List<BorderlessInfo> BorderlessSettings { get; set; } = new List<BorderlessInfo>();
@@ -1006,7 +1013,7 @@ namespace WinUtilities {
 
         private static List<Window> GetWindows(IMatchObject match, bool hidden, bool otherDesktops) {
             var windows = new List<Window>();
-
+            
             if (WinAPI.EnumWindows(Collector, IntPtr.Zero))
                 return windows;
             return new List<Window>();
