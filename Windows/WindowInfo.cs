@@ -12,6 +12,8 @@ namespace WinUtilities {
         public Window Window { get; }
 
         #region basic
+        public WinHandle Hwnd => Window.Hwnd;
+
         private string title;
         public string Title {
             get {

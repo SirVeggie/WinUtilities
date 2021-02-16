@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace WinUtilities {
 
@@ -18,14 +19,21 @@ namespace WinUtilities {
     [DataContract]
     public struct WinMatch : IMatchObject {
 
-        #region properties
         private string _title;
         private string _class;
         private string _exe;
 
+        private Regex rTitle;
+        private Regex rClass;
+        private Regex rExe;
+
+        private static readonly RegexOptions rOptions = RegexOptions.IgnoreCase;
+
+        #region properties
         /// <summary>Matched window handle</summary>
         [DataMember]
         public WinHandle? Hwnd { get; set; }
+
         /// <summary>Matched window title</summary>
         [DataMember]
         public string Title {
@@ -35,6 +43,7 @@ namespace WinUtilities {
                 rTitle = new Regex(value ?? "", rOptions);
             }
         }
+
         /// <summary>Matched window class</summary>
         [DataMember]
         public string Class {
@@ -44,6 +53,7 @@ namespace WinUtilities {
                 rClass = new Regex(value ?? "", rOptions);
             }
         }
+
         /// <summary>Matched window exe</summary>
         [DataMember]
         public string Exe {
@@ -53,9 +63,14 @@ namespace WinUtilities {
                 rExe = new Regex(value ?? "", rOptions);
             }
         }
+
         /// <summary>Matched window process id</summary>
         [DataMember]
         public uint PID { get; set; }
+
+        /// <summary>Matched desktop guid</summary>
+        [DataMember]
+        public Guid Desktop { get; set; }
 
         /// <summary>Reverse the result of the match</summary>
         [DataMember]
@@ -75,21 +90,16 @@ namespace WinUtilities {
         /// <summary>Specifies how the strings are matched</summary>
         [DataMember]
         public WinMatchType Type { get; set; }
-
-        private Regex rTitle;
-        private Regex rClass;
-        private Regex rExe;
-
-        private static readonly RegexOptions rOptions = RegexOptions.IgnoreCase;
         #endregion
 
         /// <summary>Create a new match condition</summary>
-        public WinMatch(WinHandle? hwnd = null, string title = null, string className = null, string exe = null, uint pid = 0, WinMatchType type = WinMatchType.RegEx) {
+        public WinMatch(WinHandle? hwnd = null, string title = null, string className = null, string exe = null, uint pid = 0, Guid desktop = default, WinMatchType type = WinMatchType.RegEx) {
             Hwnd = hwnd;
             _title = title;
             _class = className;
             _exe = exe;
             PID = pid;
+            Desktop = desktop;
 
             IsReverse = false;
             Type = type;
@@ -104,12 +114,62 @@ namespace WinUtilities {
             return Match(Hwnd != null ? (WinHandle?) win.Hwnd : null, Title != null ? win.Title : null, Class != null ? win.Class : null, Exe != null ? win.Exe : null, PID != 0 ? win.PID : 0);
         }
 
+        /// <summary>Check if the given info matches</summary>
+        public bool Match(WindowInfo info) {
+            bool result = (Hwnd == null || Hwnd == info.Hwnd)
+                       && (Title == null || MatchSingle(info.Title, Title, rTitle))
+                       && (Class == null || MatchSingle(info.Class, Class, rClass))
+                       && (PID == 0 || PID == info.PID)
+                       && (Exe == null || MatchSingle(info.Exe, Exe, rExe))
+                       && (Desktop == Guid.Empty || Desktop == info.Desktop);
+            return IsReverse ^ result;
+        }
+
         /// <summary>Check if the given properties match</summary>
         public bool Match(WinHandle? hwnd, string title, string className, string exe, uint pid) {
             if (IsReverse)
                 return !(!MatchHwnd(hwnd) && !MatchTitle(title) && !MatchClass(className) && !MatchExe(exe) && !MatchPID(pid));
             return MatchHwnd(hwnd) && MatchTitle(title) && MatchClass(className) && MatchExe(exe) && MatchPID(pid);
         }
+
+        #region actions
+        /// <summary>Perform an action on all matching windows</summary>
+        public void ForAll(Action<Window> action, bool hidden = false) {
+            var windows = Window.GetWindows(this, hidden);
+
+            foreach (var win in windows) {
+                action(win);
+            }
+        }
+
+        /// <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
+        /// <returns>True if all found windows were enumerated</returns>
+        public bool ForAll(Func<Window, bool> action, bool hidden = false) {
+            var windows = Window.GetWindows(this, hidden);
+
+            foreach (var win in windows) {
+                if (!action(win)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
+        /// <returns>True if all found windows were enumerated</returns>
+        public async Task<bool> ForAll(Func<Window, Task<bool>> action, bool hidden = false) {
+            var windows = Window.GetWindows(this, hidden);
+
+            foreach (var win in windows) {
+                if (!await action(win)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        #endregion
 
         #region single matching
         /// <summary>Check if the window handle matches</summary>

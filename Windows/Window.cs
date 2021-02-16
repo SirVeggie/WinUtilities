@@ -975,19 +975,29 @@ namespace WinUtilities {
 
         #region find
         /// <summary>Find a window that matches the given description</summary>
-        public static Window Find(IMatchObject match, bool hidden = false) {
-            var win = GetWindows(match, hidden).FirstOrDefault();
-            return win ?? None;
+        public static Window Find(IMatchObject match, bool hidden = false, bool otherDesktops = true) {
+            Window found = None;
+            WinAPI.EnumWindows(Collector, IntPtr.Zero);
+            return found;
+
+            bool Collector(IntPtr hwnd, int lParam) {
+                Window win = new Window(hwnd);
+
+                if (!MatchFilter(win, match, hidden, otherDesktops)) return true;
+
+                found = win;
+                return false;
+            }
         }
 
         /// <summary>Find a window that matches the given title</summary>
-        public static Window Find(string title, bool hidden = false) => Find(new WinMatch(title: title), hidden);
+        public static Window Find(string title, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(title: title), hidden, otherDesktops);
         /// <summary>Find a window that matches the given .exe name</summary>
-        public static Window FindByExe(string exe, bool hidden = false) => Find(new WinMatch(exe: exe), hidden);
+        public static Window FindByExe(string exe, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(exe: exe), hidden, otherDesktops);
         /// <summary>Find a window that matches the given class</summary>
-        public static Window FindByClass(string className, bool hidden = false) => Find(new WinMatch(className: className), hidden);
+        public static Window FindByClass(string className, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(className: className), hidden, otherDesktops);
         /// <summary>Find a window whose process's id matches the given id</summary>
-        public static Window FindByPid(uint pid, bool hidden = false) => Find(new WinMatch(pid: pid), hidden);
+        public static Window FindByPid(uint pid, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(pid: pid), hidden, otherDesktops);
         #endregion
 
         #region get windows
