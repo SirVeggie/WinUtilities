@@ -390,6 +390,7 @@ namespace WinUtilities {
         RWin = VKey.RWIN | Win,
 
         Enter = VKey.RETURN | F_Char,
+        Return = Enter,
         Space = VKey.SPACE | F_Char,
         Tab = VKey.TAB | F_Char,
         Backspace = VKey.BACK,
@@ -408,6 +409,8 @@ namespace WinUtilities {
         Delete = VKey.DELETE | F_Extended,
         PageUp = VKey.PRIOR | F_Extended,
         PageDown = VKey.NEXT | F_Extended,
+        PgUp = PageUp,
+        PgDn = PageDown,
 
         /// <summary>The general back key</summary>
         BrowserBack = VKey.BROWSER_BACK,

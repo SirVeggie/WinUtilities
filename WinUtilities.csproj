@@ -23,7 +23,7 @@ The wrapper is mainly centered around the Window class, since in Windows automat
 
 The project is only tested to work on Windows 10, but it should work on earlier versions as well.
 The project is also still under development so later versions can contain breaking changes.</Description>
-    <PackageReleaseNotes>Fixed bug when getting hidden windows while targeting exe name resulting in an infinite loop</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed WinGroup blacklist</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

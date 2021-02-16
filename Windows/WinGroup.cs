@@ -93,7 +93,7 @@ namespace WinUtilities {
 
         private bool MatchList(List<IMatchObject> list, WinHandle? hwnd, string title, string className, string exe, uint pid) {
             for (int i = 0; i < list.Count; i++) {
-                if (Whitelist[i].Match(hwnd, title, className, exe, pid)) {
+                if (list[i].Match(hwnd, title, className, exe, pid)) {
                     return true;
                 }
             }
