@@ -2780,7 +2780,7 @@
         <member name="F:WinUtilities.Key.Ö">
             <summary>The Ö key</summary>
         </member>
-        <member name="F:WinUtilities.Key.tilde">
+        <member name="F:WinUtilities.Key.Tilde">
             <summary>The ´ key</summary>
         </member>
         <member name="F:WinUtilities.Key.Section">
@@ -3223,35 +3223,52 @@
         <member name="M:WinUtilities.SystemUtils.StopShutdown">
             <summary>Stops Shutdown, Restart or Sleep started from this process</summary>
         </member>
-        <member name="T:WinUtilities.IMatchObject">
+        <member name="T:WinUtilities.WinMatchType">
+            <summary>Specifies how string matching is performed</summary>
+        </member>
+        <member name="F:WinUtilities.WinMatchType.RegEx">
+            <summary>Uses regex expression matching</summary>
+        </member>
+        <member name="F:WinUtilities.WinMatchType.Full">
+            <summary>The string must match</summary>
+        </member>
+        <member name="F:WinUtilities.WinMatchType.Partial">
+            <summary>The string must be contained in the target</summary>
+        </member>
+        <member name="T:WinUtilities.IWinMatch">
             <summary>A window match object for checking and finding windows</summary>
         </member>
-        <member name="P:WinUtilities.IMatchObject.AsList">
+        <member name="P:WinUtilities.IWinMatch.AsList">
             <summary>Get whitelisted matches as a list</summary>
         </member>
-        <member name="P:WinUtilities.IMatchObject.IsReverse">
+        <member name="P:WinUtilities.IWinMatch.IsReverse">
             <summary>Reverse the result of the match</summary>
         </member>
-        <member name="P:WinUtilities.IMatchObject.AsReverse">
+        <member name="P:WinUtilities.IWinMatch.AsReverse">
             <summary>Get a reversed match</summary>
         </member>
-        <member name="M:WinUtilities.IMatchObject.Match(WinUtilities.Window)">
+        <member name="M:WinUtilities.IWinMatch.Match(WinUtilities.Window)">
             <summary>Check if the given window matches</summary>
         </member>
-        <member name="M:WinUtilities.IMatchObject.Match(WinUtilities.WindowInfo)">
+        <member name="M:WinUtilities.IWinMatch.Match(WinUtilities.WindowInfo)">
             <summary>Check if the given info matches</summary>
         </member>
-        <member name="M:WinUtilities.IMatchObject.Match(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32)">
-            <summary>Check if the given properties match</summary>
-        </member>
-        <member name="M:WinUtilities.IMatchObject.ForAll(System.Action{WinUtilities.Window},System.Boolean)">
+        <member name="M:WinUtilities.IWinMatch.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows</summary>
         </member>
-        <member name="M:WinUtilities.IMatchObject.ForAll(System.Func{WinUtilities.Window,System.Boolean},System.Boolean)">
+        <member name="M:WinUtilities.IWinMatch.ForAll(System.Func{WinUtilities.Window,System.Boolean},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
-        <member name="M:WinUtilities.IMatchObject.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},System.Boolean)">
+        <member name="M:WinUtilities.IWinMatch.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},WinUtilities.WinFindMode)">
+            <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
+            <returns>True if all found windows were enumerated</returns>
+        </member>
+        <member name="M:WinUtilities.MatchActions.ForAll(WinUtilities.IWinMatch,System.Func{WinUtilities.Window,System.Boolean},WinUtilities.WinFindMode)">
+            <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
+            <returns>True if all found windows were enumerated</returns>
+        </member>
+        <member name="M:WinUtilities.MatchActions.ForAll(WinUtilities.IWinMatch,System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},WinUtilities.WinFindMode)">
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
@@ -3264,18 +3281,30 @@
         <member name="F:WinUtilities.BorderlessInfo.offset">
             <summary></summary>
         </member>
-        <member name="M:WinUtilities.BorderlessInfo.#ctor(WinUtilities.IMatchObject,WinUtilities.Area)">
+        <member name="M:WinUtilities.BorderlessInfo.#ctor(WinUtilities.IWinMatch,WinUtilities.Area)">
             <summary>An object that specifies additional borderless settings for all matching windows</summary>
             <param name="match">Specifies which windows are affected by this setting</param>
             <param name="offset">Amount cropped inwards from each edge of the window. Width and height here mean the amount cropped from right and bottom.</param>
         </member>
-        <member name="M:WinUtilities.BorderlessInfo.#ctor(WinUtilities.IMatchObject,System.Int32,System.Int32,System.Int32,System.Int32)">
+        <member name="M:WinUtilities.BorderlessInfo.#ctor(WinUtilities.IWinMatch,System.Int32,System.Int32,System.Int32,System.Int32)">
             <summary>An object that specifies additional borderless settings for all matching windows</summary>
             <param name="match">Specifies which windows are affected by this setting</param>
             <param name="left">Amount cropped inwards from the left edge</param>
             <param name="top">Amount cropped inwards from the top edge</param>
             <param name="right">Amount cropped inwards from the right edge</param>
             <param name="bottom">Amount cropped inwards from the bottom edge</param>
+        </member>
+        <member name="T:WinUtilities.WinFindMode">
+            <summary>Specifies what mode is used when enumerating windows</summary>
+        </member>
+        <member name="F:WinUtilities.WinFindMode.All">
+            <summary>Enumerates all existing windows</summary>
+        </member>
+        <member name="F:WinUtilities.WinFindMode.TopLevel">
+            <summary>Enumerates top level windows on any virtual desktop</summary>
+        </member>
+        <member name="F:WinUtilities.WinFindMode.CurrentDesktop">
+            <summary>Enumerates top level windows on current virtual desktop</summary>
         </member>
         <member name="T:WinUtilities.Window">
             <summary>A wrapper object for a windows window</summary>
@@ -3379,14 +3408,11 @@
         <member name="P:WinUtilities.Window.BorderlessArea">
             <summary>The visible area of the window when in borderless mode</summary>
         </member>
-        <member name="P:WinUtilities.Window.IsNone">
-            <summary>Check if the hwnd is zero meaning it points to nothing</summary>
-        </member>
-        <member name="P:WinUtilities.Window.IsValid">
-            <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the exe name.</summary>
-        </member>
         <member name="P:WinUtilities.Window.BorderlessSettings">
             <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
+        </member>
+        <member name="P:WinUtilities.Window.CachedWindows">
+            <summary>Contains the cached windows from the last time the windows were enumerated</summary>
         </member>
         <member name="P:WinUtilities.Window.None">
             <summary>A window object that doesn't point to any window</summary>
@@ -3399,6 +3425,12 @@
         </member>
         <member name="P:WinUtilities.Window.This">
             <summary>Retrieves the current process's windows</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsNone">
+            <summary>Check if the hwnd is zero meaning it points to nothing</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsValid">
+            <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the exe name.</summary>
         </member>
         <member name="P:WinUtilities.Window.Parent">
             <summary>The parent of the window</summary>
@@ -3421,7 +3453,7 @@
         <member name="P:WinUtilities.Window.AsMatch">
             <summary>Get a match object that only matches this window</summary>
         </member>
-        <member name="M:WinUtilities.Window.Match(WinUtilities.IMatchObject)">
+        <member name="M:WinUtilities.Window.Match(WinUtilities.IWinMatch)">
             <summary>Check if the window matches with the given description.</summary>
         </member>
         <member name="M:WinUtilities.Window.ContainsPoint(WinUtilities.Coord)">
@@ -3665,59 +3697,73 @@
         <member name="M:WinUtilities.Window.MouseMove(WinUtilities.Coord,WinUtilities.CoordRelation)">
             <summary>Emulates a mouse move event at the specified position.</summary>
         </member>
-        <member name="M:WinUtilities.Window.Find(WinUtilities.IMatchObject,System.Boolean,System.Boolean)">
+        <member name="M:WinUtilities.Window.Find(System.Func{WinUtilities.Window,System.Boolean})">
+            <summary>Find a window that matches the given predicate</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Find(WinUtilities.IWinMatch,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given description</summary>
         </member>
-        <member name="M:WinUtilities.Window.Find(System.String,System.Boolean,System.Boolean)">
+        <member name="M:WinUtilities.Window.Find(System.String,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given title</summary>
         </member>
-        <member name="M:WinUtilities.Window.FindByExe(System.String,System.Boolean,System.Boolean)">
+        <member name="M:WinUtilities.Window.FindByExe(System.String,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given .exe name</summary>
         </member>
-        <member name="M:WinUtilities.Window.FindByClass(System.String,System.Boolean,System.Boolean)">
+        <member name="M:WinUtilities.Window.FindByClass(System.String,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given class</summary>
         </member>
-        <member name="M:WinUtilities.Window.FindByPid(System.UInt32,System.Boolean,System.Boolean)">
+        <member name="M:WinUtilities.Window.FindByPid(System.UInt32,WinUtilities.WinFindMode)">
             <summary>Find a window whose process's id matches the given id</summary>
         </member>
-        <member name="M:WinUtilities.Window.GetAllWindows">
-            <summary>Find all windows. Includes hidden windows</summary>
+        <member name="M:WinUtilities.Window.FindCached(System.Func{WinUtilities.Window,System.Boolean})">
+            <summary>Find a matching window from a cached list of windows</summary>
         </member>
-        <member name="M:WinUtilities.Window.GetWindows(System.Boolean)">
-            <summary>Find all windows that match the criteria</summary>
-            <param name="hidden">Include hidden windows</param>
+        <member name="M:WinUtilities.Window.FindCached(WinUtilities.IWinMatch,WinUtilities.WinFindMode)">
+            <summary>Find a matching window from a cached list of windows</summary>
         </member>
-        <member name="M:WinUtilities.Window.GetWindows(WinUtilities.IMatchObject,System.Boolean)">
-            <summary>Find all windows that match the criteria</summary>
-            <param name="match">Null to match all windows</param>
-            <param name="hidden">Include hidden windows</param>
+        <member name="M:WinUtilities.Window.GetWindows">
+            <summary>Get all existing windows</summary>
         </member>
-        <member name="M:WinUtilities.Window.GetDesktopWindows">
-            <summary>Find all windows on the current virtual desktop</summary>
+        <member name="M:WinUtilities.Window.GetWindows(System.Func{WinUtilities.Window,System.Boolean})">
+            <summary>Find all windows that match the given predicate</summary>
         </member>
-        <member name="M:WinUtilities.Window.GetDesktopWindows(WinUtilities.IMatchObject)">
-            <summary>Find all windows that match the criteria on the current virtual desktop</summary>
-            <param name="match">Null to match all windows</param>
+        <member name="M:WinUtilities.Window.GetWindows(WinUtilities.WinFindMode)">
+            <summary>Find all windows depending on the mode used</summary>
         </member>
-        <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
-            <summary>Get the handle of the topmost window of the given point</summary>
+        <member name="M:WinUtilities.Window.GetWindows(WinUtilities.IWinMatch,WinUtilities.WinFindMode)">
+            <summary>Find all windows that match the given condition</summary>
         </member>
-        <member name="M:WinUtilities.Window.FromPoint(WinUtilities.Coord)">
-            <summary>Get the handle of the topmost window of the given point</summary>
+        <member name="M:WinUtilities.Window.GetWindowsCached(System.Func{WinUtilities.Window,System.Boolean})">
+            <summary>Find all windows that match the given predicate using a cached list of windows</summary>
         </member>
-        <member name="M:WinUtilities.Window.Wait(WinUtilities.IMatchObject,System.Nullable{System.Int64},System.Boolean,System.Int32)">
+        <member name="M:WinUtilities.Window.GetWindowsCached(WinUtilities.IWinMatch,WinUtilities.WinFindMode)">
+            <summary>Find all windows that match the given condition using a cached list of windows</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Wait(WinUtilities.IWinMatch,System.Nullable{System.Int64},System.Boolean,System.Int32)">
             <summary>Wait for a matching window to exist</summary>
             <param name="match">Set what kind of window to wait for</param>
             <param name="timeout">Time until the wait fails</param>
             <param name="ignoreCurrent">If true, only new windows will be considered</param>
             <param name="checkDelay">Set how often the windows are scanned for the target window</param>
         </member>
-        <member name="M:WinUtilities.Window.WaitActive(WinUtilities.IMatchObject,System.Nullable{System.Int64},System.Boolean,System.Int32)">
+        <member name="M:WinUtilities.Window.WaitActive(WinUtilities.IWinMatch,System.Nullable{System.Int64},System.Boolean,System.Int32)">
             <summary>Wait for a matching window to become active</summary>
             <param name="match">Set what kind of window to wait for</param>
             <param name="timeout">Time until the wait fails</param>
             <param name="ignoreCurrent">If true, only new windows will be considered</param>
             <param name="checkDelay">Set how often the active window is checked for the target window</param>
+        </member>
+        <member name="M:WinUtilities.Window.ClearCache">
+            <summary>Removes all entries from the list of cached windows</summary>
+        </member>
+        <member name="M:WinUtilities.Window.RefreshCache">
+            <summary>Refresh the cache so it contains the freshest information of windows. Can be used occasionally to prevent the very unlikely window handle collisions.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
+            <summary>Get the handle of the topmost window of the given point</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FromPoint(WinUtilities.Coord)">
+            <summary>Get the handle of the topmost window of the given point</summary>
         </member>
         <member name="M:WinUtilities.Window.HwndExists(WinUtilities.WinHandle)">
             <summary>Check if a window with the specified handle exists</summary>
@@ -3758,16 +3804,16 @@
         <member name="P:WinUtilities.WinGroup.Desktop">
             <summary>Matches the desktop</summary>
         </member>
-        <member name="M:WinUtilities.WinGroup.#ctor(WinUtilities.IMatchObject[])">
+        <member name="M:WinUtilities.WinGroup.#ctor(WinUtilities.IWinMatch[])">
             <summary>A group of window descriptions that can match a variety of windows.</summary>
         </member>
-        <member name="M:WinUtilities.WinGroup.Add(WinUtilities.IMatchObject[])">
+        <member name="M:WinUtilities.WinGroup.Add(WinUtilities.IWinMatch[])">
             <summary>Add window descriptions to the Whitelist.</summary>
         </member>
         <member name="M:WinUtilities.WinGroup.Add(WinUtilities.Window[])">
             <summary>Add windows to the Whitelist.</summary>
         </member>
-        <member name="M:WinUtilities.WinGroup.AddBlacklist(WinUtilities.IMatchObject[])">
+        <member name="M:WinUtilities.WinGroup.AddBlacklist(WinUtilities.IWinMatch[])">
             <summary>Add window descriptions to the Blacklist.</summary>
         </member>
         <member name="M:WinUtilities.WinGroup.AddBlacklist(WinUtilities.Window[])">
@@ -3781,18 +3827,14 @@
             <summary>Check if a window matches this description group.</summary>
             <remarks>The Match is true if the info matches the Whitelist but not the Blacklist.</remarks>
         </member>
-        <member name="M:WinUtilities.WinGroup.Match(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32)">
-            <summary>Check if a window matches this description group.</summary>
-            <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
-        </member>
-        <member name="M:WinUtilities.WinGroup.ForAll(System.Action{WinUtilities.Window},System.Boolean)">
+        <member name="M:WinUtilities.WinGroup.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows</summary>
         </member>
-        <member name="M:WinUtilities.WinGroup.ForAll(System.Func{WinUtilities.Window,System.Boolean},System.Boolean)">
+        <member name="M:WinUtilities.WinGroup.ForAll(System.Func{WinUtilities.Window,System.Boolean},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
-        <member name="M:WinUtilities.WinGroup.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},System.Boolean)">
+        <member name="M:WinUtilities.WinGroup.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},WinUtilities.WinFindMode)">
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
@@ -3817,18 +3859,6 @@
         <member name="M:WinUtilities.WinHandle.#ctor(System.IntPtr)">
             <summary>Create wrapper for a window handle</summary>
         </member>
-        <member name="T:WinUtilities.WinMatchType">
-            <summary>Specifies how string matching is performed</summary>
-        </member>
-        <member name="F:WinUtilities.WinMatchType.RegEx">
-            <summary>Uses regex expression matching</summary>
-        </member>
-        <member name="F:WinUtilities.WinMatchType.Full">
-            <summary>The string must match</summary>
-        </member>
-        <member name="F:WinUtilities.WinMatchType.Partial">
-            <summary>The string must be contained in the target</summary>
-        </member>
         <member name="T:WinUtilities.WinMatch">
             <summary>A condition that matches some windows</summary>
         </member>
@@ -3847,6 +3877,9 @@
         <member name="P:WinUtilities.WinMatch.PID">
             <summary>Matched window process id</summary>
         </member>
+        <member name="P:WinUtilities.WinMatch.Desktop">
+            <summary>Matched desktop guid</summary>
+        </member>
         <member name="P:WinUtilities.WinMatch.IsReverse">
             <summary>Reverse the result of the match</summary>
         </member>
@@ -3859,7 +3892,7 @@
         <member name="P:WinUtilities.WinMatch.Type">
             <summary>Specifies how the strings are matched</summary>
         </member>
-        <member name="M:WinUtilities.WinMatch.#ctor(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32,WinUtilities.WinMatchType)">
+        <member name="M:WinUtilities.WinMatch.#ctor(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32,System.Guid,WinUtilities.WinMatchType)">
             <summary>Create a new match condition</summary>
         </member>
         <member name="M:WinUtilities.WinMatch.Match(WinUtilities.Window)">
@@ -3868,17 +3901,14 @@
         <member name="M:WinUtilities.WinMatch.Match(WinUtilities.WindowInfo)">
             <summary>Check if the given info matches</summary>
         </member>
-        <member name="M:WinUtilities.WinMatch.Match(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32)">
-            <summary>Check if the given properties match</summary>
-        </member>
-        <member name="M:WinUtilities.WinMatch.ForAll(System.Action{WinUtilities.Window},System.Boolean)">
+        <member name="M:WinUtilities.WinMatch.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows</summary>
         </member>
-        <member name="M:WinUtilities.WinMatch.ForAll(System.Func{WinUtilities.Window,System.Boolean},System.Boolean)">
+        <member name="M:WinUtilities.WinMatch.ForAll(System.Func{WinUtilities.Window,System.Boolean},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
-        <member name="M:WinUtilities.WinMatch.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},System.Boolean)">
+        <member name="M:WinUtilities.WinMatch.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},WinUtilities.WinFindMode)">
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>

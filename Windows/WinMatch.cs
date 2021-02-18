@@ -1,23 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace WinUtilities {
 
-    /// <summary>Specifies how string matching is performed</summary>
-    public enum WinMatchType {
-        /// <summary>Uses regex expression matching</summary>
-        RegEx,
-        /// <summary>The string must match</summary>
-        Full,
-        /// <summary>The string must be contained in the target</summary>
-        Partial
-    }
-
     /// <summary>A condition that matches some windows</summary>
     [DataContract]
-    public struct WinMatch : IMatchObject {
+    public struct WinMatch : IWinMatch {
 
         private string _title;
         private string _class;
@@ -76,7 +68,7 @@ namespace WinUtilities {
         [DataMember]
         public bool IsReverse { get; set; }
         /// <summary>Get a reversed match</summary>
-        public IMatchObject AsReverse {
+        public IWinMatch AsReverse {
             get {
                 var match = this;
                 match.IsReverse ^= true;
@@ -109,66 +101,31 @@ namespace WinUtilities {
             rExe = new Regex(exe ?? "", rOptions);
         }
 
+        #region methods
         /// <summary>Check if the given window matches</summary>
-        public bool Match(Window win) {
-            return Match(Hwnd != null ? (WinHandle?) win.Hwnd : null, Title != null ? win.Title : null, Class != null ? win.Class : null, Exe != null ? win.Exe : null, PID != 0 ? win.PID : 0);
-        }
+        public bool Match(Window win) => Match(new WindowInfo(win));
 
         /// <summary>Check if the given info matches</summary>
         public bool Match(WindowInfo info) {
             bool result = (Hwnd == null || Hwnd == info.Hwnd)
-                       && (Title == null || MatchSingle(info.Title, Title, rTitle))
+                       && (Exe == null || MatchSingle(info.Exe, Exe, rExe))
                        && (Class == null || MatchSingle(info.Class, Class, rClass))
                        && (PID == 0 || PID == info.PID)
-                       && (Exe == null || MatchSingle(info.Exe, Exe, rExe))
+                       && (Title == null || MatchSingle(info.Title, Title, rTitle))
                        && (Desktop == Guid.Empty || Desktop == info.Desktop);
             return IsReverse ^ result;
         }
 
-        /// <summary>Check if the given properties match</summary>
-        public bool Match(WinHandle? hwnd, string title, string className, string exe, uint pid) {
-            if (IsReverse)
-                return !(!MatchHwnd(hwnd) && !MatchTitle(title) && !MatchClass(className) && !MatchExe(exe) && !MatchPID(pid));
-            return MatchHwnd(hwnd) && MatchTitle(title) && MatchClass(className) && MatchExe(exe) && MatchPID(pid);
-        }
-
-        #region actions
         /// <summary>Perform an action on all matching windows</summary>
-        public void ForAll(Action<Window> action, bool hidden = false) {
-            var windows = Window.GetWindows(this, hidden);
-
-            foreach (var win in windows) {
-                action(win);
-            }
-        }
+        public void ForAll(Action<Window> action, WinFindMode mode = WinFindMode.TopLevel) => MatchActions.ForAll(this, action, mode);
 
         /// <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
         /// <returns>True if all found windows were enumerated</returns>
-        public bool ForAll(Func<Window, bool> action, bool hidden = false) {
-            var windows = Window.GetWindows(this, hidden);
-
-            foreach (var win in windows) {
-                if (!action(win)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        public bool ForAll(Func<Window, bool> action, WinFindMode mode = WinFindMode.TopLevel) => MatchActions.ForAll(this, action, mode);
 
         /// <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
         /// <returns>True if all found windows were enumerated</returns>
-        public async Task<bool> ForAll(Func<Window, Task<bool>> action, bool hidden = false) {
-            var windows = Window.GetWindows(this, hidden);
-
-            foreach (var win in windows) {
-                if (!await action(win)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        public async Task<bool> ForAll(Func<Window, Task<bool>> action, WinFindMode mode = WinFindMode.TopLevel) => await MatchActions.ForAll(this, action, mode);
         #endregion
 
         #region single matching

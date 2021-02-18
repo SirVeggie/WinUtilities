@@ -13,14 +13,14 @@ namespace WinUtilities {
     /// <summary>An object that specifies additional borderless settings for all matching windows</summary>
     public struct BorderlessInfo {
         /// <summary>Specifies which windows are affected by this setting</summary>
-        public IMatchObject match;
+        public IWinMatch match;
         /// <summary></summary>
         public Area offset;
 
         /// <summary>An object that specifies additional borderless settings for all matching windows</summary>
         /// <param name="match">Specifies which windows are affected by this setting</param>
         /// <param name="offset">Amount cropped inwards from each edge of the window. Width and height here mean the amount cropped from right and bottom.</param>
-        public BorderlessInfo(IMatchObject match, Area offset) {
+        public BorderlessInfo(IWinMatch match, Area offset) {
             this.match = match;
             this.offset = offset;
         }
@@ -31,10 +31,20 @@ namespace WinUtilities {
         /// <param name="top">Amount cropped inwards from the top edge</param>
         /// <param name="right">Amount cropped inwards from the right edge</param>
         /// <param name="bottom">Amount cropped inwards from the bottom edge</param>
-        public BorderlessInfo(IMatchObject match, int left, int top, int right, int bottom) {
+        public BorderlessInfo(IWinMatch match, int left, int top, int right, int bottom) {
             this.match = match;
             offset = new Area(left, top, right, bottom);
         }
+    }
+
+    /// <summary>Specifies what mode is used when enumerating windows</summary>
+    public enum WinFindMode {
+        /// <summary>Enumerates all existing windows</summary>
+        All,
+        /// <summary>Enumerates top level windows on any virtual desktop</summary>
+        TopLevel,
+        /// <summary>Enumerates top level windows on current virtual desktop</summary>
+        CurrentDesktop
     }
     #endregion
 
@@ -47,9 +57,9 @@ namespace WinUtilities {
         public WinHandle Hwnd { get; set; }
         private Process process;
         private string exepath;
+        [DataMember]
         private string @class;
         private int threadID;
-        [DataMember]
         private string exe;
         private uint pid;
 
@@ -297,13 +307,12 @@ namespace WinUtilities {
         }
         #endregion
 
-        /// <summary>Check if the hwnd is zero meaning it points to nothing</summary>
-        public bool IsNone => Hwnd.IsZero;
-        /// <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the exe name.</summary>
-        public bool IsValid => Hwnd.IsValid && Exists && Exe == new Window(Hwnd).Exe;
-
+        #region static
         /// <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
         public static List<BorderlessInfo> BorderlessSettings { get; set; } = new List<BorderlessInfo>();
+
+        /// <summary>Contains the cached windows from the last time the windows were enumerated</summary>
+        public static Dictionary<IntPtr, Window> CachedWindows { get; private set; } = new Dictionary<IntPtr, Window>();
 
         /// <summary>A window object that doesn't point to any window</summary>
         public static Window None => new Window(IntPtr.Zero);
@@ -312,7 +321,14 @@ namespace WinUtilities {
         /// <summary>Retrieves the first window under the mouse</summary>
         public static Window FromMouse => FromPoint(Mouse.Position);
         /// <summary>Retrieves the current process's windows</summary>
-        public static List<Window> This => GetWindows(new WinMatch(pid: (uint) Process.GetCurrentProcess().Id), true);
+        public static List<Window> This => GetWindows(new WinMatch(pid: (uint) Process.GetCurrentProcess().Id), WinFindMode.All);
+        #endregion
+
+        #region other
+        /// <summary>Check if the hwnd is zero meaning it points to nothing</summary>
+        public bool IsNone => Hwnd.IsZero;
+        /// <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the class name.</summary>
+        public bool IsValid => Hwnd.IsValid && Exists && Class == new Window(Hwnd).Class;
 
         /// <summary>The parent of the window</summary>
         public Window Parent => new Window(WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWLP_HWNDPARENT));
@@ -321,7 +337,7 @@ namespace WinUtilities {
         /// <summary>The topmost window in the window's parent chain on a deeper level than <see cref="Ancestor"/></summary>
         public Window Owner => new Window(WinAPI.GetAncestor(Hwnd.Raw, WinAPI.AncestorFlags.GetRootOwner));
         /// <summary>Retrieves all window of the same process.</summary>
-        public List<Window> Siblings => GetWindows(new WinMatch(pid: PID), true);
+        public List<Window> Siblings => GetWindows(new WinMatch(pid: PID), WinFindMode.All);
 
         /// <summary>Handle of the <see cref="WinUtilities.Monitor"/> the window is on</summary>
         public Monitor Monitor => Monitor.FromWindow(this);
@@ -329,6 +345,8 @@ namespace WinUtilities {
         public Guid Desktop => SimpleDesktop.GetDesktopID(this);
         /// <summary>Get a match object that only matches this window</summary>
         public WinMatch AsMatch => new WinMatch(hwnd: Hwnd);
+        #endregion
+
         #endregion
 
         #region constructors
@@ -343,7 +361,7 @@ namespace WinUtilities {
 
         #region queries
         /// <summary>Check if the window matches with the given description.</summary>
-        public bool Match(IMatchObject match) => match?.Match(this) ?? false;
+        public bool Match(IWinMatch match) => match?.Match(this) ?? false;
         /// <summary>Check if the <paramref name="point"/> is inside the window.</summary>
         public bool ContainsPoint(Coord point) => ContainsPoint(point.IntX, point.IntY);
         /// <summary>Check if the point is inside the window.</summary>
@@ -974,83 +992,80 @@ namespace WinUtilities {
         #region static
 
         #region find
-        /// <summary>Find a window that matches the given description</summary>
-        public static Window Find(IMatchObject match, bool hidden = false, bool otherDesktops = true) {
+        /// <summary>Find a window that matches the given predicate</summary>
+        public static Window Find(Func<Window, bool> predicate) {
             Window found = None;
+            var windows = new Dictionary<IntPtr, Window>();
             WinAPI.EnumWindows(Collector, IntPtr.Zero);
+            CachedWindows = windows;
             return found;
 
             bool Collector(IntPtr hwnd, int lParam) {
-                Window win = new Window(hwnd);
-
-                if (!MatchFilter(win, match, hidden, otherDesktops)) return true;
-
-                found = win;
-                return false;
-            }
-        }
-
-        /// <summary>Find a window that matches the given title</summary>
-        public static Window Find(string title, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(title: title), hidden, otherDesktops);
-        /// <summary>Find a window that matches the given .exe name</summary>
-        public static Window FindByExe(string exe, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(exe: exe), hidden, otherDesktops);
-        /// <summary>Find a window that matches the given class</summary>
-        public static Window FindByClass(string className, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(className: className), hidden, otherDesktops);
-        /// <summary>Find a window whose process's id matches the given id</summary>
-        public static Window FindByPid(uint pid, bool hidden = false, bool otherDesktops = true) => Find(new WinMatch(pid: pid), hidden, otherDesktops);
-        #endregion
-
-        #region get windows
-        /// <summary>Find all windows. Includes hidden windows</summary>
-        public static List<Window> GetAllWindows() => GetWindows(hidden: true);
-
-        /// <summary>Find all windows that match the criteria</summary>
-        /// <param name="hidden">Include hidden windows</param>
-        public static List<Window> GetWindows(bool hidden = false) => GetWindows(null, hidden);
-
-        /// <summary>Find all windows that match the criteria</summary>
-        /// <param name="match">Null to match all windows</param>
-        /// <param name="hidden">Include hidden windows</param>
-        public static List<Window> GetWindows(IMatchObject match, bool hidden = false) => GetWindows(match, hidden, true);
-
-
-        /// <summary>Find all windows on the current virtual desktop</summary>
-        public static List<Window> GetDesktopWindows() => GetWindows(null, false, false);
-
-        /// <summary>Find all windows that match the criteria on the current virtual desktop</summary>
-        /// <param name="match">Null to match all windows</param>
-        public static List<Window> GetDesktopWindows(IMatchObject match) => GetWindows(match, false, false);
-
-        private static List<Window> GetWindows(IMatchObject match, bool hidden, bool otherDesktops) {
-            var windows = new List<Window>();
-            
-            if (WinAPI.EnumWindows(Collector, IntPtr.Zero))
-                return windows;
-            return new List<Window>();
-
-            bool Collector(IntPtr hwnd, int lParam) {
-                Window win = new Window(hwnd);
-
-                if (!MatchFilter(win, match, hidden, otherDesktops)) return true;
-
-                windows.Add(win);
+                Window window = CachedWindows.ContainsKey(hwnd) ? CachedWindows[hwnd] : new Window(hwnd);
+                windows.Add(hwnd, window);
+                if (!found.IsNone)
+                    return true;
+                if (predicate(window))
+                    found = window;
                 return true;
             }
         }
 
-        private static bool MatchFilter(Window win, IMatchObject match, bool hidden, bool otherDesktops) {
-            if (!hidden && !win.IsTopLevel) return false;
-            if (!otherDesktops && !win.IsOnCurrentDesktop) return false;
-            if (match != null && !match.Match(win)) return false;
+        /// <summary>Find a window that matches the given description</summary>
+        public static Window Find(IWinMatch match, WinFindMode mode = WinFindMode.TopLevel) => Find(w => MatchFilter(w, match, mode));
+        /// <summary>Find a window that matches the given title</summary>
+        public static Window Find(string title, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(title: title), mode);
+        /// <summary>Find a window that matches the given .exe name</summary>
+        public static Window FindByExe(string exe, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(exe: exe), mode);
+        /// <summary>Find a window that matches the given class</summary>
+        public static Window FindByClass(string className, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(className: className), mode);
+        /// <summary>Find a window whose process's id matches the given id</summary>
+        public static Window FindByPid(uint pid, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(pid: pid), mode);
 
-            return true;
+        /// <summary>Find a matching window from a cached list of windows</summary>
+        public static Window FindCached(Func<Window, bool> predicate) => CachedWindows.First(pair => predicate(pair.Value)).Value;
+        /// <summary>Find a matching window from a cached list of windows</summary>
+        public static Window FindCached(IWinMatch match, WinFindMode mode) => CachedWindows.First(pair => MatchFilter(pair.Value, match, mode)).Value;
+        #endregion
+
+        #region get windows
+        /// <summary>Get all existing windows</summary>
+        public static List<Window> GetWindows() {
+            var result = new List<Window>();
+            var windows = new Dictionary<IntPtr, Window>();
+            WinAPI.EnumWindows(Collector, IntPtr.Zero);
+            CachedWindows = windows;
+            return result;
+
+            bool Collector(IntPtr hwnd, int lParam) {
+                var window = CachedWindows.ContainsKey(hwnd) ? CachedWindows[hwnd] : new Window(hwnd);
+                windows.Add(hwnd, window);
+                result.Add(window);
+                return true;
+            }
         }
 
-        /// <summary>Get the handle of the topmost window of the given point</summary>
-        public static Window FromPoint(int x, int y) => FromPoint(new Coord(x, y));
+        /// <summary>Find all windows that match the given predicate</summary>
+        public static List<Window> GetWindows(Func<Window, bool> predicate) => GetWindows().Where(predicate).ToList();
+        /// <summary>Find all windows depending on the mode used</summary>
+        public static List<Window> GetWindows(WinFindMode mode) => GetWindows(w => MatchFilter(w, null, mode));
+        /// <summary>Find all windows that match the given condition</summary>
+        public static List<Window> GetWindows(IWinMatch match, WinFindMode mode = WinFindMode.TopLevel) => GetWindows(w => MatchFilter(w, match, mode));
 
-        /// <summary>Get the handle of the topmost window of the given point</summary>
-        public static Window FromPoint(Coord point) => new Window(WinAPI.WindowFromPoint(point)).Ancestor;
+        /// <summary>Find all windows that match the given predicate using a cached list of windows</summary>
+        public static List<Window> GetWindowsCached(Func<Window, bool> predicate) => CachedWindows.Where(pair => predicate(pair.Value)).Select(x => x.Value).ToList();
+        /// <summary>Find all windows that match the given condition using a cached list of windows</summary>
+        public static List<Window> GetWindowsCached(IWinMatch match, WinFindMode mode) => CachedWindows.Where(pair => MatchFilter(pair.Value, match, mode)).Select(x => x.Value).ToList();
+
+        private static bool MatchFilter(Window win, IWinMatch match, WinFindMode mode) {
+            if (mode != WinFindMode.All && !win.IsTopLevel)
+                return false;
+            if (mode == WinFindMode.CurrentDesktop && !win.IsOnCurrentDesktop)
+                return false;
+            if (match != null && !match.Match(win))
+                return false;
+            return true;
+        }
         #endregion
 
         #region winwait
@@ -1059,10 +1074,10 @@ namespace WinUtilities {
         /// <param name="timeout">Time until the wait fails</param>
         /// <param name="ignoreCurrent">If true, only new windows will be considered</param>
         /// <param name="checkDelay">Set how often the windows are scanned for the target window</param>
-        public static async Task<Window> Wait(IMatchObject match, long? timeout = null, bool ignoreCurrent = true, int checkDelay = 10) {
+        public static async Task<Window> Wait(IWinMatch match, long? timeout = null, bool ignoreCurrent = true, int checkDelay = 10) {
             var watch = Stopwatch.StartNew();
             var existingWindowsSet = new HashSet<Window>();
-            foreach (var item in GetWindows(match, true))
+            foreach (var item in GetWindows(match, WinFindMode.All))
                 existingWindowsSet.Add(item);
 
             if (!ignoreCurrent && existingWindowsSet.Count > 0) {
@@ -1071,7 +1086,7 @@ namespace WinUtilities {
 
             await Task.Delay(checkDelay);
             while (watch.ElapsedMilliseconds < timeout) {
-                var newWindows = GetWindows(match, true);
+                var newWindows = GetWindows(match, WinFindMode.All);
 
                 foreach (var win in newWindows)
                     if (!existingWindowsSet.Contains(win))
@@ -1088,7 +1103,7 @@ namespace WinUtilities {
         /// <param name="timeout">Time until the wait fails</param>
         /// <param name="ignoreCurrent">If true, only new windows will be considered</param>
         /// <param name="checkDelay">Set how often the active window is checked for the target window</param>
-        public static async Task<Window> WaitActive(IMatchObject match, long? timeout = null, bool ignoreCurrent = true, int checkDelay = 10) {
+        public static async Task<Window> WaitActive(IWinMatch match, long? timeout = null, bool ignoreCurrent = true, int checkDelay = 10) {
             var watch = Stopwatch.StartNew();
             var active = Active;
 
@@ -1108,13 +1123,22 @@ namespace WinUtilities {
         }
         #endregion
 
+        #region other
+        /// <summary>Removes all entries from the list of cached windows</summary>
+        public static void ClearCache() => CachedWindows = new Dictionary<IntPtr, Window>();
+        /// <summary>Refresh the cache so it contains the freshest information of windows. Can be used occasionally to prevent the very unlikely window handle collisions.</summary>
+        public static void RefreshCache() => CachedWindows = GetWindows().ToDictionary(w => w.Hwnd.Raw);
+        /// <summary>Get the handle of the topmost window of the given point</summary>
+        public static Window FromPoint(int x, int y) => FromPoint(new Coord(x, y));
+        /// <summary>Get the handle of the topmost window of the given point</summary>
+        public static Window FromPoint(Coord point) => new Window(WinAPI.WindowFromPoint(point)).Ancestor;
         /// <summary>Check if a window with the specified handle exists</summary>
         private static bool HwndExists(WinHandle hwnd) => WinAPI.IsWindow(hwnd.Raw);
         /// <summary>Check if a window with the specified handle is active</summary>
         private static bool HwndActive(WinHandle hwnd) => hwnd == GetActiveHandle();
-
         /// <summary>Get the handle of the active window</summary>
         private static WinHandle GetActiveHandle() => new WinHandle(WinAPI.GetForegroundWindow());
+        #endregion
 
         #endregion
 
@@ -1124,7 +1148,7 @@ namespace WinUtilities {
         public static bool operator !=(Window a, Window b) => !(a == b);
         public override bool Equals(object obj) => obj is Window && this == (Window) obj;
         public override int GetHashCode() => -640239398 + Hwnd.GetHashCode();
-        public override string ToString() => $"{{Window: {Hwnd.Raw}}}";
+        public override string ToString() => $"{{Window: {(Hwnd.IsZero ? "None" : Hwnd.Raw.ToString())}}}";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }

@@ -2,35 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace WinUtilities {
 
     /// <summary>A match object that can have multiple match conditions</summary>
     [DataContract]
-    public struct WinGroup : IMatchObject {
+    public struct WinGroup : IWinMatch {
 
         [DataMember]
-        private List<IMatchObject> whitelist;
+        private List<IWinMatch> whitelist;
         [DataMember]
-        private List<IMatchObject> blacklist;
+        private List<IWinMatch> blacklist;
 
         #region properties
         /// <summary>List of conditions to match</summary>
-        public List<IMatchObject> Whitelist {
+        public List<IWinMatch> Whitelist {
             get {
                 if (whitelist == null)
-                    whitelist = new List<IMatchObject>();
+                    whitelist = new List<IWinMatch>();
                 return whitelist;
             }
             set => whitelist = value;
         }
 
         /// <summary>List of conditions that prevent a whitelist match</summary>
-        public List<IMatchObject> Blacklist {
+        public List<IWinMatch> Blacklist {
             get {
                 if (blacklist == null)
-                    blacklist = new List<IMatchObject>();
+                    blacklist = new List<IWinMatch>();
                 return blacklist;
             }
             set => blacklist = value;
@@ -43,7 +44,7 @@ namespace WinUtilities {
         [DataMember]
         public bool IsReverse { get; set; }
         /// <summary>Get a reversed match</summary>
-        public IMatchObject AsReverse {
+        public IWinMatch AsReverse {
             get {
                 var match = this;
                 match.IsReverse ^= true;
@@ -63,45 +64,35 @@ namespace WinUtilities {
         #endregion
 
         /// <summary>A group of window descriptions that can match a variety of windows.</summary>
-        public WinGroup(params IMatchObject[] matchlist) {
+        public WinGroup(params IWinMatch[] matchlist) {
             IsReverse = false;
-            whitelist = new List<IMatchObject>();
-            blacklist = new List<IMatchObject>();
+            whitelist = new List<IWinMatch>();
+            blacklist = new List<IWinMatch>();
             whitelist.AddRange(matchlist);
         }
 
+        #region methods
         /// <summary>Add window descriptions to the Whitelist.</summary>
-        public void Add(params IMatchObject[] whitelist) => Whitelist.AddRange(whitelist);
+        public void Add(params IWinMatch[] whitelist) => Whitelist.AddRange(whitelist);
 
         /// <summary>Add windows to the Whitelist.</summary>
-        public void Add(params Window[] windows) => Add(windows.Select(w => new WinMatch(hwnd: w.Hwnd)).Cast<IMatchObject>().ToArray());
+        public void Add(params Window[] windows) => Add(windows.Select(w => new WinMatch(hwnd: w.Hwnd)).Cast<IWinMatch>().ToArray());
 
         /// <summary>Add window descriptions to the Blacklist.</summary>
-        public void AddBlacklist(params IMatchObject[] blacklist) => Blacklist.AddRange(blacklist);
+        public void AddBlacklist(params IWinMatch[] blacklist) => Blacklist.AddRange(blacklist);
 
         /// <summary>Add windows to the Blacklist.</summary>
-        public void AddBlacklist(params Window[] windows) => AddBlacklist(windows.Select(w => new WinMatch(hwnd: w.Hwnd)).Cast<IMatchObject>().ToArray());
+        public void AddBlacklist(params Window[] windows) => AddBlacklist(windows.Select(w => new WinMatch(hwnd: w.Hwnd)).Cast<IWinMatch>().ToArray());
 
-        #region matching
         /// <summary>Check if a window matches this description group.</summary>
         /// <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
-        public bool Match(Window win) => Match(win.Hwnd, win.Title, win.Class, win.Exe, win.PID);
+        public bool Match(Window win) => Match(new WindowInfo(win));
 
         /// <summary>Check if a window matches this description group.</summary>
         /// <remarks>The Match is true if the info matches the Whitelist but not the Blacklist.</remarks>
         public bool Match(WindowInfo info) => IsReverse ^ (MatchList(Blacklist, info) ? false : MatchList(Whitelist, info));
 
-        /// <summary>Check if a window matches this description group.</summary>
-        /// <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
-        public bool Match(WinHandle? hwnd, string title, string className, string exe, uint pid) {
-            if (MatchList(Blacklist, hwnd, title, className, exe, pid)) {
-                return IsReverse ^ false;
-            }
-
-            return IsReverse ^ MatchList(Whitelist, hwnd, title, className, exe, pid);
-        }
-
-        private bool MatchList(List<IMatchObject> list, WindowInfo info) {
+        private bool MatchList(List<IWinMatch> list, WindowInfo info) {
             for (int i = 0; i < list.Count; i++) {
                 if (list[i].Match(info)) {
                     return true;
@@ -111,54 +102,16 @@ namespace WinUtilities {
             return false;
         }
 
-        private bool MatchList(List<IMatchObject> list, WinHandle? hwnd, string title, string className, string exe, uint pid) {
-            for (int i = 0; i < list.Count; i++) {
-                if (list[i].Match(hwnd, title, className, exe, pid)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        #endregion
-
-        #region actions
         /// <summary>Perform an action on all matching windows</summary>
-        public void ForAll(Action<Window> action, bool hidden = false) {
-            var windows = Window.GetWindows(this, hidden);
-
-            foreach (var win in windows) {
-                action(win);
-            }
-        }
+        public void ForAll(Action<Window> action, WinFindMode mode = WinFindMode.TopLevel) => MatchActions.ForAll(this, action, mode);
 
         /// <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
         /// <returns>True if all found windows were enumerated</returns>
-        public bool ForAll(Func<Window, bool> action, bool hidden = false) {
-            var windows = Window.GetWindows(this, hidden);
-
-            foreach (var win in windows) {
-                if (!action(win)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        public bool ForAll(Func<Window, bool> action, WinFindMode mode = WinFindMode.TopLevel) => MatchActions.ForAll(this, action, mode);
 
         /// <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
         /// <returns>True if all found windows were enumerated</returns>
-        public async Task<bool> ForAll(Func<Window, Task<bool>> action, bool hidden = false) {
-            var windows = Window.GetWindows(this, hidden);
-
-            foreach (var win in windows) {
-                if (!await action(win)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        public async Task<bool> ForAll(Func<Window, Task<bool>> action, WinFindMode mode = WinFindMode.TopLevel) => await MatchActions.ForAll(this, action, mode);
         #endregion
     }
 }
