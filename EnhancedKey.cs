@@ -449,7 +449,7 @@ namespace WinUtilities {
         /// <summary>The Ö key</summary>
         Ö = VKey.OEM_3 | F_Char,
         /// <summary>The ´ key</summary>
-        tilde = VKey.OEM_4 | F_Char,
+        Tilde = VKey.OEM_4 | F_Char,
         /// <summary>The § key</summary>
         Section = VKey.OEM_5 | F_Char,
         /// <summary>The Å key</summary>
@@ -462,7 +462,7 @@ namespace WinUtilities {
         OEM_1 = Umlaut,
         OEM_2 = Apostrophe,
         OEM_3 = Ö,
-        OEM_4 = tilde,
+        OEM_4 = Tilde,
         OEM_5 = Section,
         OEM_6 = Å,
         OEM_7 = Ä,
