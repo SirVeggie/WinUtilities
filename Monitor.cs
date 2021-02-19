@@ -93,7 +93,7 @@ namespace WinUtilities {
         /// <summary>Retrieve a handle to a monitor that contains the given point</summary>
         public static IntPtr HandleFromPoint(Coord point, MonitorDefault def = MonitorDefault.Nearest) => WinAPI.MonitorFromPoint(point, def);
         /// <summary>Retrieve a handle to a monitor that contains the given window</summary>
-        public static IntPtr HandleFromWindow(Window win = null, MonitorDefault def = MonitorDefault.Nearest) => WinAPI.MonitorFromWindow((win ?? Window.Active).Hwnd.Raw, def);
+        public static IntPtr HandleFromWindow(Window win = null, MonitorDefault def = MonitorDefault.Nearest) => WinAPI.MonitorFromWindow((win ?? Window.Active).Hwnd, def);
         /// <summary>Retrieve a handle to a monitor that best fits the given area</summary>
         public static IntPtr HandleFromArea(Area area, MonitorDefault def = MonitorDefault.Nearest) {
             WinAPI.RECT rect = area;

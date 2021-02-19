@@ -3328,7 +3328,7 @@
             <summary>The process handle of this window's <see cref="T:System.Diagnostics.Process"/></summary>
         </member>
         <member name="P:WinUtilities.Window.Process">
-            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to</summary>
+            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to. Getting this info is slow (1000x slower than other properties) so prefer other ways like ExePath and Exe if possible.</summary>
         </member>
         <member name="P:WinUtilities.Window.ThreadID">
             <summary>The ID of the system thread that spawned this window</summary>
@@ -3485,6 +3485,9 @@
         </member>
         <member name="M:WinUtilities.Window.Activate">
             <summary>Set the window as the foreground window.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.Deactivate">
+            <summary>If active, Move the window to the bottom and activate the highest window</summary>
         </member>
         <member name="M:WinUtilities.Window.Enable(System.Boolean)">
             <summary>Enable/disable the window. Disabled windows cannot be interacted with.</summary>
@@ -3765,10 +3768,10 @@
         <member name="M:WinUtilities.Window.FromPoint(WinUtilities.Coord)">
             <summary>Get the handle of the topmost window of the given point</summary>
         </member>
-        <member name="M:WinUtilities.Window.HwndExists(WinUtilities.WinHandle)">
+        <member name="M:WinUtilities.Window.HwndExists(System.IntPtr)">
             <summary>Check if a window with the specified handle exists</summary>
         </member>
-        <member name="M:WinUtilities.Window.HwndActive(WinUtilities.WinHandle)">
+        <member name="M:WinUtilities.Window.HwndActive(System.IntPtr)">
             <summary>Check if a window with the specified handle is active</summary>
         </member>
         <member name="M:WinUtilities.Window.GetActiveHandle">
@@ -3804,6 +3807,15 @@
         <member name="P:WinUtilities.WinGroup.Desktop">
             <summary>Matches the desktop</summary>
         </member>
+        <member name="P:WinUtilities.WinGroup.Taskbar">
+            <summary>Matches the taskbar</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.SteamGames">
+            <summary>Matches Steam games installed in a normal install folder</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Folders">
+            <summary>Matches file explorer windows aka folders</summary>
+        </member>
         <member name="M:WinUtilities.WinGroup.#ctor(WinUtilities.IWinMatch[])">
             <summary>A group of window descriptions that can match a variety of windows.</summary>
         </member>
@@ -3838,27 +3850,6 @@
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
-        <member name="T:WinUtilities.WinHandle">
-            <summary>A wrapper object for a window handle</summary>
-        </member>
-        <member name="P:WinUtilities.WinHandle.Raw">
-            <summary>Pointer to the window</summary>
-        </member>
-        <member name="P:WinUtilities.WinHandle.IsZero">
-            <summary>The object points to a nonexistent window</summary>
-        </member>
-        <member name="P:WinUtilities.WinHandle.IsValid">
-            <summary>The object points to a real window</summary>
-        </member>
-        <member name="P:WinUtilities.WinHandle.Zero">
-            <summary>A handle that points to nothing</summary>
-        </member>
-        <member name="P:WinUtilities.WinHandle.Broadcast">
-            <summary>A handle that points to all windows. Used with some win32 API calls.</summary>
-        </member>
-        <member name="M:WinUtilities.WinHandle.#ctor(System.IntPtr)">
-            <summary>Create wrapper for a window handle</summary>
-        </member>
         <member name="T:WinUtilities.WinMatch">
             <summary>A condition that matches some windows</summary>
         </member>
@@ -3872,7 +3863,10 @@
             <summary>Matched window class</summary>
         </member>
         <member name="P:WinUtilities.WinMatch.Exe">
-            <summary>Matched window exe</summary>
+            <summary>Matched window executable name</summary>
+        </member>
+        <member name="P:WinUtilities.WinMatch.ExePath">
+            <summary>Matched window full executable name and path</summary>
         </member>
         <member name="P:WinUtilities.WinMatch.PID">
             <summary>Matched window process id</summary>
@@ -3892,7 +3886,7 @@
         <member name="P:WinUtilities.WinMatch.Type">
             <summary>Specifies how the strings are matched</summary>
         </member>
-        <member name="M:WinUtilities.WinMatch.#ctor(System.Nullable{WinUtilities.WinHandle},System.String,System.String,System.String,System.UInt32,System.Guid,WinUtilities.WinMatchType)">
+        <member name="M:WinUtilities.WinMatch.#ctor(System.Nullable{System.IntPtr},System.String,System.String,System.String,System.String,System.UInt32,System.Guid,WinUtilities.WinMatchType)">
             <summary>Create a new match condition</summary>
         </member>
         <member name="M:WinUtilities.WinMatch.Match(WinUtilities.Window)">
@@ -3912,7 +3906,7 @@
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
-        <member name="M:WinUtilities.WinMatch.MatchHwnd(System.Nullable{WinUtilities.WinHandle})">
+        <member name="M:WinUtilities.WinMatch.MatchHwnd(System.Nullable{System.IntPtr})">
             <summary>Check if the window handle matches</summary>
         </member>
         <member name="M:WinUtilities.WinMatch.MatchTitle(System.String)">
@@ -3922,7 +3916,10 @@
             <summary>Check if the window class matches</summary>
         </member>
         <member name="M:WinUtilities.WinMatch.MatchExe(System.String)">
-            <summary>Check if the window exe matches</summary>
+            <summary>Check if the window executable name matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.MatchExePath(System.String)">
+            <summary>Check if the window executable path matches</summary>
         </member>
         <member name="M:WinUtilities.WinMatch.MatchPID(System.UInt32)">
             <summary>Check if the window process id matches</summary>

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.6</Version>
+    <Version>0.6.3</Version>
     <Authors>SirVeggie</Authors>
     <Company>SirVeggie</Company>
     <Product />
@@ -23,12 +23,7 @@ The wrapper is mainly centered around the Window class, since in Windows automat
 
 The project is only tested to work on Windows 10, but it should work on earlier versions as well.
 The project is also still under development so later versions can contain breaking changes.</Description>
-    <PackageReleaseNotes>Fixed WinGroup blacklist
-Improved Window.Find() efficiency
-New MatchObject ForAll method
-Rename IMatchObject -&gt; IWinMatch
-Improve window searching efficincy by adding caching
-Changed window search signature and added predicate support</PackageReleaseNotes>
+    <PackageReleaseNotes>Added ExePath support to WinMatch</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

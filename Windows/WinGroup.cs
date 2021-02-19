@@ -61,6 +61,12 @@ namespace WinUtilities {
         public static WinGroup Desktop { get; } = new WinGroup(
             new WinMatch(className: "WorkerW", type: WinMatchType.Full),
             new WinMatch(className: "Progman", type: WinMatchType.Full));
+        /// <summary>Matches the taskbar</summary>
+        public static WinMatch Taskbar { get; } = new WinMatch(className: "Shell_TrayWnd");
+        /// <summary>Matches Steam games installed in a normal install folder</summary>
+        public static WinMatch SteamGames { get; } = new WinMatch(exePath: "steamapps");
+        /// <summary>Matches file explorer windows aka folders</summary>
+        public static WinMatch Folders { get; } = new WinMatch(className: "CabinetWClass", exe: "explorer");
         #endregion
 
         /// <summary>A group of window descriptions that can match a variety of windows.</summary>

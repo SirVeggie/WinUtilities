@@ -22,17 +22,17 @@ namespace WinUtilities {
         private static IVirtualDesktopManager manager = (IVirtualDesktopManager) new VirtualDesktopManager();
 
         internal static bool IsOnCurrent(Window window) {
-            manager.IsWindowOnCurrentVirtualDesktop(window.Hwnd.Raw, out bool result);
+            manager.IsWindowOnCurrentVirtualDesktop(window.Hwnd, out bool result);
             return result;
         }
 
         internal static Guid GetDesktopID(Window window) {
-            manager.GetWindowDesktopId(window.Hwnd.Raw, out Guid id);
+            manager.GetWindowDesktopId(window.Hwnd, out Guid id);
             return id;
         }
 
         internal static void MoveWindow(Window window, Guid desktop) {
-            manager.MoveWindowToDesktop(window.Hwnd.Raw, desktop);
+            manager.MoveWindowToDesktop(window.Hwnd, desktop);
         }
 
         internal static bool IsPinned(Window window) => window.Desktop == new Guid("c2ddea68-66f2-4cf9-8264-1bfd00fbbbac");

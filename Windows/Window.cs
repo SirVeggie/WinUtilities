@@ -54,7 +54,7 @@ namespace WinUtilities {
 
         /// <summary>The handle of the window</summary>
         [DataMember]
-        public WinHandle Hwnd { get; set; }
+        public IntPtr Hwnd { get; set; }
         private Process process;
         private string exepath;
         [DataMember]
@@ -72,9 +72,9 @@ namespace WinUtilities {
         /// <summary>The title of the window</summary>
         public string Title {
             get {
-                int length = WinAPI.GetWindowTextLength(Hwnd.Raw);
+                int length = WinAPI.GetWindowTextLength(Hwnd);
                 StringBuilder title = new StringBuilder(length);
-                WinAPI.GetWindowText(Hwnd.Raw, title, length + 1);
+                WinAPI.GetWindowText(Hwnd, title, length + 1);
                 return title.ToString();
             }
         }
@@ -83,7 +83,7 @@ namespace WinUtilities {
         public string Class {
             get {
                 if (@class == null) {
-                    @class = WinAPI.GetClassFromHwnd(Hwnd.Raw);
+                    @class = WinAPI.GetClassFromHwnd(Hwnd);
                     if (@class == null) return "";
                 }
 
@@ -120,12 +120,12 @@ namespace WinUtilities {
         public uint PID {
             get {
                 if (pid == 0)
-                    pid = WinAPI.GetPidFromHwnd(Hwnd.Raw);
+                    pid = WinAPI.GetPidFromHwnd(Hwnd);
                 return pid;
             }
         }
 
-        /// <summary>The <see cref="System.Diagnostics.Process"/> this window belongs to</summary>
+        /// <summary>The <see cref="System.Diagnostics.Process"/> this window belongs to. Getting this info is slow (1000x slower than other properties) so prefer other ways like ExePath and Exe if possible.</summary>
         public Process Process {
             get {
                 if (process == null)
@@ -138,7 +138,7 @@ namespace WinUtilities {
         public int ThreadID {
             get {
                 if (threadID == 0)
-                    threadID = (int) WinAPI.GetWindowThreadProcessId(Hwnd.Raw, out _);
+                    threadID = (int) WinAPI.GetWindowThreadProcessId(Hwnd, out _);
                 return threadID;
             }
         }
@@ -146,9 +146,9 @@ namespace WinUtilities {
 
         #region state
         /// <summary>Check if the window is not hidden</summary>
-        public bool IsVisible => WinAPI.IsWindowVisible(Hwnd.Raw);
+        public bool IsVisible => WinAPI.IsWindowVisible(Hwnd);
         /// <summary>Check if the window is interactable</summary>
-        public bool IsEnabled => WinAPI.IsWindowEnabled(Hwnd.Raw);
+        public bool IsEnabled => WinAPI.IsWindowEnabled(Hwnd);
         /// <summary>Check if the window is the foreground window</summary>
         public bool IsActive => HwndActive(Hwnd);
         /// <summary>Check if a window with this handle still exists</summary>
@@ -162,9 +162,9 @@ namespace WinUtilities {
         /// <summary>Check if this is a child window of some other window</summary>
         public bool IsChild => HasStyle(WS.CHILD);
         /// <summary>Check if the window is maximized</summary>
-        public bool IsMaximized => WinAPI.IsZoomed(Hwnd.Raw);
+        public bool IsMaximized => WinAPI.IsZoomed(Hwnd);
         /// <summary>Check if the window is minimized</summary>
-        public bool IsMinimized => WinAPI.IsIconic(Hwnd.Raw);
+        public bool IsMinimized => WinAPI.IsIconic(Hwnd);
         /// <summary>Check if the window is fullscreen</summary>
         public bool IsFullscreen => !HasStyle(WS.CAPTION) && !HasStyle(WS.BORDER) && Area == Monitor.Area;
         /// <summary>Check if the window is set to borderless mode</summary>
@@ -191,9 +191,9 @@ namespace WinUtilities {
         }
 
         /// <summary>Full combination of the associated Window Styles</summary>
-        public WS Style => (WS) (long) WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWL_STYLE);
+        public WS Style => (WS) (long) WinAPI.GetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_STYLE);
         /// <summary>Full combination of the associated Window Ex Styles</summary>
-        public WS_EX ExStyle => (WS_EX) (long) WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWL_EXSTYLE);
+        public WS_EX ExStyle => (WS_EX) (long) WinAPI.GetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_EXSTYLE);
         /// <summary>The percentage of how see-through the window is</summary>
         public double Opacity {
             get => throw new NotImplementedException();
@@ -205,13 +205,13 @@ namespace WinUtilities {
             set => SetTranscolor(value);
         }
         /// <summary>Check if a window has a region</summary>
-        public bool HasRegion => WinAPI.GetWindowRgnBox(Hwnd.Raw, out _) != WinAPI.RegionType.Error;
+        public bool HasRegion => WinAPI.GetWindowRgnBox(Hwnd, out _) != WinAPI.RegionType.Error;
         /// <summary>Check the type of the region</summary>
-        public WinAPI.RegionType RegionType => WinAPI.GetWindowRgnBox(Hwnd.Raw, out _);
+        public WinAPI.RegionType RegionType => WinAPI.GetWindowRgnBox(Hwnd, out _);
         /// <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
         public Area RegionBounds {
             get {
-                if (WinAPI.GetWindowRgnBox(Hwnd.Raw, out WinAPI.RECT rect) != WinAPI.RegionType.Error)
+                if (WinAPI.GetWindowRgnBox(Hwnd, out WinAPI.RECT rect) != WinAPI.RegionType.Error)
                     return rect;
                 return Area.NaN;
             }
@@ -269,12 +269,12 @@ namespace WinUtilities {
         public Area RawArea {
             get {
                 WinAPI.RECT rect = new WinAPI.RECT();
-                WinAPI.GetWindowRect(Hwnd.Raw, ref rect);
+                WinAPI.GetWindowRect(Hwnd, ref rect);
                 return new Area(rect.Left, rect.Top, rect.Width, rect.Height);
             }
             private set {
                 Area target = value.IsValid ? value : value.FillNaN(RawArea);
-                WinAPI.SetWindowPos(Hwnd.Raw, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
+                WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
             }
         }
 
@@ -284,8 +284,8 @@ namespace WinUtilities {
                 WinAPI.POINT point = new WinAPI.POINT();
                 WinAPI.RECT rect = new WinAPI.RECT();
 
-                WinAPI.ClientToScreen(Hwnd.Raw, ref point);
-                WinAPI.GetClientRect(Hwnd.Raw, ref rect);
+                WinAPI.ClientToScreen(Hwnd, ref point);
+                WinAPI.GetClientRect(Hwnd, ref rect);
 
                 return new Area(point.X, point.Y, rect.Width, rect.Height);
             }
@@ -326,16 +326,16 @@ namespace WinUtilities {
 
         #region other
         /// <summary>Check if the hwnd is zero meaning it points to nothing</summary>
-        public bool IsNone => Hwnd.IsZero;
+        public bool IsNone => Hwnd == IntPtr.Zero;
         /// <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the class name.</summary>
-        public bool IsValid => Hwnd.IsValid && Exists && Class == new Window(Hwnd).Class;
+        public bool IsValid => Hwnd != IntPtr.Zero && Exists && Class == new Window(Hwnd).Class;
 
         /// <summary>The parent of the window</summary>
-        public Window Parent => new Window(WinAPI.GetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWLP_HWNDPARENT));
+        public Window Parent => new Window(WinAPI.GetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWLP_HWNDPARENT));
         /// <summary>The topmost window in the window's parent chain</summary>
-        public Window Ancestor => new Window(WinAPI.GetAncestor(Hwnd.Raw, WinAPI.AncestorFlags.GetRoot));
+        public Window Ancestor => new Window(WinAPI.GetAncestor(Hwnd, WinAPI.AncestorFlags.GetRoot));
         /// <summary>The topmost window in the window's parent chain on a deeper level than <see cref="Ancestor"/></summary>
-        public Window Owner => new Window(WinAPI.GetAncestor(Hwnd.Raw, WinAPI.AncestorFlags.GetRootOwner));
+        public Window Owner => new Window(WinAPI.GetAncestor(Hwnd, WinAPI.AncestorFlags.GetRootOwner));
         /// <summary>Retrieves all window of the same process.</summary>
         public List<Window> Siblings => GetWindows(new WinMatch(pid: PID), WinFindMode.All);
 
@@ -352,8 +352,7 @@ namespace WinUtilities {
         #region constructors
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         private Window() { }
-        public Window(WinHandle hwnd) => Hwnd = hwnd;
-        public Window(IntPtr hwnd) => Hwnd = new WinHandle(hwnd);
+        public Window(IntPtr hwnd) => Hwnd = hwnd;
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
 
@@ -389,12 +388,33 @@ namespace WinUtilities {
         #region basic actions
         /// <summary>Set the window as the foreground window.</summary>
         public Window Activate() {
-            WinAPI.SetForegroundWindow(Hwnd.Raw);
+            if (IsActive)
+                return this;
+            WinAPI.SetForegroundWindow(Hwnd);
+            if (IsMinimized)
+                Restore();
+            return this;
+        }
+        /// <summary>If active, Move the window to the bottom and activate the highest window</summary>
+        public Window Deactivate() {
+            if (!IsActive)
+                return this;
+            if (IsAlwaysOnTop)
+                MoveUnder(GetWindows(w => w.IsTopLevel).Last(w => w.IsAlwaysOnTop) ?? None);
+            else
+                MoveBottom();
+
+            var windows = GetWindows(w => w.IsTopLevel && !w.IsAlwaysOnTop && w.IsOnCurrentDesktop);
+
+            if (windows.Count > 1)
+                windows[0].Activate();
+            else
+                Find(WinGroup.Taskbar).Activate();
             return this;
         }
         /// <summary>Enable/disable the window. Disabled windows cannot be interacted with.</summary>
         public Window Enable(bool state) {
-            WinAPI.EnableWindow(Hwnd.Raw, state);
+            WinAPI.EnableWindow(Hwnd, state);
             return this;
         }
         /// <summary>Kill the process associated with the window.</summary>
@@ -408,22 +428,29 @@ namespace WinUtilities {
 
         /// <summary>Minimize the window.</summary>
         public Window Minimize() {
-            WinAPI.ShowWindow(Hwnd.Raw, WinAPI.SW.FORCEMINIMIZE);
+            if (IsMinimized)
+                return this;
+            WinAPI.ShowWindow(Hwnd, WinAPI.SW.FORCEMINIMIZE);
+            if (IsActive)
+                Deactivate();
             return this;
         }
         /// <summary>Maximize the window.</summary>
         public Window Maximize() {
-            WinAPI.ShowWindow(Hwnd.Raw, WinAPI.SW.MAXIMIZE);
+            if (IsMaximized)
+                return this;
+            WinAPI.ShowWindow(Hwnd, WinAPI.SW.MAXIMIZE);
             return this;
         }
         /// <summary>Restore the window from a minimized or a maximized state to normal.</summary>
         public Window Restore() {
-            WinAPI.ShowWindow(Hwnd.Raw, WinAPI.SW.RESTORE);
+            if (IsMinimized || IsMaximized)
+                WinAPI.ShowWindow(Hwnd, WinAPI.SW.RESTORE);
             return this;
         }
         /// <summary>Set window visibility. False hides the window from the user completely. It's more complex than simple transparency.</summary>
         public Window SetVisible(bool state) {
-            WinAPI.ShowWindow(Hwnd.Raw, state ? WinAPI.SW.SHOWNA : WinAPI.SW.HIDE);
+            WinAPI.ShowWindow(Hwnd, state ? WinAPI.SW.SHOWNA : WinAPI.SW.HIDE);
             return this;
         }
         /// <summary>Normally hidden windows often have weird alternate behaviour. This version is less prone to that while not 'truly' hiding a window.</summary>
@@ -433,44 +460,44 @@ namespace WinUtilities {
         }
 
         /// <summary>Post a message to the window's message pump. Returns true on success.</summary>
-        public bool PostMessage(WM msg, int wParam, int lParam) => WinAPI.PostMessage(Hwnd.Raw, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
+        public bool PostMessage(WM msg, int wParam, int lParam) => WinAPI.PostMessage(Hwnd, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
         /// <summary>Send a message the window's message pump. Waits for a reply from the window.</summary>
-        public IntPtr SendMessage(WM msg, int wParam, int lParam) => WinAPI.SendMessage(Hwnd.Raw, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
+        public IntPtr SendMessage(WM msg, int wParam, int lParam) => WinAPI.SendMessage(Hwnd, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
         /// <summary>Set individual Window Styles on and off.</summary>
         public Window SetStyle(WS style, bool state) {
             WS newStyle = state ? Style | style : Style & ~style;
-            WinAPI.SetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWL_STYLE, (IntPtr) newStyle);
-            WinAPI.SetWindowPos(Hwnd.Raw, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
+            WinAPI.SetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_STYLE, (IntPtr) newStyle);
+            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
             return this;
         }
         /// <summary>Set individual Window Ex Styles on and off.</summary>
         public Window SetExStyle(WS_EX style, bool state) {
             WS_EX newStyle = state ? ExStyle | style : ExStyle & ~style;
-            WinAPI.SetWindowLongPtr(Hwnd.Raw, WinAPI.WindowLongFlags.GWL_EXSTYLE, (IntPtr) newStyle);
-            WinAPI.SetWindowPos(Hwnd.Raw, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
+            WinAPI.SetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_EXSTYLE, (IntPtr) newStyle);
+            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
             return this;
         }
 
         /// <summary>Brings the window to the top of visibility.</summary>
         public Window MoveTop() {
-            WinAPI.SetWindowPos(Hwnd.Raw, (IntPtr) WinAPI.HWND_Z.TOP, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
+            WinAPI.SetWindowPos(Hwnd, (IntPtr) WinAPI.HWND_Z.TOP, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
         /// <summary>Drop the window to the bottom of visibility.</summary>
         public Window MoveBottom() {
-            WinAPI.SetWindowPos(Hwnd.Raw, (IntPtr) WinAPI.HWND_Z.BOTTOM, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
+            WinAPI.SetWindowPos(Hwnd, (IntPtr) WinAPI.HWND_Z.BOTTOM, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
         /// <summary>Move this window under the specified window in visibility.</summary>
         public Window MoveUnder(Window win) {
-            WinAPI.SetWindowPos(Hwnd.Raw, win.Hwnd.Raw, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
+            WinAPI.SetWindowPos(Hwnd, win.Hwnd, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
 
         /// <summary>Make a window always stay visible.</summary>
         public Window SetAlwaysOnTop(bool state) {
             IntPtr msg = state ? (IntPtr) WinAPI.HWND_Z.TOPMOST : (IntPtr) WinAPI.HWND_Z.NOTOPMOST;
-            WinAPI.SetWindowPos(Hwnd.Raw, msg, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
+            WinAPI.SetWindowPos(Hwnd, msg, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
 
@@ -492,7 +519,7 @@ namespace WinUtilities {
             percentage = Math.Min(Math.Max(percentage, 0), 100);
             int alpha = (int) Math.Round(percentage * 255 / 100);
 
-            WinAPI.SetLayeredWindowAttributes(Hwnd.Raw, 0, (byte) alpha, WinAPI.LayeredWindowFlags.LWA_ALPHA);
+            WinAPI.SetLayeredWindowAttributes(Hwnd, 0, (byte) alpha, WinAPI.LayeredWindowFlags.LWA_ALPHA);
             return this;
         }
 
@@ -504,7 +531,7 @@ namespace WinUtilities {
 
             var c = new WinAPI.COLORREF(color);
 
-            WinAPI.SetLayeredWindowAttributes(Hwnd.Raw, c.ColorDWORD, 0, WinAPI.LayeredWindowFlags.LWA_COLORKEY);
+            WinAPI.SetLayeredWindowAttributes(Hwnd, c.ColorDWORD, 0, WinAPI.LayeredWindowFlags.LWA_COLORKEY);
             return this;
         }
 
@@ -558,7 +585,7 @@ namespace WinUtilities {
         private Window OffsetMove(Area pos, Area offset, Area raw) {
             pos = pos.IsValid ? pos : pos.FillNaN(offset);
             pos += raw - offset;
-            WinAPI.SetWindowPos(Hwnd.Raw, IntPtr.Zero, pos.IntX, pos.IntY, pos.IntW, pos.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
+            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, pos.IntX, pos.IntY, pos.IntW, pos.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
 
@@ -594,7 +621,7 @@ namespace WinUtilities {
         /// <param name="region">Relative to raw window coordinates.</param>
         public Window SetRegion(Area region) {
             var r = WinAPI.CreateRectRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom);
-            WinAPI.SetWindowRgn(Hwnd.Raw, r, true);
+            WinAPI.SetWindowRgn(Hwnd, r, true);
             WinAPI.DeleteObject(r);
             return this;
         }
@@ -605,7 +632,7 @@ namespace WinUtilities {
         /// <param name="verticalRounding">Amount of vertical rounding</param>
         public Window SetRoundedRegion(Area region, int horizontalRounding, int verticalRounding) {
             var r = WinAPI.CreateRoundRectRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom, horizontalRounding, verticalRounding);
-            WinAPI.SetWindowRgn(Hwnd.Raw, r, true);
+            WinAPI.SetWindowRgn(Hwnd, r, true);
             WinAPI.DeleteObject(r);
             return this;
         }
@@ -614,7 +641,7 @@ namespace WinUtilities {
         /// <param name="region">Relative to raw window coordinates.</param>
         public Window SetEllipticRegion(Area region) {
             var r = WinAPI.CreateEllipticRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom);
-            WinAPI.SetWindowRgn(Hwnd.Raw, r, true);
+            WinAPI.SetWindowRgn(Hwnd, r, true);
             WinAPI.DeleteObject(r);
             return this;
         }
@@ -639,7 +666,7 @@ namespace WinUtilities {
                 WinAPI.CombineRgn(full, full, item, WinAPI.CombineRgnFlags.Or);
             }
 
-            WinAPI.SetWindowRgn(Hwnd.Raw, full, true);
+            WinAPI.SetWindowRgn(Hwnd, full, true);
 
             foreach (var item in r) {
                 WinAPI.DeleteObject(item);
@@ -663,14 +690,14 @@ namespace WinUtilities {
 
             var region = WinAPI.CreatePolygonRgn(points.Cast<WinAPI.POINT>().ToArray(), points.Length, fillType);
 
-            WinAPI.SetWindowRgn(Hwnd.Raw, region, true);
+            WinAPI.SetWindowRgn(Hwnd, region, true);
             WinAPI.DeleteObject(region);
             return this;
         }
 
         /// <summary>Remove the window's region to display the full window.</summary>
         public Window RemoveRegion() {
-            WinAPI.SetWindowRgn(Hwnd.Raw, IntPtr.Zero, true);
+            WinAPI.SetWindowRgn(Hwnd, IntPtr.Zero, true);
             return this;
         }
         #endregion
@@ -738,7 +765,7 @@ namespace WinUtilities {
             }
 
             // get te hDC of the target window
-            IntPtr hdcSrc = WinAPI.GetWindowDC(Hwnd.Raw);
+            IntPtr hdcSrc = WinAPI.GetWindowDC(Hwnd);
             // create a device context we can copy to
             IntPtr hdcDest = WinAPI.CreateCompatibleDC(hdcSrc);
             // create a bitmap we can copy it to,
@@ -750,7 +777,7 @@ namespace WinUtilities {
             WinAPI.BitBlt(hdcDest, 0, 0, capture.IntW, capture.IntH, hdcSrc, capture.IntX, capture.IntY, WinAPI.TernaryRasterOperations.SRCCOPY);
             // clean up
             WinAPI.DeleteDC(hdcDest);
-            WinAPI.ReleaseDC(Hwnd.Raw, hdcSrc);
+            WinAPI.ReleaseDC(Hwnd, hdcSrc);
             // get a .NET image object for it
             Image img = Image.FromHbitmap(hBitmap);
             // free up the Bitmap object
@@ -765,7 +792,7 @@ namespace WinUtilities {
             Image img = new Bitmap(area.IntW, area.IntH);
             Graphics g = Graphics.FromImage(img);
             IntPtr dc = g.GetHdc();
-            WinAPI.PrintWindow(Hwnd.Raw, dc, clientOnly);
+            WinAPI.PrintWindow(Hwnd, dc, clientOnly);
             g.ReleaseHdc();
             g.Dispose();
             return img;
@@ -1127,17 +1154,17 @@ namespace WinUtilities {
         /// <summary>Removes all entries from the list of cached windows</summary>
         public static void ClearCache() => CachedWindows = new Dictionary<IntPtr, Window>();
         /// <summary>Refresh the cache so it contains the freshest information of windows. Can be used occasionally to prevent the very unlikely window handle collisions.</summary>
-        public static void RefreshCache() => CachedWindows = GetWindows().ToDictionary(w => w.Hwnd.Raw);
+        public static void RefreshCache() => CachedWindows = GetWindows().ToDictionary(w => w.Hwnd);
         /// <summary>Get the handle of the topmost window of the given point</summary>
         public static Window FromPoint(int x, int y) => FromPoint(new Coord(x, y));
         /// <summary>Get the handle of the topmost window of the given point</summary>
         public static Window FromPoint(Coord point) => new Window(WinAPI.WindowFromPoint(point)).Ancestor;
         /// <summary>Check if a window with the specified handle exists</summary>
-        private static bool HwndExists(WinHandle hwnd) => WinAPI.IsWindow(hwnd.Raw);
+        private static bool HwndExists(IntPtr hwnd) => WinAPI.IsWindow(hwnd);
         /// <summary>Check if a window with the specified handle is active</summary>
-        private static bool HwndActive(WinHandle hwnd) => hwnd == GetActiveHandle();
+        private static bool HwndActive(IntPtr hwnd) => hwnd == GetActiveHandle();
         /// <summary>Get the handle of the active window</summary>
-        private static WinHandle GetActiveHandle() => new WinHandle(WinAPI.GetForegroundWindow());
+        private static IntPtr GetActiveHandle() => WinAPI.GetForegroundWindow();
         #endregion
 
         #endregion
@@ -1148,7 +1175,7 @@ namespace WinUtilities {
         public static bool operator !=(Window a, Window b) => !(a == b);
         public override bool Equals(object obj) => obj is Window && this == (Window) obj;
         public override int GetHashCode() => -640239398 + Hwnd.GetHashCode();
-        public override string ToString() => $"{{Window: {(Hwnd.IsZero ? "None" : Hwnd.Raw.ToString())}}}";
+        public override string ToString() => $"{{Window: {(Hwnd == IntPtr.Zero ? "None" : Hwnd.ToString())}}}";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }

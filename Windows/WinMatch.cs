@@ -14,17 +14,19 @@ namespace WinUtilities {
         private string _title;
         private string _class;
         private string _exe;
+        private string _exePath;
 
         private Regex rTitle;
         private Regex rClass;
         private Regex rExe;
+        private Regex rExePath;
 
         private static readonly RegexOptions rOptions = RegexOptions.IgnoreCase;
 
         #region properties
         /// <summary>Matched window handle</summary>
         [DataMember]
-        public WinHandle? Hwnd { get; set; }
+        public IntPtr? Hwnd { get; set; }
 
         /// <summary>Matched window title</summary>
         [DataMember]
@@ -46,13 +48,23 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Matched window exe</summary>
+        /// <summary>Matched window executable name</summary>
         [DataMember]
         public string Exe {
             get => _exe;
             set {
                 _exe = value;
                 rExe = new Regex(value ?? "", rOptions);
+            }
+        }
+
+        /// <summary>Matched window full executable name and path</summary>
+        [DataMember]
+        public string ExePath {
+            get => _exePath;
+            set {
+                _exePath = value;
+                rExePath = new Regex(value ?? "", rOptions);
             }
         }
 
@@ -85,11 +97,12 @@ namespace WinUtilities {
         #endregion
 
         /// <summary>Create a new match condition</summary>
-        public WinMatch(WinHandle? hwnd = null, string title = null, string className = null, string exe = null, uint pid = 0, Guid desktop = default, WinMatchType type = WinMatchType.RegEx) {
+        public WinMatch(IntPtr? hwnd = null, string title = null, string className = null, string exe = null, string exePath = null, uint pid = 0, Guid desktop = default, WinMatchType type = WinMatchType.RegEx) {
             Hwnd = hwnd;
             _title = title;
             _class = className;
             _exe = exe;
+            _exePath = exePath;
             PID = pid;
             Desktop = desktop;
 
@@ -99,6 +112,7 @@ namespace WinUtilities {
             rTitle = new Regex(title ?? "", rOptions);
             rClass = new Regex(className ?? "", rOptions);
             rExe = new Regex(exe ?? "", rOptions);
+            rExePath = new Regex(exePath ?? "", rOptions);
         }
 
         #region methods
@@ -108,9 +122,10 @@ namespace WinUtilities {
         /// <summary>Check if the given info matches</summary>
         public bool Match(WindowInfo info) {
             bool result = (Hwnd == null || Hwnd == info.Hwnd)
-                       && (Exe == null || MatchSingle(info.Exe, Exe, rExe))
                        && (Class == null || MatchSingle(info.Class, Class, rClass))
                        && (PID == 0 || PID == info.PID)
+                       && (Exe == null || MatchSingle(info.Exe, Exe, rExe))
+                       && (ExePath == null || MatchSingle(info.ExePath, ExePath, rExePath))
                        && (Title == null || MatchSingle(info.Title, Title, rTitle))
                        && (Desktop == Guid.Empty || Desktop == info.Desktop);
             return IsReverse ^ result;
@@ -130,13 +145,15 @@ namespace WinUtilities {
 
         #region single matching
         /// <summary>Check if the window handle matches</summary>
-        public bool MatchHwnd(WinHandle? hwnd) => IsReverse ^ (Hwnd == null || Hwnd == hwnd);
+        public bool MatchHwnd(IntPtr? hwnd) => IsReverse ^ (Hwnd == null || Hwnd == hwnd);
         /// <summary>Check if the window title matches</summary>
         public bool MatchTitle(string title) => IsReverse ^ MatchSingle(title, Title, rTitle);
         /// <summary>Check if the window class matches</summary>
         public bool MatchClass(string className) => IsReverse ^ MatchSingle(className, Class, rClass);
-        /// <summary>Check if the window exe matches</summary>
+        /// <summary>Check if the window executable name matches</summary>
         public bool MatchExe(string exe) => IsReverse ^ MatchSingle(exe, Exe, rExe);
+        /// <summary>Check if the window executable path matches</summary>
+        public bool MatchExePath(string exePath) => IsReverse ^ MatchSingle(exePath, ExePath, rExePath);
         /// <summary>Check if the window process id matches</summary>
         public bool MatchPID(uint pid) => IsReverse ^ (PID == 0 || PID == pid);
 
