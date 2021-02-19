@@ -34,6 +34,10 @@ namespace WinUtilities {
         internal static void MoveWindow(Window window, Guid desktop) {
             manager.MoveWindowToDesktop(window.Hwnd.Raw, desktop);
         }
+
+        internal static bool IsPinned(Window window) => window.Desktop == new Guid("c2ddea68-66f2-4cf9-8264-1bfd00fbbbac");
+
+        internal static bool IsPinnedApp(Window window) => window.Desktop == new Guid("bb64d5b7-4de3-4ab2-a87c-db7601aea7dc");
     }
 
     [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("a5cd92ff-29be-454c-8d04-d82879fb3f1b")]

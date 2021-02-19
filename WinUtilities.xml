@@ -3430,7 +3430,7 @@
             <summary>Check if the hwnd is zero meaning it points to nothing</summary>
         </member>
         <member name="P:WinUtilities.Window.IsValid">
-            <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the exe name.</summary>
+            <summary>Check if the object points to a real window. Also validates deserialized objects in case hwnd values were recycled by the OS by comparing the class name.</summary>
         </member>
         <member name="P:WinUtilities.Window.Parent">
             <summary>The parent of the window</summary>
