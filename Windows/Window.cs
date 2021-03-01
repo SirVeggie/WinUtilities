@@ -59,7 +59,7 @@ namespace WinUtilities {
         private string exepath;
         [DataMember]
         private string @class;
-        private int threadID;
+        private uint threadID;
         private string exe;
         private uint pid;
 
@@ -94,12 +94,8 @@ namespace WinUtilities {
         /// <summary>The name of this window's <see cref="System.Diagnostics.Process"/>' .exe file. The .exe part is excluded</summary>
         public string Exe {
             get {
-                if (exe == null) {
-                    var s = ExePath?.Split('\\').Last().Split('.');
-                    if (s == null) return "";
-                    exe = string.Join(".", s.Take(s.Length - 1));
-                }
-
+                if (exe == null)
+                    exe = WinAPI.GetExeNameFromPath(ExePath);
                 return exe;
             }
         }
@@ -135,10 +131,10 @@ namespace WinUtilities {
         }
 
         /// <summary>The ID of the system thread that spawned this window</summary>
-        public int ThreadID {
+        public uint ThreadID {
             get {
                 if (threadID == 0)
-                    threadID = (int) WinAPI.GetWindowThreadProcessId(Hwnd, out _);
+                    threadID = WinAPI.GetWindowThreadProcessId(Hwnd, out _);
                 return threadID;
             }
         }
@@ -317,7 +313,7 @@ namespace WinUtilities {
         /// <summary>A window object that doesn't point to any window</summary>
         public static Window None => new Window(IntPtr.Zero);
         /// <summary>Retrieves the active window</summary>
-        public static Window Active => new Window(GetActiveHandle());
+        public static Window Active => new Window(WinAPI.GetForegroundWindow());
         /// <summary>Retrieves the first window under the mouse</summary>
         public static Window FromMouse => FromPoint(Mouse.Position);
         /// <summary>Retrieves the current process's windows</summary>
@@ -345,6 +341,8 @@ namespace WinUtilities {
         public Guid Desktop => SimpleDesktop.GetDesktopID(this);
         /// <summary>Get a match object that only matches this window</summary>
         public WinMatch AsMatch => new WinMatch(hwnd: Hwnd);
+        /// <summary>Get the application specific volume controller</summary>
+        public AppVolume Audio => WinAudio.GetApp(PID) ?? WinAudio.GetApp(Exe);
         #endregion
 
         #endregion
@@ -388,13 +386,71 @@ namespace WinUtilities {
         #region basic actions
         /// <summary>Set the window as the foreground window.</summary>
         public Window Activate() {
-            if (IsActive)
-                return this;
-            WinAPI.SetForegroundWindow(Hwnd);
-            if (IsMinimized)
-                Restore();
+            if (!IsActive)
+                _ = ActivateComplex();
             return this;
         }
+
+        /// <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
+        public async Task<bool> ActivateAsync() {
+            if (IsActive)
+                return true;
+            return await ActivateComplex();
+        }
+
+        /// <summary>A complex but more reliable window activation</summary>
+        private async Task<bool> ActivateComplex() {
+            var targetThread = ThreadID;
+            var currentThread = WinAPI.GetCurrentThreadId();
+
+            if (targetThread != currentThread && WinAPI.IsHungAppWindow(Hwnd))
+                return false;
+            Restore();
+            if (await ActivateSimple())
+                return true;
+
+            bool isAttachedToFore = false;
+            bool isAttachedToTarget = false;
+            var foreWin = Active;
+            uint foreThread = 0;
+
+            if (!foreWin.IsNone) {
+                foreThread = foreWin.ThreadID;
+                if (foreThread != 0 && currentThread != foreThread && !WinAPI.IsHungAppWindow(foreWin.Hwnd))
+                    isAttachedToFore = WinAPI.AttachThreadInput(currentThread, foreThread, true);
+                if (foreThread != 0 && targetThread != 0 && foreThread != targetThread)
+                    isAttachedToTarget = WinAPI.AttachThreadInput(foreThread, targetThread, true);
+            }
+
+            bool success = false;
+            for (int i = 0; i < 4; i++) {
+                success = await ActivateSimple();
+                if (success) {
+                    break;
+                }
+            }
+
+            if (isAttachedToFore)
+                WinAPI.AttachThreadInput(currentThread, foreThread, false);
+            if (isAttachedToTarget)
+                WinAPI.AttachThreadInput(foreThread, targetThread, false);
+            if (success)
+                return true;
+            return false;
+        }
+
+        /// <summary>Simple method of activating a window</summary>
+        private async Task<bool> ActivateSimple() {
+            WinAPI.SetForegroundWindow(Hwnd);
+            await Task.Delay(5);
+            var newForeWindow = Active;
+            if (newForeWindow == this)
+                return true;
+            if (newForeWindow == Owner)
+                return true;
+            return false;
+        }
+
         /// <summary>If active, Move the window to the bottom and activate the highest window</summary>
         public Window Deactivate() {
             if (!IsActive)
@@ -430,7 +486,7 @@ namespace WinUtilities {
         public Window Minimize() {
             if (IsMinimized)
                 return this;
-            WinAPI.ShowWindow(Hwnd, WinAPI.SW.FORCEMINIMIZE);
+            WinAPI.ShowWindow(Hwnd, WinAPI.SW.MINIMIZE);
             if (IsActive)
                 Deactivate();
             return this;
@@ -1162,9 +1218,7 @@ namespace WinUtilities {
         /// <summary>Check if a window with the specified handle exists</summary>
         private static bool HwndExists(IntPtr hwnd) => WinAPI.IsWindow(hwnd);
         /// <summary>Check if a window with the specified handle is active</summary>
-        private static bool HwndActive(IntPtr hwnd) => hwnd == GetActiveHandle();
-        /// <summary>Get the handle of the active window</summary>
-        private static IntPtr GetActiveHandle() => WinAPI.GetForegroundWindow();
+        private static bool HwndActive(IntPtr hwnd) => hwnd == WinAPI.GetForegroundWindow();
         #endregion
 
         #endregion

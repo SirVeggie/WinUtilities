@@ -17,6 +17,12 @@ namespace WinUtilities {
 
         #region imports
         [DllImport("user32.dll")]
+        public static extern bool IsHungAppWindow(IntPtr hwnd);
+        
+        [DllImport("kernel32.dll")]
+        public static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
         public static extern bool BringWindowToTop(IntPtr hwnd);
 
         [DllImport("user32.dll")]

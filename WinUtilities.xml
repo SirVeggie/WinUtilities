@@ -6472,6 +6472,18 @@
         <member name="M:WinUtilities.Window.Activate">
             <summary>Set the window as the foreground window.</summary>
         </member>
+        <member name="M:WinUtilities.Window.ActivateForce">
+            <summary></summary>
+        </member>
+        <member name="M:WinUtilities.Window.ActivateAsync">
+            <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ActivateComplex">
+            <summary>A complex but more reliable window activation</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ActivateSimple">
+            <summary>Simple method of activating a window</summary>
+        </member>
         <member name="M:WinUtilities.Window.Deactivate">
             <summary>If active, Move the window to the bottom and activate the highest window</summary>
         </member>
@@ -6759,9 +6771,6 @@
         </member>
         <member name="M:WinUtilities.Window.HwndActive(System.IntPtr)">
             <summary>Check if a window with the specified handle is active</summary>
-        </member>
-        <member name="M:WinUtilities.Window.GetActiveHandle">
-            <summary>Get the handle of the active window</summary>
         </member>
         <member name="T:WinUtilities.WindowInfo">
             <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
