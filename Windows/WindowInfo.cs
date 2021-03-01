@@ -68,8 +68,8 @@ namespace WinUtilities {
             }
         }
 
-        private int threadid;
-        public int ThreadID {
+        private uint threadid;
+        public uint ThreadID {
             get {
                 if (threadid == 0)
                     threadid = Window.ThreadID;

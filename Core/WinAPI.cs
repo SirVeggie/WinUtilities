@@ -17,6 +17,18 @@ namespace WinUtilities {
 
         #region imports
         [DllImport("user32.dll")]
+        public static extern bool BringWindowToTop(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
+        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("user32.dll")]
+        public static extern int RegisterWindowMessage(string messageName);
+
+        [DllImport("user32.dll")]
+        public static extern bool AddClipboardFormatListener(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
         public static extern uint MapVirtualKey(uint nCode, KeyMapFlags flag);
 
         [DllImport("dwmapi.dll")]
@@ -388,9 +400,29 @@ namespace WinUtilities {
 
             return res;
         }
+
+        /// <summary>Get the name of the exe file from it's full path</summary>
+        public static string GetExeNameFromPath(string path) {
+            var s = path?.Split('\\').Last().Split('.');
+            if (s == null) return "";
+            return string.Join(".", s.Take(s.Length - 1));
+        }
+
+        /// <summary>Get the name of the exe file from a process id</summary>
+        public static string GetExeNameFromPid(uint pid) => GetExeNameFromPath(GetPathFromPid(pid));
         #endregion
 
         #region enums
+        public enum ShellHook {
+            Activate = 4,
+            Create = 1,
+            Destroy = 2,
+            Flash = 32774,
+            RudeActivate = 32772,
+            Redraw = 6,
+            MonitorChanged = 16
+        }
+
         public enum KeyMapFlags : uint {
             /// <summary>The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If there is no translation, the function returns 0.</summary>
             VirtualKey_to_ScanCode = 0,

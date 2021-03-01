@@ -402,6 +402,7 @@ namespace WinUtilities {
 
         /// <summary>Print screen key</summary>
         PrintScrn = VKey.SNAPSHOT | F_Extended,
+        /// <summary>Pause break key</summary>
         Pause = VKey.PAUSE,
         Insert = VKey.INSERT | F_Extended,
         Home = VKey.HOME | F_Extended,

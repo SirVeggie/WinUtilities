@@ -217,6 +217,8 @@ namespace WinUtilities {
         PRINT = 0x317,
         PRINTCLIENT = 0x318,
 
+        CLIPBOARDCHANGED = 0x31D,
+
         HANDHELDFIRST = 0x358,
         HANDHELDLAST = 0x35F,
         PENWINFIRST = 0x380,
