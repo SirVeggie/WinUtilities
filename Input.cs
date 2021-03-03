@@ -54,17 +54,26 @@ namespace WinUtilities {
                 case WM.LBUTTONUP: {
                     return new KeyState(Key.LButton, false);
                 }
+                case WM.LBUTTONDBLCLK: {
+                    return new KeyState(Key.LButton, true);
+                }
                 case WM.RBUTTONDOWN: {
                     return new KeyState(Key.RButton, true);
                 }
                 case WM.RBUTTONUP: {
                     return new KeyState(Key.RButton, false);
                 }
+                case WM.RBUTTONDBLCLK: {
+                    return new KeyState(Key.RButton, true);
+                }
                 case WM.MBUTTONDOWN: {
                     return new KeyState(Key.MButton, true);
                 }
                 case WM.MBUTTONUP: {
                     return new KeyState(Key.MButton, false);
+                }
+                case WM.MBUTTONDBLCLK: {
+                    return new KeyState(Key.MButton, true);
                 }
                 case WM.MOUSEWHEEL: {
                     var key = data >> 16 > 0 ? Key.WheelUp : Key.WheelDown;
@@ -75,7 +84,7 @@ namespace WinUtilities {
                     return new KeyState(key, true);
                 }
                 case WM.XBUTTONDOWN: {
-                    data = data >> 16;
+                    data >>= 16;
                     if (data == 1) {
                         return new KeyState(Key.XButton1, true);
                     } else {
@@ -83,11 +92,19 @@ namespace WinUtilities {
                     }
                 }
                 case WM.XBUTTONUP: {
-                    data = data >> 16;
+                    data >>= 16;
                     if (data == 1) {
                         return new KeyState(Key.XButton1, false);
                     } else {
                         return new KeyState(Key.XButton2, false);
+                    }
+                }
+                case WM.XBUTTONDBLCLK: {
+                    data >>= 16;
+                    if (data == 1) {
+                        return new KeyState(Key.XButton1, true);
+                    } else {
+                        return new KeyState(Key.XButton2, true);
                     }
                 }
                 case WM.MOUSEMOVE: {

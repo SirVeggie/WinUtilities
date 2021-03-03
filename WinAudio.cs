@@ -53,14 +53,14 @@ namespace WinUtilities {
                 }
             }
 
-            return min * 100;
+            return min;
         }
 
         /// <summary>Set the volume of the included process/processes</summary>
         public void SetVolume(float volume) {
-            volume = volume > 100 ? 100 : volume < 0 ? 0 : volume;
+            volume = volume > 1 ? 1 : volume < 0 ? 0 : volume;
             foreach (var ISAV in audios) {
-                ISAV.SetMasterVolume(volume / 100, Guid.Empty);
+                ISAV.SetMasterVolume(volume, Guid.Empty);
             }
         }
 
@@ -91,20 +91,37 @@ namespace WinUtilities {
         }
     }
 
+    /// <summary>Audio device used to set its volume or default device</summary>
     public class AudioDevice : IDisposable {
 
         /// <summary>ID of the audio device</summary>
         public string ID { get; }
         /// <summary>Display name of the audio device</summary>
         public string Name => GetName();
+        /// <summary>Control the device's master volume</summary>
+        public float Volume { get => GetVolume(); set => SetVolume(value); }
+        /// <summary>Role of the device when fetched</summary>
+        public ERole? PreviousRole;
 
         /// <summary></summary>
-        public AudioDevice(string id) {
+        public AudioDevice(string id, ERole? prevRole = null) {
             ID = id;
+            PreviousRole = prevRole;
         }
 
+        /// <summary>Set device as the default device</summary>
         public void SetDefault() {
+            throw new NotImplementedException();
+        }
 
+        /// <summary>Get device's master volume</summary>
+        public float GetVolume() {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>Set device's master volume</summary>
+        public void SetVolume(float level) {
+            throw new NotImplementedException();
         }
 
         private string GetName() {
@@ -208,7 +225,7 @@ namespace WinUtilities {
                 }
 
                 master.GetMasterVolumeLevelScalar(out float level);
-                return level * 100;
+                return level;
 
             } finally {
                 if (master != null) {
@@ -218,13 +235,14 @@ namespace WinUtilities {
         }
 
         private static void SetMasterVolume(float volume) {
+            volume = volume > 1 ? 1 : volume < 0 ? 0 : volume;
             IAudioEndpointVolume master = null;
 
             try {
                 master = GetMasterVolumeObject();
                 if (master == null)
                     return;
-                master.SetMasterVolumeLevelScalar(volume / 100, Guid.Empty);
+                master.SetMasterVolumeLevelScalar(volume, Guid.Empty);
 
             } finally {
                 if (master != null) {

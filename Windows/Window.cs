@@ -384,29 +384,72 @@ namespace WinUtilities {
         #endregion
 
         #region basic actions
-        /// <summary>Set the window as the foreground window.</summary>
-        public Window Activate() {
-            if (!IsActive)
+        /// <summary>Set this window as the foreground window</summary>
+        public Window Activate(Activation policy = Activation.SoftThenForce) {
+            if (IsActive)
+                return this;
+            if (policy == Activation.Soft)
+                WinAPI.SetForegroundWindow(Hwnd);
+            else if (policy == Activation.Force)
+                ActivateForce();
+            else
                 _ = ActivateComplex();
             return this;
         }
 
         /// <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
-        public async Task<bool> ActivateAsync() {
+        public async Task<bool> ActivateAsync(Activation policy = Activation.SoftThenForce) {
             if (IsActive)
                 return true;
-            return await ActivateComplex();
+            if (policy == Activation.Soft)
+                return await ActivateSimple(1);
+            if (policy == Activation.SoftThenForce)
+                return await ActivateComplex();
+            ActivateForce();
+            await Task.Delay(1);
+            return Active == this || Active == Owner;
+        }
+
+        /// <summary>Forceful window activation</summary>
+        private Window ActivateForce(bool alternate = false) {
+            if (IsActive)
+                return this;
+
+            uint curthread = WinAPI.GetCurrentThreadId();
+            uint forethread = Active.ThreadID;
+            uint winthread = ThreadID;
+
+            if (forethread != curthread)
+                WinAPI.AttachThreadInput(curthread, forethread, true);
+            if (forethread != winthread)
+                WinAPI.AttachThreadInput(forethread, winthread, true);
+
+            if (!alternate) {
+                WinAPI.SetForegroundWindow(Hwnd);
+            } else {
+                WinAPI.BringWindowToTop(Hwnd);
+                WinAPI.ShowWindow(Hwnd, WinAPI.SW.SHOW);
+            }
+
+            if (forethread != curthread)
+                WinAPI.AttachThreadInput(curthread, forethread, false);
+            if (forethread != winthread)
+                WinAPI.AttachThreadInput(forethread, winthread, false);
+
+            return this;
         }
 
         /// <summary>A complex but more reliable window activation</summary>
-        private async Task<bool> ActivateComplex() {
+        private async Task<bool> ActivateComplex(bool alternate = false) {
+            int checkDelay = 1;
             var targetThread = ThreadID;
             var currentThread = WinAPI.GetCurrentThreadId();
 
             if (targetThread != currentThread && WinAPI.IsHungAppWindow(Hwnd))
                 return false;
-            Restore();
-            if (await ActivateSimple())
+            if (IsMinimized)
+                Restore();
+            if (await ActivateSimple(checkDelay))
                 return true;
 
             bool isAttachedToFore = false;
@@ -424,7 +467,16 @@ namespace WinUtilities {
 
             bool success = false;
             for (int i = 0; i < 4; i++) {
-                success = await ActivateSimple();
+                if (!alternate) {
+                    success = await ActivateSimple(checkDelay);
+                } else {
+                    WinAPI.BringWindowToTop(Hwnd);
+                    WinAPI.ShowWindow(Hwnd, WinAPI.SW.SHOW);
+                    await Task.Delay(checkDelay);
+                    var a = Active;
+                    success = a == this || a == Owner;
+                }
+
                 if (success) {
                     break;
                 }
@@ -439,10 +491,10 @@ namespace WinUtilities {
             return false;
         }
 
-        /// <summary>Simple method of activating a window</summary>
-        private async Task<bool> ActivateSimple() {
+        /// <summary>Activate a window and check if it succeeded</summary>
+        private async Task<bool> ActivateSimple(int checkDelay) {
             WinAPI.SetForegroundWindow(Hwnd);
-            await Task.Delay(5);
+            await Task.Delay(checkDelay);
             var newForeWindow = Active;
             if (newForeWindow == this)
                 return true;
@@ -1221,6 +1273,18 @@ namespace WinUtilities {
         private static bool HwndActive(IntPtr hwnd) => hwnd == WinAPI.GetForegroundWindow();
         #endregion
 
+        #endregion
+
+        #region structs
+        /// <summary>Determines the method of activating a window</summary>
+        public enum Activation {
+            /// <summary>Uses a simple activation logic that is graceful. Activation might fail sometimes.</summary>
+            Soft,
+            /// <summary>Uses a forceful method of activation that is more reliable</summary>
+            Force,
+            /// <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
+            SoftThenForce
+        }
         #endregion
 
         #region operators

@@ -129,6 +129,8 @@ namespace WinUtilities {
         public static bool IsStateless(this Key key) => key.HasFlag(Key.F_Stateless);
         /// <summary>Check if the key is a toggleable key</summary>
         public static bool IsToggle(this Key key) => key.HasFlag(Key.F_Toggle);
+        /// <summary>Check if the key is the None key. Represents a fail or null state.</summary>
+        public static bool IsNone(this Key key) => key == Key.None;
 
         /// <summary>Check if the key is a keyboard key instead of a mouse or a custom key</summary>
         public static bool IsKeyboard(this Key key) {

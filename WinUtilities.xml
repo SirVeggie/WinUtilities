@@ -5475,6 +5475,9 @@
         <member name="M:WinUtilities.EnhancedKey.IsToggle(WinUtilities.Key)">
             <summary>Check if the key is a toggleable key</summary>
         </member>
+        <member name="M:WinUtilities.EnhancedKey.IsNone(WinUtilities.Key)">
+            <summary>Check if the key is the None key. Represents a fail or null state.</summary>
+        </member>
         <member name="M:WinUtilities.EnhancedKey.IsKeyboard(WinUtilities.Key)">
             <summary>Check if the key is a keyboard key instead of a mouse or a custom key</summary>
         </member>
@@ -6161,14 +6164,32 @@
         <member name="M:WinUtilities.AppVolume.Dispose">
             <summary></summary>
         </member>
+        <member name="T:WinUtilities.AudioDevice">
+            <summary>Audio device used to set its volume or default device</summary>
+        </member>
         <member name="P:WinUtilities.AudioDevice.ID">
             <summary>ID of the audio device</summary>
         </member>
         <member name="P:WinUtilities.AudioDevice.Name">
             <summary>Display name of the audio device</summary>
         </member>
-        <member name="M:WinUtilities.AudioDevice.#ctor(System.String)">
+        <member name="P:WinUtilities.AudioDevice.Volume">
+            <summary>Control the device's master volume</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDevice.PreviousRole">
+            <summary>Role of the device when fetched</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.#ctor(System.String,System.Nullable{WinUtilities.CoreAudio.Enumerations.ERole})">
             <summary></summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.SetDefault">
+            <summary>Set device as the default device</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.GetVolume">
+            <summary>Get device's master volume</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.SetVolume(System.Single)">
+            <summary>Set device's master volume</summary>
         </member>
         <member name="M:WinUtilities.AudioDevice.Dispose">
             <summary></summary>
@@ -6469,20 +6490,20 @@
         <member name="M:WinUtilities.Window.HasExStyle(WinUtilities.WS_EX)">
             <summary>Check for individual Window Ex Styles.</summary>
         </member>
-        <member name="M:WinUtilities.Window.Activate">
-            <summary>Set the window as the foreground window.</summary>
+        <member name="M:WinUtilities.Window.Activate(WinUtilities.Window.Activation)">
+            <summary>Set this window as the foreground window</summary>
         </member>
-        <member name="M:WinUtilities.Window.ActivateForce">
-            <summary></summary>
-        </member>
-        <member name="M:WinUtilities.Window.ActivateAsync">
+        <member name="M:WinUtilities.Window.ActivateAsync(WinUtilities.Window.Activation)">
             <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
         </member>
-        <member name="M:WinUtilities.Window.ActivateComplex">
+        <member name="M:WinUtilities.Window.ActivateForce(System.Boolean)">
+            <summary>Forceful window activation</summary>
+        </member>
+        <member name="M:WinUtilities.Window.ActivateComplex(System.Boolean)">
             <summary>A complex but more reliable window activation</summary>
         </member>
-        <member name="M:WinUtilities.Window.ActivateSimple">
-            <summary>Simple method of activating a window</summary>
+        <member name="M:WinUtilities.Window.ActivateSimple(System.Int32)">
+            <summary>Activate a window and check if it succeeded</summary>
         </member>
         <member name="M:WinUtilities.Window.Deactivate">
             <summary>If active, Move the window to the bottom and activate the highest window</summary>
@@ -6771,6 +6792,18 @@
         </member>
         <member name="M:WinUtilities.Window.HwndActive(System.IntPtr)">
             <summary>Check if a window with the specified handle is active</summary>
+        </member>
+        <member name="T:WinUtilities.Window.Activation">
+            <summary>Determines the method of activating a window</summary>
+        </member>
+        <member name="F:WinUtilities.Window.Activation.Soft">
+            <summary>Uses a simple activation logic that is graceful. Activation might fail sometimes.</summary>
+        </member>
+        <member name="F:WinUtilities.Window.Activation.Force">
+            <summary>Uses a forceful method of activation that is more reliable</summary>
+        </member>
+        <member name="F:WinUtilities.Window.Activation.SoftThenForce">
+            <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
         </member>
         <member name="T:WinUtilities.WindowInfo">
             <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
