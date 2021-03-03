@@ -63,6 +63,9 @@ namespace WinUtilities {
         private string exe;
         private uint pid;
 
+        private double? opacity;
+        private Color? transColor;
+
         private static int borderWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXSIZEFRAME);
         private static int borderVisibleWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXBORDER);
 
@@ -190,14 +193,14 @@ namespace WinUtilities {
         public WS Style => (WS) (long) WinAPI.GetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_STYLE);
         /// <summary>Full combination of the associated Window Ex Styles</summary>
         public WS_EX ExStyle => (WS_EX) (long) WinAPI.GetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_EXSTYLE);
-        /// <summary>The percentage of how see-through the window is</summary>
+        /// <summary>The percentage of how see-through the window is. Uses a cached value.</summary>
         public double Opacity {
-            get => throw new NotImplementedException();
+            get => opacity == null ? FetchCache(Hwnd)?.opacity ?? 100 : (double) opacity;
             set => SetOpacity(value);
         }
-        /// <summary>The color of the window that is rendered as fully transparent</summary>
+        /// <summary>The color of the window that is rendered as fully transparent. Uses a cached value.</summary>
         public Color Transcolor {
-            get => throw new NotImplementedException();
+            get => transColor == null ? FetchCache(Hwnd)?.transColor ?? default : (Color) transColor;
             set => SetTranscolor(value);
         }
         /// <summary>Check if a window has a region</summary>
@@ -624,10 +627,16 @@ namespace WinUtilities {
                 SetExStyle(WS_EX.LAYERED, true);
             }
 
-            percentage = Math.Min(Math.Max(percentage, 0), 100);
-            int alpha = (int) Math.Round(percentage * 255 / 100);
+            percentage = Math.Min(Math.Max(percentage, 0), 1);
+            int alpha = (int) Math.Round(percentage * 255);
 
             WinAPI.SetLayeredWindowAttributes(Hwnd, 0, (byte) alpha, WinAPI.LayeredWindowFlags.LWA_ALPHA);
+
+            opacity = alpha / 255.0;
+            if (FetchCache(Hwnd) is Window win)
+                win.opacity = opacity;
+            else
+                CachedWindows.Add(Hwnd, this);
             return this;
         }
 
@@ -640,11 +649,26 @@ namespace WinUtilities {
             var c = new WinAPI.COLORREF(color);
 
             WinAPI.SetLayeredWindowAttributes(Hwnd, c.ColorDWORD, 0, WinAPI.LayeredWindowFlags.LWA_COLORKEY);
+
+            transColor = color;
+            if (FetchCache(Hwnd) is Window win)
+                win.transColor = transColor;
+            else
+                CachedWindows.Add(Hwnd, this);
             return this;
         }
 
         /// <summary>Fully disable transparency. Might improve performance after window transparency has been tweaked.</summary>
         public Window SetTransOff() => SetExStyle(WS_EX.LAYERED | WS_EX.TRANSPARENT, false);
+
+        /// <summary>Set the parent window of this window</summary>
+        public Window SetParent(Window window) => SetParent(window, out _);
+
+        /// <summary>Set the parent window of this window</summary>
+        public Window SetParent(Window window, out Window prevParent) {
+            prevParent = new Window(WinAPI.SetParent(Hwnd, window.Hwnd));
+            return this;
+        }
 
         /// <summary>Disable the resizing limits of the window.</summary>
         public Window UnlockSize() {
@@ -1263,6 +1287,8 @@ namespace WinUtilities {
         public static void ClearCache() => CachedWindows = new Dictionary<IntPtr, Window>();
         /// <summary>Refresh the cache so it contains the freshest information of windows. Can be used occasionally to prevent the very unlikely window handle collisions.</summary>
         public static void RefreshCache() => CachedWindows = GetWindows().ToDictionary(w => w.Hwnd);
+        /// <summary>Fetch a matching window from cache if found, otherwise return null</summary>
+        public static Window FetchCache(IntPtr handle) => CachedWindows.ContainsKey(handle) ? CachedWindows[handle] : null;
         /// <summary>Get the handle of the topmost window of the given point</summary>
         public static Window FromPoint(int x, int y) => FromPoint(new Coord(x, y));
         /// <summary>Get the handle of the topmost window of the given point</summary>

@@ -16,6 +16,13 @@ namespace WinUtilities {
         #endregion
 
         #region imports
+        /// <summary>Changes the parent window of the specified child window</summary>
+        /// <param name="hwndChild">A handle to the child window</param>
+        /// <param name="hwndParent">A handle to the new parent window. If this parameter is NULL, the desktop window becomes the new parent window. If this parameter is HWND_MESSAGE, the child window becomes a message-only window.</param>
+        /// <remarks><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setparent"></a></remarks>
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetParent(IntPtr hwndChild, IntPtr hwndParent);
+
         [DllImport("user32.dll")]
         public static extern bool IsHungAppWindow(IntPtr hwnd);
         
