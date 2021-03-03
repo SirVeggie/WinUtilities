@@ -4409,6 +4409,12 @@
         <member name="T:WinUtilities.WinAPI">
             <summary>Access to a variety of native Windows API calls, structures, enums and some custom macros</summary>
         </member>
+        <member name="M:WinUtilities.WinAPI.SetParent(System.IntPtr,System.IntPtr)">
+            <summary>Changes the parent window of the specified child window</summary>
+            <param name="hwndChild">A handle to the child window</param>
+            <param name="hwndParent">A handle to the new parent window. If this parameter is NULL, the desktop window becomes the new parent window. If this parameter is HWND_MESSAGE, the child window becomes a message-only window.</param>
+            <remarks><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setparent"></a></remarks>
+        </member>
         <member name="M:WinUtilities.WinAPI.ClipCursor(System.IntPtr)">
             <summary>Only pass IntPtr.Zero as an argument.</summary>
         </member>
@@ -6383,10 +6389,10 @@
             <summary>Full combination of the associated Window Ex Styles</summary>
         </member>
         <member name="P:WinUtilities.Window.Opacity">
-            <summary>The percentage of how see-through the window is</summary>
+            <summary>The percentage of how see-through the window is. Uses a cached value.</summary>
         </member>
         <member name="P:WinUtilities.Window.Transcolor">
-            <summary>The color of the window that is rendered as fully transparent</summary>
+            <summary>The color of the window that is rendered as fully transparent. Uses a cached value.</summary>
         </member>
         <member name="P:WinUtilities.Window.HasRegion">
             <summary>Check if a window has a region</summary>
@@ -6567,6 +6573,12 @@
         </member>
         <member name="M:WinUtilities.Window.SetTransOff">
             <summary>Fully disable transparency. Might improve performance after window transparency has been tweaked.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetParent(WinUtilities.Window)">
+            <summary>Set the parent window of this window</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetParent(WinUtilities.Window,WinUtilities.Window@)">
+            <summary>Set the parent window of this window</summary>
         </member>
         <member name="M:WinUtilities.Window.UnlockSize">
             <summary>Disable the resizing limits of the window.</summary>
@@ -6780,6 +6792,9 @@
         </member>
         <member name="M:WinUtilities.Window.RefreshCache">
             <summary>Refresh the cache so it contains the freshest information of windows. Can be used occasionally to prevent the very unlikely window handle collisions.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.FetchCache(System.IntPtr)">
+            <summary>Fetch a matching window from cache if found, otherwise return null</summary>
         </member>
         <member name="M:WinUtilities.Window.FromPoint(System.Int32,System.Int32)">
             <summary>Get the handle of the topmost window of the given point</summary>

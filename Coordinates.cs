@@ -287,7 +287,7 @@ namespace WinUtilities {
         public static implicit operator Area(Rectangle r) => new Area(r.X, r.Y, r.Width, r.Height);
         public static implicit operator Rectangle(Area a) {
             a = a.Round();
-            return new Rectangle((int) a.Left, (int) a.Top, (int) a.Right, (int) a.Bottom);
+            return new Rectangle((int) a.X, (int) a.Y, (int) a.W, (int) a.H);
         }
 
         public static implicit operator Point(Area a) => new Point((int) a.X, (int) a.Y);
