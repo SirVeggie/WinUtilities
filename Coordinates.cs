@@ -73,16 +73,16 @@ namespace WinUtilities {
         /// <summary>Location of the upper left corner of the area</summary>
         public Coord Point { get => point; set => point = value; }
         /// <summary>Size of the area</summary>
-        public Coord Size { get => size; set => size = value; }
+        public Coord Size { get => size; set => size = value.AsPositive(); }
 
         /// <summary>Left edge of the area</summary>
         public double X { get => point.X; set => point.X = value; }
         /// <summary>Top edge of the area</summary>
         public double Y { get => point.Y; set => point.Y = value; }
         /// <summary>Width of the area</summary>
-        public double W { get => size.X; set => size.X = value; }
+        public double W { get => size.X; set => size.X = Math.Max(0, value); }
         /// <summary>Height of the area</summary>
-        public double H { get => size.Y; set => size.Y = value; }
+        public double H { get => size.Y; set => size.Y = Math.Max(0, value); }
 
         /// <summary>Left edge of the area as an int</summary>
         public int IntX => point.IntX;
@@ -253,6 +253,32 @@ namespace WinUtilities {
                 H = value - Y;
             }
         }
+
+        // Edges
+
+        /// <summary>Get the top left edge object</summary>
+        public Edge TopLeftEdge => new Edge(EdgeType.TopLeft, TopLeft);
+
+        /// <summary>Get the top right edge object</summary>
+        public Edge TopRightEdge => new Edge(EdgeType.TopRight, TopRight);
+
+        /// <summary>Get the bottom left edge object</summary>
+        public Edge BottomLeftEdge => new Edge(EdgeType.BottomLeft, BottomLeft);
+
+        /// <summary>Get the bottom right edge object</summary>
+        public Edge BottomRightEdge => new Edge(EdgeType.BottomRight, BottomRight);
+
+        /// <summary>Get the left center edge object</summary>
+        public Edge LeftEdge => new Edge(EdgeType.Left, new Coord(Left, Center.Y));
+
+        /// <summary>Get the right center edge object</summary>
+        public Edge RightEdge => new Edge(EdgeType.Right, new Coord(Right, Center.Y));
+
+        /// <summary>Get the top center edge object</summary>
+        public Edge TopEdge => new Edge(EdgeType.Top, new Coord(Center.X, Top));
+
+        /// <summary>Get the bottom center edge object</summary>
+        public Edge BottomEdge => new Edge(EdgeType.Bottom, new Coord(Center.X, Bottom));
         #endregion
 
         #endregion
@@ -261,55 +287,17 @@ namespace WinUtilities {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public Area(double? x = null, double? y = null, double? w = null, double? h = null) {
             point = new Coord(x, y);
-            size = new Coord(w, h);
+            size = new Coord(w, h).AsPositive();
         }
 
         public Area(Coord? point = null, Coord? size = null) {
             this.point = point ?? Coord.NaN;
-            this.size = size ?? Coord.NaN;
+            this.size = (size ?? Coord.NaN).AsPositive();
         }
 
         public Area(Area other) {
             point = other.point;
-            size = other.size;
-        }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        #endregion
-
-        #region operators
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public static implicit operator Area(WinAPI.RECT r) => new Area(r.X, r.Y, r.Width, r.Height);
-        public static implicit operator WinAPI.RECT(Area a) {
-            a = a.Round();
-            return new WinAPI.RECT((int) a.Left, (int) a.Top, (int) a.Right, (int) a.Bottom);
-        }
-
-        public static implicit operator Area(Rectangle r) => new Area(r.X, r.Y, r.Width, r.Height);
-        public static implicit operator Rectangle(Area a) {
-            a = a.Round();
-            return new Rectangle((int) a.X, (int) a.Y, (int) a.W, (int) a.H);
-        }
-
-        public static implicit operator Point(Area a) => new Point((int) a.X, (int) a.Y);
-        public static implicit operator Size(Area a) => new Size((int) a.W, (int) a.H);
-
-        public static bool operator ==(Area a, Area b) => a.Point == b.Point && a.Size == b.Size;
-        public static bool operator !=(Area a, Area b) => !(a == b);
-        public static Area operator +(Area a, Area b) => new Area(a.Point + b.Point, a.Size + b.Size);
-        public static Area operator -(Area a, Area b) => new Area(a.Point - b.Point, a.Size - b.Size);
-        public static Area operator -(Area a) => new Area(-a.Point, -a.Size);
-        public static Area operator *(Area a, Area b) => new Area(a.Point * b.Point, a.Size * b.Size);
-        public static Area operator /(Area a, Area b) => new Area(a.Point / b.Point, a.Size / b.Size);
-        public static Area operator *(Area a, double b) => new Area(a.X * b, a.Y * b, a.W * b, a.H * b);
-        public static Area operator *(double a, Area b) => new Area(b.X * a, b.Y * a, b.W * a, b.H * a);
-        public static Area operator /(Area a, double b) => new Area(a.X / b, a.Y / b, a.W / b, a.H / b);
-        public override bool Equals(object obj) => obj is Area && this == (Area) obj;
-        public override string ToString() => "{" + X + ", " + Y + ", " + W + ", " + H + "}";
-        public override int GetHashCode() {
-            int hashCode = 1392910933;
-            hashCode = hashCode * -1521134295 + Point.GetHashCode();
-            hashCode = hashCode * -1521134295 + Size.GetHashCode();
-            return hashCode;
+            size = other.size.AsPositive();
         }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
@@ -333,6 +321,13 @@ namespace WinUtilities {
         /// <summary>Fills the current NaN values with the new ones</summary>
         public Area FillNaN(Area p) => new Area(point.Fill(p.Point), size.Fill(p.Size));
 
+        /// <summary>Center this area in another area so that both area's center points match</summary>
+        public Area CenterOn(Area other) {
+            var area = this;
+            area.Center = other.Center;
+            return area;
+        }
+
         /// <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
         /// <param name="x">Between 0 and 1. Giving 0 targets the area's left edge and 1 targets the right edge. Giving 0.5 would target the center.</param>
         /// <param name="y">Between 0 and 1. Giving 0 targets the area's top edge and 1 targets the bottom edge. Giving 0.5 would target the center.</param>
@@ -341,21 +336,21 @@ namespace WinUtilities {
         /// <summary>Get the <see cref="Edge"/> of a given <see cref="EdgeType"/></summary>
         public Edge GetEdge(EdgeType type) {
             if (type == EdgeType.Left) {
-                return new Edge(type, GetRelativePoint(0, 0.5));
+                return LeftEdge;
             } else if (type == EdgeType.Right) {
-                return new Edge(type, GetRelativePoint(1, 0.5));
+                return RightEdge;
             } else if (type == EdgeType.Top) {
-                return new Edge(type, GetRelativePoint(0.5, 0));
+                return TopEdge;
             } else if (type == EdgeType.Bottom) {
-                return new Edge(type, GetRelativePoint(0.5, 1));
+                return BottomEdge;
             } else if (type == EdgeType.TopLeft) {
-                return new Edge(type, TopLeft);
+                return TopLeftEdge;
             } else if (type == EdgeType.TopRight) {
-                return new Edge(type, TopRight);
+                return TopRightEdge;
             } else if (type == EdgeType.BottomLeft) {
-                return new Edge(type, BottomLeft);
+                return BottomLeftEdge;
             } else if (type == EdgeType.BottomRight) {
-                return new Edge(type, BottomRight);
+                return BottomRightEdge;
             }
 
             throw new ArgumentException("Illegal edge type, must be one of the main types");
@@ -426,6 +421,26 @@ namespace WinUtilities {
             return res;
         }
 
+        /// <summary>Get the closest border to a point. Returns either the left, right, top or bottom border.</summary>
+        /// <remarks>This method differs from the ClosestEdge since this method calculates the distance using the entire edge instead of just the center point of an edge.</remarks>
+        public EdgeType ClosestBorder(Coord point) {
+            var left = Math.Abs(point.X - Left);
+            var right = Math.Abs(point.X - Right);
+            var top = Math.Abs(point.Y - Top);
+            var bottom = Math.Abs(point.Y - Bottom);
+            var min = Math.Min(Math.Min(Math.Min(left, right), top), bottom);
+
+            if (left == min)
+                return EdgeType.Left;
+            if (right == min)
+                return EdgeType.Right;
+            if (top == min)
+                return EdgeType.Top;
+            if (bottom == min)
+                return EdgeType.Bottom;
+            throw new Exception($"Something unexpected happened in {nameof(ClosestBorder)}");
+        }
+
         /// <summary>Moves the area's edges using dynamic selection.</summary>
         public Area SetEdge(Edge edge, bool resize = false, bool relative = false) => SetEdge(edge.Type, edge.Pos, resize, relative);
         /// <summary>Moves the area's edges using dynamic selection. X and Y are the same.</summary>
@@ -472,9 +487,13 @@ namespace WinUtilities {
         /// <summary>Add another area's point to this area's point.</summary>
         public Area AddPoint(Area other) => SetPoint(Point + other.Point);
         /// <summary>Add to the area's point.</summary>
+        public Area AddPoint(double x, double y) => SetPoint(Point + new Coord(x, y));
+        /// <summary>Add to the area's point.</summary>
         public Area AddPoint(Coord point) => SetPoint(Point + point);
         /// <summary>Set another area's point as this area's point.</summary>
         public Area SetPoint(Area other) => SetPoint(other.Point);
+        /// <summary>Set the area's point. Helps with dotting into code.</summary>
+        public Area SetPoint(double x, double y) => SetPoint(new Coord(x, y));
         /// <summary>Set the area's point. Helps with dotting into code.</summary>
         public Area SetPoint(Coord point) {
             Area area = this;
@@ -485,9 +504,13 @@ namespace WinUtilities {
         /// <summary>Add another area's size to this area's size.</summary>
         public Area AddSize(Area other) => SetSize(Size + other.Size);
         /// <summary>Add to the area's size.</summary>
+        public Area AddSize(double x, double y) => SetSize(Size + new Coord(x, y));
+        /// <summary>Add to the area's size.</summary>
         public Area AddSize(Coord size) => SetSize(Size + size);
         /// <summary>Set another area's size as this area's size.</summary>
         public Area SetSize(Area other) => SetSize(other.Size);
+        /// <summary>Set the area's size. Helps with dotting into code.</summary>
+        public Area SetSize(double x, double y) => SetSize(new Coord(x, y));
         /// <summary>Set the area's size. Helps with dotting into code.</summary>
         public Area SetSize(Coord size) {
             Area area = this;
@@ -535,23 +558,205 @@ namespace WinUtilities {
             return area;
         }
 
-        /// <summary>Return a new area that is clamped within the clamp area</summary>
-        public Area ClampWithin(Area clamp) {
+        /// <summary>Return a new area that has been adjusted to fit within the clamp area</summary>
+        public Area ClampWithin(Area clamp, bool resize = false) {
             var area = this;
-            if (Left < clamp.Left) area.Left = clamp.Left;
-            if (Right > clamp.Right) area.RightR = clamp.Right;
-            if (Top < clamp.Top) area.Top = clamp.Top;
-            if (Bottom > clamp.Bottom) area.BottomR = clamp.Bottom;
+
+            if (!resize) {
+                if (area.W > clamp.W) {
+                    area.W = clamp.W;
+                }
+
+                if (area.H > clamp.H) {
+                    area.H = clamp.H;
+                }
+            }
+
+            if (Left < clamp.Left) {
+                if (resize) {
+                    area.Left = clamp.Left;
+                } else {
+                    area.Left = clamp.Left;
+                }
+            }
+
+            if (Right > clamp.Right) {
+                if (resize) {
+                    area.RightR = clamp.Right;
+                } else {
+                    area.RightR = clamp.Right;
+                }
+            }
+
+            if (Top < clamp.Top) {
+                if (resize) {
+                    area.Top = clamp.Top;
+                } else {
+                    area.Top = clamp.Top;
+                }
+            }
+
+            if (Bottom > clamp.Bottom) {
+                if (resize) {
+                    area.BottomR = clamp.Bottom;
+                } else {
+                    area.BottomR = clamp.Bottom;
+                }
+            }
+
             return area;
         }
 
-        /// <summary>Return a new area that has been resized to contain the given area</summary>
-        public Area ClampContain(Area areaToContain) {
+        /// <summary>Return a new area that has been adjusted to exclude the given area</summary>
+        public Area ClampExclude(Area areaToExclude, bool resize = false) {
+            if (!Overlaps(areaToExclude))
+                return this;
             var area = this;
-            if (Left > areaToContain.Left) area.Left = areaToContain.Left;
-            if (Right < areaToContain.Right) area.RightR = areaToContain.Right;
-            if (Top > areaToContain.Top) area.Top = areaToContain.Top;
-            if (Bottom < areaToContain.Bottom) area.BottomR = areaToContain.Bottom;
+
+            var left = areaToExclude.Right - Left;
+            var right = Right - areaToExclude.Left;
+            var top = areaToExclude.Bottom - Top;
+            var bottom = Bottom - areaToExclude.Top;
+            var min = Math.Min(Math.Min(Math.Min(left, right), top), bottom);
+
+            if (left == min) {
+                if (resize) {
+                    area.LeftR = areaToExclude.Right;
+                    if (area.Overlaps(areaToExclude)) {
+                        area.Left = areaToExclude.Right;
+                    }
+                } else {
+                    area.Left = areaToExclude.Right;
+                }
+            } else if (right == min) {
+                if (resize) {
+                    area.RightR = areaToExclude.Left;
+                    if (area.Overlaps(areaToExclude)) {
+                        area.Right = areaToExclude.Left;
+                    }
+                } else {
+                    area.Right = areaToExclude.Left;
+                }
+            } else if (top == min) {
+                if (resize) {
+                    area.TopR = areaToExclude.Bottom;
+                    if (area.Overlaps(areaToExclude)) {
+                        area.Top = areaToExclude.Bottom;
+                    }
+                } else {
+                    area.Top = areaToExclude.Bottom;
+                }
+            } else if (bottom == min) {
+                if (resize) {
+                    area.BottomR = areaToExclude.Top;
+                    if (area.Overlaps(areaToExclude)) {
+                        area.Bottom = areaToExclude.Top;
+                    }
+                } else {
+                    area.Bottom = areaToExclude.Top;
+                }
+            } else {
+                throw new Exception($"Something unexpected happened in {nameof(ClampExclude)}");
+            }
+
+            return area;
+        }
+
+        /// <summary>Return a new area that has been adjusted to exclude the given point</summary>
+        public Area ClampExclude(Coord pointToExclude, bool resize = false) {
+            if (!Contains(pointToExclude))
+                return this;
+            var area = this;
+            var type = ClosestBorder(pointToExclude);
+            if (type == EdgeType.Left || type == EdgeType.Top)
+                pointToExclude += new Coord(1, 1);
+            area = area.SetEdge(type, pointToExclude, resize);
+            return area;
+        }
+
+        /// <summary>Return a new area that has been adjusted to include the given area</summary>
+        public Area ClampInclude(Area areaToContain, bool resize = false) {
+            var area = this;
+
+            if (!resize) {
+                if (area.W < areaToContain.W) {
+                    area.W = areaToContain.W;
+                }
+
+                if (area.H < areaToContain.H) {
+                    area.H = areaToContain.H;
+                }
+            }
+
+            if (Left > areaToContain.Left) {
+                if (resize) {
+                    area.LeftR = areaToContain.Left;
+                } else {
+                    area.Left = areaToContain.Left;
+                }
+            }
+
+            if (Right < areaToContain.Right) {
+                if (resize) {
+                    area.RightR = areaToContain.Right;
+                } else {
+                    area.Right = areaToContain.Right;
+                }
+            }
+
+            if (Top > areaToContain.Top) {
+                if (resize) {
+                    area.TopR = areaToContain.Top;
+                } else {
+                    area.Top = areaToContain.Top;
+                }
+            }
+
+            if (Bottom < areaToContain.Bottom) {
+                if (resize) {
+                    area.BottomR = areaToContain.Bottom;
+                } else {
+                    area.Bottom = areaToContain.Bottom;
+                }
+            }
+
+            return area;
+        }
+
+        /// <summary>Return a new area that has been adjusted to include the given point</summary>
+        public Area ClampInclude(Coord pointToContain, bool resize = false) {
+            var area = this;
+            if (Left > pointToContain.X) {
+                if (resize) {
+                    area.LeftR = pointToContain.X;
+                } else {
+                    area.Left = pointToContain.X;
+                }
+            }
+
+            if (Right <= pointToContain.X) {
+                if (resize) {
+                    area.RightR = pointToContain.X + 1;
+                } else {
+                    area.Right = pointToContain.X + 1;
+                }
+            }
+
+            if (Top > pointToContain.Y) {
+                if (resize) {
+                    area.TopR = pointToContain.Y;
+                } else {
+                    area.Top = pointToContain.Y;
+                }
+            }
+
+            if (Bottom <= pointToContain.Y) {
+                if (resize) {
+                    area.BottomR = pointToContain.Y + 1;
+                } else {
+                    area.Bottom = pointToContain.Y + 1;
+                }
+            }
             return area;
         }
 
@@ -589,6 +794,44 @@ namespace WinUtilities {
         public Area Lerp(Area target, double t) => Lerp(this, target, t);
         /// <summary>Lerp between two areas</summary>
         public static Area Lerp(Area from, Area to, double t) => new Area(from.Point.Lerp(to.Point, t), from.Size.Lerp(to.Size, t));
+        #endregion
+
+        #region operators
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public static implicit operator Area(WinAPI.RECT r) => new Area(r.X, r.Y, r.Width, r.Height);
+        public static implicit operator WinAPI.RECT(Area a) {
+            a = a.Round();
+            return new WinAPI.RECT((int) a.Left, (int) a.Top, (int) a.Right, (int) a.Bottom);
+        }
+
+        public static implicit operator Area(Rectangle r) => new Area(r.X, r.Y, r.Width, r.Height);
+        public static implicit operator Rectangle(Area a) {
+            a = a.Round();
+            return new Rectangle((int) a.X, (int) a.Y, (int) a.W, (int) a.H);
+        }
+
+        public static implicit operator Point(Area a) => new Point((int) a.X, (int) a.Y);
+        public static implicit operator Size(Area a) => new Size((int) a.W, (int) a.H);
+
+        public static bool operator ==(Area a, Area b) => a.Point == b.Point && a.Size == b.Size;
+        public static bool operator !=(Area a, Area b) => !(a == b);
+        public static Area operator +(Area a, Area b) => new Area(a.Point + b.Point, a.Size + b.Size);
+        public static Area operator -(Area a, Area b) => new Area(a.Point - b.Point, a.Size - b.Size);
+        public static Area operator -(Area a) => new Area(-a.Point, -a.Size);
+        public static Area operator *(Area a, Area b) => new Area(a.Point * b.Point, a.Size * b.Size);
+        public static Area operator /(Area a, Area b) => new Area(a.Point / b.Point, a.Size / b.Size);
+        public static Area operator *(Area a, double b) => new Area(a.X * b, a.Y * b, a.W * b, a.H * b);
+        public static Area operator *(double a, Area b) => new Area(b.X * a, b.Y * a, b.W * a, b.H * a);
+        public static Area operator /(Area a, double b) => new Area(a.X / b, a.Y / b, a.W / b, a.H / b);
+        public override bool Equals(object obj) => obj is Area && this == (Area) obj;
+        public override string ToString() => "{" + X + ", " + Y + ", " + W + ", " + H + "}";
+        public override int GetHashCode() {
+            int hashCode = 1392910933;
+            hashCode = hashCode * -1521134295 + Point.GetHashCode();
+            hashCode = hashCode * -1521134295 + Size.GetHashCode();
+            return hashCode;
+        }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }
 
@@ -671,42 +914,6 @@ namespace WinUtilities {
         }
         #endregion
 
-        #region operators
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public static implicit operator Coord(WinAPI.POINT p) => new Coord(p.X, p.Y);
-        public static implicit operator WinAPI.POINT(Coord c) => new WinAPI.POINT(c.IntX, c.IntY);
-        public static implicit operator Coord(Point p) => new Coord(p.X, p.Y);
-        public static implicit operator Point(Coord c) => new Point(c.IntX, c.IntY);
-        public static implicit operator Coord(Size s) => new Coord(s.Width, s.Height);
-        public static implicit operator Size(Coord c) => new Size(c.IntX, c.IntY);
-
-        public static bool operator ==(Coord a, Coord b) => a.X == b.X && a.Y == b.Y;
-        public static bool operator !=(Coord a, Coord b) => !(a == b);
-        public static Coord operator +(Coord a, Coord b) => new Coord(double.IsNaN(a.X + b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X + b.X, double.IsNaN(a.Y + b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y + b.Y);
-        public static Coord operator -(Coord a, Coord b) => new Coord(double.IsNaN(a.X - b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X - b.X, double.IsNaN(a.Y - b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y - b.Y);
-        public static Coord operator -(Coord a) => new Coord(-a.X, -a.Y);
-        public static Coord operator *(Coord a, Coord b) => new Coord(double.IsNaN(a.X * b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X * b.X, double.IsNaN(a.Y * b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y * b.Y);
-        public static Coord operator /(Coord a, Coord b) => new Coord(double.IsNaN(a.X / b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X / b.X, double.IsNaN(a.Y / b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y / b.Y);
-        public static Coord operator *(Coord a, double b) => new Coord(a.X * b, a.Y * b);
-        public static Coord operator *(double a, Coord b) => new Coord(b.X * a, b.Y * a);
-        public static Coord operator /(Coord a, double b) => new Coord(a.X / b, a.Y / b);
-        public override bool Equals(object obj) => obj is Coord && this == (Coord) obj;
-        public override string ToString() => "{" + X + ", " + Y + "}";
-        public override int GetHashCode() {
-            int hashCode = 1861411795;
-            hashCode = hashCode * -1521134295 + X.GetHashCode();
-            hashCode = hashCode * -1521134295 + Y.GetHashCode();
-            return hashCode;
-        }
-
-        private static double DefNaN(double value, double def) {
-            if (double.IsNaN(value))
-                return def;
-            return value;
-        }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-        #endregion
-
         #region methods
         /// <summary>Fills the current Coord's NaN values with the other one.</summary>
         /// <returns>A copy of itself.</returns>
@@ -722,6 +929,14 @@ namespace WinUtilities {
             var x = Math.Round(X);
             var y = Math.Round(Y);
             return new Coord(x, y);
+        }
+
+        /// <summary>Return a new coordinate whose values were clamped to the positive range</summary>
+        public Coord AsPositive() {
+            var coord = this;
+            coord.X = Math.Max(0, X);
+            coord.Y = Math.Max(0, Y);
+            return coord;
         }
 
         /// <summary>Turns these coordinates relative to the given coordinates</summary>
@@ -785,9 +1000,46 @@ namespace WinUtilities {
         /// <summary>Lerp between two coordinates</summary>
         public static Coord Lerp(Coord a, Coord b, double t) => new Coord(a.X * (1 - t) + b.X * t, a.Y * (1 - t) + b.Y * t);
 
+        /// <summary>Not implemented yet</summary>
         public Coord ProjectToLine(Coord point1, Coord point2) {
             throw new NotImplementedException();
         }
+        #endregion
+
+        #region operators
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public static implicit operator Coord(WinAPI.POINT p) => new Coord(p.X, p.Y);
+        public static implicit operator WinAPI.POINT(Coord c) => new WinAPI.POINT(c.IntX, c.IntY);
+        public static implicit operator Coord(Point p) => new Coord(p.X, p.Y);
+        public static implicit operator Point(Coord c) => new Point(c.IntX, c.IntY);
+        public static implicit operator Coord(Size s) => new Coord(s.Width, s.Height);
+        public static implicit operator Size(Coord c) => new Size(c.IntX, c.IntY);
+
+        public static bool operator ==(Coord a, Coord b) => a.X == b.X && a.Y == b.Y;
+        public static bool operator !=(Coord a, Coord b) => !(a == b);
+        public static Coord operator +(Coord a, Coord b) => new Coord(double.IsNaN(a.X + b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X + b.X, double.IsNaN(a.Y + b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y + b.Y);
+        public static Coord operator -(Coord a, Coord b) => new Coord(double.IsNaN(a.X - b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X - b.X, double.IsNaN(a.Y - b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y - b.Y);
+        public static Coord operator -(Coord a) => new Coord(-a.X, -a.Y);
+        public static Coord operator *(Coord a, Coord b) => new Coord(double.IsNaN(a.X * b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X * b.X, double.IsNaN(a.Y * b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y * b.Y);
+        public static Coord operator /(Coord a, Coord b) => new Coord(double.IsNaN(a.X / b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X / b.X, double.IsNaN(a.Y / b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y / b.Y);
+        public static Coord operator *(Coord a, double b) => new Coord(a.X * b, a.Y * b);
+        public static Coord operator *(double a, Coord b) => new Coord(b.X * a, b.Y * a);
+        public static Coord operator /(Coord a, double b) => new Coord(a.X / b, a.Y / b);
+        public override bool Equals(object obj) => obj is Coord && this == (Coord) obj;
+        public override string ToString() => "{" + X + ", " + Y + "}";
+        public override int GetHashCode() {
+            int hashCode = 1861411795;
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            return hashCode;
+        }
+
+        private static double DefNaN(double value, double def) {
+            if (double.IsNaN(value))
+                return def;
+            return value;
+        }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }
 }
