@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,7 +65,7 @@ namespace WinUtilities {
         private uint pid;
 
         private double? opacity;
-        private Color? transColor;
+        private Color? transcolor;
 
         private static int borderWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXSIZEFRAME);
         private static int borderVisibleWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXBORDER);
@@ -167,25 +168,26 @@ namespace WinUtilities {
         /// <summary>Check if the window is fullscreen</summary>
         public bool IsFullscreen => !HasStyle(WS.CAPTION) && !HasStyle(WS.BORDER) && Area == Monitor.Area;
         /// <summary>Check if the window is set to borderless mode</summary>
-        public bool IsBorderless => HasRegion;
+        public bool IsBorderless => !HasStyle(WS.BORDER) && HasRegion;
+        /// <summary>Some opacity value less than 1 has been set for this window (from this process)</summary>
+        public bool IsTransparent => (opacity != null && opacity != 1) || (FetchCache(Hwnd)?.opacity != null && FetchCache(Hwnd).opacity != 1);
+        /// <summary>Transcolor has been set for this window (from this process)</summary>
+        public bool HasTranscolor => transcolor != null || FetchCache(Hwnd)?.transcolor != null;
         /// <summary>Check if the window is a proper visible foreground window</summary>
         public bool IsTopLevel {
             get {
+                if (!HasStyle(WS.VISIBLE))
+                    return false;
                 var ex = ExStyle;
-
-                if (!HasStyle(WS.VISIBLE)) {
-                    return false;
-                } else if (ex.HasFlag(WS_EX.APPWINDOW)) {
+                if (ex.HasFlag(WS_EX.APPWINDOW))
                     return true;
-                } else if (this != Owner) {
+                if (this != Owner)
                     return false;
-                } else if (ex.HasFlag(WS_EX.TOOLWINDOW)) {
+                if (ex.HasFlag(WS_EX.TOOLWINDOW))
                     return false;
-                } else if (ex.HasFlag(WS_EX.NOREDIRECTIONBITMAP)) {
+                if (ex.HasFlag(WS_EX.NOREDIRECTIONBITMAP))
                     return false;
-                } else {
-                    return true;
-                }
+                return true;
             }
         }
 
@@ -194,116 +196,26 @@ namespace WinUtilities {
         /// <summary>Full combination of the associated Window Ex Styles</summary>
         public WS_EX ExStyle => (WS_EX) (long) WinAPI.GetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_EXSTYLE);
         /// <summary>The percentage of how see-through the window is. Uses a cached value.</summary>
-        public double Opacity {
-            get => opacity == null ? FetchCache(Hwnd)?.opacity ?? 100 : (double) opacity;
-            set => SetOpacity(value);
-        }
+        public double Opacity => opacity == null ? FetchCache(Hwnd)?.opacity ?? 1 : (double) opacity;
         /// <summary>The color of the window that is rendered as fully transparent. Uses a cached value.</summary>
-        public Color Transcolor {
-            get => transColor == null ? FetchCache(Hwnd)?.transColor ?? default : (Color) transColor;
-            set => SetTranscolor(value);
-        }
+        public Color Transcolor => transcolor == null ? FetchCache(Hwnd)?.transcolor ?? default : (Color) transcolor;
         /// <summary>Check if a window has a region</summary>
-        public bool HasRegion => WinAPI.GetWindowRgnBox(Hwnd, out _) != WinAPI.RegionType.Error;
+        public bool HasRegion => !GetRegionBounds().IsNaN;
         /// <summary>Check the type of the region</summary>
         public WinAPI.RegionType RegionType => WinAPI.GetWindowRgnBox(Hwnd, out _);
-        /// <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
-        public Area RegionBounds {
-            get {
-                if (WinAPI.GetWindowRgnBox(Hwnd, out WinAPI.RECT rect) != WinAPI.RegionType.Error)
-                    return rect;
-                return Area.NaN;
-            }
-        }
         #endregion
 
         #region positions
-        /// <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
-        private Area CalculateRealArea(Area? raw = null, Area? client = null, Area? region = null) {
-            if (IsMaximized) {
-                return Monitor.Area;
-            }
-
-            if (IsBorderless) {
-                return CalculateRegionArea(raw, region);
-            }
-
-            Area realRaw = raw == null ? RawArea : (Area) raw;
-            Area realClient = client == null ? ClientArea : (Area) client;
-
-            if (realRaw.Point == realClient.Point) {
-                return realClient;
-            }
-
-            var fix = borderWidth - borderVisibleWidth;
-            return new Area(realRaw.X + fix, realRaw.Y, realRaw.W - fix * 2, realRaw.H - fix);
-        }
-
-        private Area CalculateRegionArea(Area? raw = null, Area? region = null) {
-            Area realRaw = raw == null ? RawArea : (Area) raw;
-            Area realRegion = region == null ? RegionBounds : (Area) region;
-            return realRegion.AddPoint(realRaw);
-        }
-
         /// <summary>A corrected version of the window's area</summary>
-        public Area Area {
-            get {
-                return CalculateRealArea();
-            }
-            private set {
-                Area raw = RawArea;
-                Area client = ClientArea;
-                Area? region = IsBorderless ? (Area?) RegionBounds : null;
-                Area real = CalculateRealArea(raw, client, region);
-
-                OffsetMove(value, real, raw);
-
-                if (IsBorderless) {
-                    SetRegion(((Area) region).AddSize(value.FillNaN(real) - real));
-                }
-            }
-        }
-
+        public Area Area => GetArea();
         /// <summary>The area of the window as given by the OS</summary>
-        public Area RawArea {
-            get {
-                WinAPI.RECT rect = new WinAPI.RECT();
-                WinAPI.GetWindowRect(Hwnd, ref rect);
-                return new Area(rect.Left, rect.Top, rect.Width, rect.Height);
-            }
-            private set {
-                Area target = value.IsValid ? value : value.FillNaN(RawArea);
-                WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
-            }
-        }
-
+        public Area RawArea => GetRawArea();
         /// <summary>The client area of the window. Excludes the caption and the borders</summary>
-        public Area ClientArea {
-            get {
-                WinAPI.POINT point = new WinAPI.POINT();
-                WinAPI.RECT rect = new WinAPI.RECT();
-
-                WinAPI.ClientToScreen(Hwnd, ref point);
-                WinAPI.GetClientRect(Hwnd, ref rect);
-
-                return new Area(point.X, point.Y, rect.Width, rect.Height);
-            }
-            private set => OffsetMove(value, ClientArea);
-        }
-
+        public Area ClientArea => GetClientArea();
         /// <summary>The visible area of the window when in borderless mode</summary>
-        public Area BorderlessArea {
-            get {
-                if (!IsBorderless)
-                    return CalculateBorderlessArea(ClientArea);
-                return CalculateRegionArea(RawArea);
-            }
-            private set {
-                if (!IsBorderless)
-                    OffsetMove(value, BorderlessArea);
-                Area = value;
-            }
-        }
+        public Area BorderlessArea => GetBorderlessArea();
+        /// <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
+        public Area RegionBounds => GetRegionBounds();
         #endregion
 
         #region static
@@ -358,6 +270,102 @@ namespace WinUtilities {
         #endregion
 
         #region instance
+
+        #region positions
+        private Area GetArea() => CalculateRealArea();
+
+        private void SetArea(Area area) {
+            bool borderless = IsBorderless;
+            Area raw = GetRawArea();
+            Area client = GetClientArea();
+            Area? region = borderless ? (Area?) GetRegionBounds() : null;
+            Area real = CalculateRealArea(raw, client, region);
+
+            OffsetMove(area, real, raw);
+
+            if (borderless) {
+                SetRegion(((Area) region).AddSize(area.FillNaN(real) - real));
+            }
+        }
+
+        private Area GetRawArea() {
+            WinAPI.RECT rect = new WinAPI.RECT();
+            WinAPI.GetWindowRect(Hwnd, ref rect);
+            return rect;
+        }
+
+        private void SetRawArea(Area area) {
+            Area target = area.IsValid ? area : area.FillNaN(GetRawArea());
+            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
+        }
+
+        private Area GetClientArea() {
+            WinAPI.POINT point = new WinAPI.POINT();
+            WinAPI.RECT rect = new WinAPI.RECT();
+
+            WinAPI.ClientToScreen(Hwnd, ref point);
+            WinAPI.GetClientRect(Hwnd, ref rect);
+
+            return new Area(point.X, point.Y, rect.Width, rect.Height);
+        }
+
+        private void SetClientArea(Area area) {
+            OffsetMove(area, GetClientArea());
+        }
+
+        private Area GetBorderlessArea() {
+            if (!IsBorderless)
+                return CalculateBorderlessArea(GetClientArea());
+            return CalculateRegionArea(GetRawArea());
+        }
+
+        private void SetBorderlessArea(Area area) {
+            if (!IsBorderless)
+                OffsetMove(area, GetBorderlessArea());
+            SetArea(area);
+        }
+
+        private Area GetRegionBounds() {
+            if (HasStyle(WS.BORDER)) {
+                return Area.NaN;
+            }
+
+            for (int i = 0; i < 5; i++) {
+                if (WinAPI.GetWindowRgnBox(Hwnd, out WinAPI.RECT rect) != WinAPI.RegionType.Error) {
+                    return rect;
+                }
+            }
+
+            return Area.NaN;
+        }
+
+        /// <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
+        private Area CalculateRealArea(Area? raw = null, Area? client = null, Area? region = null) {
+            if (IsMaximized) {
+                return Monitor.Area;
+            }
+
+            if (IsBorderless) {
+                return CalculateRegionArea(raw, region);
+            }
+
+            Area realRaw = raw == null ? RawArea : (Area) raw;
+            Area realClient = client == null ? ClientArea : (Area) client;
+
+            if (realRaw.Point == realClient.Point) {
+                return realClient;
+            }
+
+            var fix = borderWidth - borderVisibleWidth;
+            return new Area(realRaw.X + fix, realRaw.Y, realRaw.W - fix * 2, realRaw.H - fix);
+        }
+
+        private Area CalculateRegionArea(Area? raw = null, Area? region = null) {
+            Area realRaw = raw == null ? GetRawArea() : (Area) raw;
+            Area realRegion = region == null ? GetRegionBounds() : (Area) region;
+            return realRegion.IsValid ? realRegion.AddPoint(realRaw) : realRaw;
+        }
+        #endregion
 
         #region queries
         /// <summary>Check if the window matches with the given description.</summary>
@@ -510,15 +518,15 @@ namespace WinUtilities {
         public Window Deactivate() {
             if (!IsActive)
                 return this;
+            var next = Find(w => w.IsTopLevel && !w.IsAlwaysOnTop && w.IsOnCurrentDesktop && w != this);
+
             if (IsAlwaysOnTop)
                 MoveUnder(GetWindows(w => w.IsTopLevel).Last(w => w.IsAlwaysOnTop) ?? None);
             else
                 MoveBottom();
 
-            var windows = GetWindows(w => w.IsTopLevel && !w.IsAlwaysOnTop && w.IsOnCurrentDesktop);
-
-            if (windows.Count > 1)
-                windows[0].Activate();
+            if (next != None)
+                next.Activate();
             else
                 Find(WinGroup.Taskbar).Activate();
             return this;
@@ -650,23 +658,41 @@ namespace WinUtilities {
 
             WinAPI.SetLayeredWindowAttributes(Hwnd, c.ColorDWORD, 0, WinAPI.LayeredWindowFlags.LWA_COLORKEY);
 
-            transColor = color;
+            transcolor = color;
             if (FetchCache(Hwnd) is Window win)
-                win.transColor = transColor;
+                win.transcolor = transcolor;
             else
                 CachedWindows.Add(Hwnd, this);
             return this;
         }
 
         /// <summary>Fully disable transparency. Might improve performance after window transparency has been tweaked.</summary>
-        public Window SetTransOff() => SetExStyle(WS_EX.LAYERED | WS_EX.TRANSPARENT, false);
+        public Window DisableTransparency() {
+            opacity = null;
+            transcolor = null;
+
+            if (FetchCache(Hwnd) is Window win) {
+                win.opacity = opacity;
+                win.transcolor = transcolor;
+            }
+
+            return SetExStyle(WS_EX.LAYERED | WS_EX.TRANSPARENT, false);
+        }
 
         /// <summary>Set the parent window of this window</summary>
         public Window SetParent(Window window) => SetParent(window, out _);
 
         /// <summary>Set the parent window of this window</summary>
         public Window SetParent(Window window, out Window prevParent) {
-            prevParent = new Window(WinAPI.SetParent(Hwnd, window.Hwnd));
+            prevParent = new Window(WinAPI.SetParent(Hwnd, window?.Hwnd ?? IntPtr.Zero));
+            return this;
+        }
+
+        /// <summary>Set the owner of this window</summary>
+        public Window SetOwner(Window window) {
+            if (IsChild)
+                SetParent(null);
+            WinAPI.SetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWLP_HWNDPARENT, window?.Hwnd ?? IntPtr.Zero);
             return this;
         }
 
@@ -698,15 +724,15 @@ namespace WinUtilities {
         }
 
         /// <summary>Move the window to the new coordinates.</summary>
-        /// <param name="pos">The target area of the window.</param>
+        /// <param name="area">The target area of the window.</param>
         /// <param name="type">Set what the coordinates are relative to.</param>
-        public Window Move(Area pos, CoordType type = CoordType.Normal) {
+        public Window Move(Area area, CoordType type = CoordType.Normal) {
             if (type == CoordType.Normal) {
-                Area = pos;
+                SetArea(area);
             } else if (type == CoordType.Client) {
-                ClientArea = pos;
+                SetClientArea(area);
             } else {
-                RawArea = pos;
+                SetRawArea(area);
             }
 
             return this;
@@ -721,25 +747,27 @@ namespace WinUtilities {
             return this;
         }
 
-        /// <summary>Center the window to the specified monitor.</summary>
-        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
+        /// <summary>Center the window to the specified monitor</summary>
+        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering</param>
         public Window Center(bool ignoreTaskbar = false) => Center(null, null, ignoreTaskbar);
-        /// <summary>Center the window to the specified monitor.</summary>
-        /// <param name="size">Set the target size of the window before centering.</param>
-        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
+        /// <summary>Center the window to the specified monitor</summary>
+        /// <param name="size">Set the target size of the window before centering</param>
+        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering</param>
         public Window Center(Coord size, bool ignoreTaskbar = false) => Center(null, size, ignoreTaskbar);
-        /// <summary>Center the window to the specified monitor.</summary>
-        /// <param name="monitor">Index of the target monitor. Null targets current monitor. Zero based indexing.</param>
-        /// <param name="size">Set the target size of the window before centering.</param>
-        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering.</param>
-        public Window Center(int? monitor, Coord? size = null, bool ignoreTaskbar = false) {
-            Monitor mon = monitor == null ? Monitor : Monitor.FromIndex((int) monitor);
-
-            var newSize = size == null ? Area.Size : (Coord) size;
-            var area = ignoreTaskbar ? mon.Area : mon.WorkArea;
-
-            return Move(new Area(area.Center - newSize / 2, newSize));
-        }
+        /// <summary>Center the window to the specified monitor</summary>
+        /// <param name="monitor">Index of the target monitor. Zero based indexing.</param>
+        /// <param name="size">Set the target size of the window before centering</param>
+        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering</param>
+        public Window Center(int monitor, Coord? size = null, bool ignoreTaskbar = false) => Center(Monitor.FromIndex(monitor), size, ignoreTaskbar);
+        /// <summary>Center the window to the specified monitor</summary>
+        /// <param name="monitor">Null targets current monitor of the window</param>
+        /// <param name="size">Set the target size of the window before centering</param>
+        /// <param name="ignoreTaskbar">Set to true to ignore the space taken by the taskbar when calculating centering</param>
+        public Window Center(Monitor monitor, Coord? size = null, bool ignoreTaskbar = false) => Center(ignoreTaskbar ? (monitor ?? Monitor).Area : (monitor ?? Monitor).WorkArea, size);
+        /// <summary>Center the window to the specified area</summary>
+        /// <param name="area">Area in which the window is centered to</param>
+        /// <param name="size">Set the target size of the window before centering</param>
+        public Window Center(Area area, Coord? size = null) => Move(new Area(area.Center - (size ?? Area.Size) / 2, size ?? Area.Size));
 
         /// <summary>Move the window to a virtual desktop with the specifid id</summary>
         public Window MoveToDesktop(Guid desktop) {
@@ -840,17 +868,17 @@ namespace WinUtilities {
             var style = WS.BORDER | WS.SIZEFRAME | WS.DLGFRAME;
 
             if (state) {
-                var pos = Area;
+                var area = Area;
                 SetStyle(style, false);
                 PostMessage(WM.SIZE, 0, 0);
                 SetRegion(CalculateBorderlessRegion(RawArea, ClientArea));
-                Area = pos;
+                SetArea(area);
             } else {
-                var pos = Area;
+                var area = Area;
                 SetStyle(style, true);
                 PostMessage(WM.SIZE, 0, 0);
                 RemoveRegion();
-                Area = pos;
+                SetArea(area);
             }
 
             return this;
@@ -1146,6 +1174,93 @@ namespace WinUtilities {
         }
         #endregion
 
+        #region flashing
+        /// <summary>Stop a window from flashing</summary>
+        public Window FlashStop() {
+            var data = new WinAPI.FLASHWINFO {
+                hwnd = Hwnd,
+                cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
+                dwFlags = WinAPI.FlashWF.STOP,
+                uCount = 0,
+                dwTimeout = 0
+            };
+
+            WinAPI.FlashWindowEx(data);
+            return this;
+        }
+
+        /// <summary>Flash a window to attract attention to it until activated</summary>
+        public Window Flash(FlashF target = FlashF.Taskbar, int flashDelayMS = 0) {
+            var data = new WinAPI.FLASHWINFO {
+                hwnd = Hwnd,
+                cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
+                dwFlags = WinAPI.FlashWF.TIMERNOFG | GetFlashTarget(target),
+                uCount = 0,
+                dwTimeout = (uint) flashDelayMS
+            };
+
+            WinAPI.FlashWindowEx(data);
+            return this;
+        }
+
+        /// <summary>Flash a window to attract attention to it <paramref name="count"/> times</summary>
+        public Window FlashCount(int count, FlashF target = FlashF.Taskbar, int flashDelayMS = 1000) {
+            var data = new WinAPI.FLASHWINFO {
+                hwnd = Hwnd,
+                cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
+                dwFlags = WinAPI.FlashWF.TIMERNOFG | GetFlashTarget(target),
+                uCount = 0,
+                dwTimeout = (uint) flashDelayMS
+            };
+
+            WinAPI.FlashWindowEx(data);
+            Disable();
+            return this;
+
+            async void Disable() {
+                await Task.Delay(count * flashDelayMS * 2 - flashDelayMS);
+                data.dwFlags = WinAPI.FlashWF.STOP;
+                data.dwTimeout = 0;
+                WinAPI.FlashWindowEx(data);
+            }
+        }
+
+        /// <summary>Flash a window to attract attention to it for <paramref name="duration"/> milliseconds</summary>
+        public Window Flash(int duration, FlashF target = FlashF.Taskbar, int flashDelayMS = 0) {
+            var data = new WinAPI.FLASHWINFO {
+                hwnd = Hwnd,
+                cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
+                dwFlags = WinAPI.FlashWF.TIMERNOFG | GetFlashTarget(target),
+                uCount = 0,
+                dwTimeout = (uint) flashDelayMS
+            };
+
+            WinAPI.FlashWindowEx(data);
+            Disable();
+            return this;
+
+            async void Disable() {
+                await Task.Delay(duration);
+                data.dwFlags = WinAPI.FlashWF.STOP;
+                data.dwTimeout = 0;
+                WinAPI.FlashWindowEx(data);
+            }
+        }
+
+        private WinAPI.FlashWF GetFlashTarget(FlashF target) {
+            switch (target) {
+                case FlashF.Titlebar:
+                    return WinAPI.FlashWF.CAPTION;
+                case FlashF.Both:
+                    return WinAPI.FlashWF.ALL;
+                case FlashF.Taskbar:
+                    return WinAPI.FlashWF.TRAY;
+                default:
+                    return WinAPI.FlashWF.TRAY;
+            }
+        }
+        #endregion
+
         #endregion
 
         #region static
@@ -1283,6 +1398,8 @@ namespace WinUtilities {
         #endregion
 
         #region other
+        /// <summary>Check if given window is null or <see cref="None"/></summary>
+        public static bool IsNullOrNone(Window window) => window == null || window.IsNone;
         /// <summary>Removes all entries from the list of cached windows</summary>
         public static void ClearCache() => CachedWindows = new Dictionary<IntPtr, Window>();
         /// <summary>Refresh the cache so it contains the freshest information of windows. Can be used occasionally to prevent the very unlikely window handle collisions.</summary>
@@ -1310,6 +1427,16 @@ namespace WinUtilities {
             Force,
             /// <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
             SoftThenForce
+        }
+
+        /// <summary>Select window flash target</summary>
+        public enum FlashF {
+            /// <summary>Flashes the taskbar button</summary>
+            Taskbar,
+            /// <summary>Flashes the window titlebar</summary>
+            Titlebar,
+            /// <summary>Flashes the taskbar button and the titlebar</summary>
+            Both
         }
         #endregion
 

@@ -164,8 +164,8 @@ namespace WinUtilities {
         public bool Release { get; }
         /// <summary>Extra information given by the event source</summary>
         public UIntPtr ExtraInfo { get; }
-        /// <summary>Specifies if the event was a mouse key. Always false.</summary>
-        public bool IsMouse { get; } = false;
+        /// <summary>Specifies if the event is a mouse key. Always false.</summary>
+        public bool IsMouse => false;
 
         /// <summary>Parse a new keyboard event from a hooked windows message</summary>
         public KeyboardInput(IntPtr wParam, IntPtr lParam) {
@@ -210,8 +210,8 @@ namespace WinUtilities {
         public bool InjectedLower { get; }
         /// <summary>Extra information given by the event source</summary>
         public UIntPtr ExtraInfo { get; }
-        /// <summary>Specifies if the event was a mouse key. Always true.</summary>
-        public bool IsMouse { get; } = true;
+        /// <summary>Specifies if the event is a mouse key. Always true.</summary>
+        public bool IsMouse => true;
 
         /// <summary>Parse a new mouse event from a hooked windows message</summary>
         public MouseInput(IntPtr wParam, IntPtr lParam) {
