@@ -120,6 +120,11 @@ namespace WinUtilities {
         /// <summary>Get the logical state of a key. Does not differentiate between extended and non-extended keys</summary>
         public static bool GetKeyState(Key key) => WinAPI.GetAsyncKeyState(key.AsVirtualKey()) < 0;
 
+        /// <summary>Send Ctrl + V to the current window</summary>
+        public static void Paste() => Send("[^][v]");
+        /// <summary>Send Ctrl + C to the current window</summary>
+        public static void Copy() => Send("[^][c]");
+
         /// <summary>Send text input.</summary>
         /// <remarks>
         /// The <paramref name="text"/> is parsed for special input when between [ and ]. This behaviour can be escaped with [[ and ]].

@@ -104,7 +104,7 @@ namespace WinUtilities {
         public ERole? PreviousRole;
 
         /// <summary></summary>
-        public AudioDevice(string id, ERole? prevRole = null) {
+        internal AudioDevice(string id, ERole? prevRole = null) {
             ID = id;
             PreviousRole = prevRole;
         }
