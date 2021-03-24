@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.6.4.6</Version>
+    <Version>0.7.3</Version>
     <Authors>SirVeggie</Authors>
     <Company>SirVeggie</Company>
     <Product />
@@ -23,7 +23,7 @@ The wrapper is mainly centered around the Window class, since in Windows automat
 
 The project is only tested to work on Windows 10, but it should work on earlier versions as well.
 The project is also still under development so later versions can contain breaking changes.</Description>
-    <PackageReleaseNotes>Fix Area to Rectangle implicit cast</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,6 +36,7 @@ The project is also still under development so later versions can contain breaki
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
   </ItemGroup>

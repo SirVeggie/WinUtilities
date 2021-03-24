@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace WinUtilities {
     /// <summary>Class for controlling the mouse</summary>
@@ -82,8 +83,8 @@ namespace WinUtilities {
             return WinAPI.SetCursorPos(point.IntX, point.IntY);
         }
 
-        /// <summary>Restrict cursor movement to within the specified area.</summary>
-        /// <param name="area">Set null to free the cursor.</param>
+        /// <summary>Restrict cursor movement to within the specified area</summary>
+        /// <param name="area">Set null to free the cursor</param>
         public static bool ConfineToArea(Area? area) {
             if (area != null) {
                 WinAPI.RECT rect = (Area) area;
@@ -93,17 +94,27 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>This will fuck up cursor if the program exits while the cursor is hidden.</summary>
+        /// <summary>Hide the mouse cursor in the current window</summary>
         public static void Hide(bool state) {
-            if (IsHidden == state)
+            if (!state) {
+                if (IsHidden)
+                    AppDomain.CurrentDomain.ProcessExit -= Unhide;
+                IsHidden = false;
+                WinAPI.ResetSystemCursors();
                 return;
-            if (state) {
-                WinAPI.SetSystemCursor(WinAPI.CopyIcon(CursorTypes.Invisible), CursorType.Arrow);
-            } else {
-                WinAPI.SetSystemCursor(WinAPI.CopyIcon(CursorTypes.Arrow), CursorType.Arrow);
             }
 
-            IsHidden = state;
+            if (IsHidden)
+                return;
+            IsHidden = true;
+            AppDomain.CurrentDomain.ProcessExit += Unhide;
+            foreach (CursorType type in Enum.GetValues(typeof(CursorType))) {
+                if (type == CursorType.Undefined)
+                    continue;
+                WinAPI.SetSystemCursor(WinAPI.CopyIcon(CursorTypes.Invisible), type);
+            }
+
+            void Unhide(object sender, EventArgs e) => Hide(false);
         }
         #endregion
     }
@@ -115,14 +126,13 @@ namespace WinUtilities {
         public static Dictionary<IntPtr, CursorType> Types { get; private set; }
         /// <summary>Dictionary of Type -> Handle of the different cursors</summary>
         public static Dictionary<CursorType, IntPtr> Reverse { get; private set; }
-        /// <summary>Handle to an invisible cursor</summary>
+        /// <summary>An invisible cursor</summary>
         public static IntPtr Invisible { get; private set; }
-        /// <summary>Handle to the default cursor</summary>
-        public static IntPtr Arrow { get; private set; }
 
         static CursorTypes() {
             Types = new Dictionary<IntPtr, CursorType>();
             Reverse = new Dictionary<CursorType, IntPtr>();
+            Invisible = CreateEmptyCursor();
 
             foreach (CursorType cursor in Enum.GetValues(typeof(CursorType))) {
                 if (cursor != CursorType.Undefined) {
@@ -134,9 +144,6 @@ namespace WinUtilities {
                     Reverse.Add(cursor, res);
                 }
             }
-
-            Invisible = CreateInvisibleCursor();
-            Arrow = WinAPI.CopyIcon(Reverse[CursorType.Arrow]);
         }
 
         /// <summary>Get the type of a cursor from its handle</summary>
@@ -157,15 +164,20 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Create an instance of an invisible cursor</summary>
-        public static IntPtr CreateInvisibleCursor() {
-            var invisible = WinAPI.LoadCursorFromFile(AppDomain.CurrentDomain.BaseDirectory + "invisible.cur");
+        /// <summary>Creates an empty cursor</summary>
+        public static IntPtr CreateEmptyCursor() => CursorFromBitmap(new Bitmap(1, 1));
 
-            if (invisible == IntPtr.Zero) {
-                throw new Exception("Failed to create invisible cursor");
-            }
+        /// <summary>Creates a cursor from a bitmap</summary>
+        public static IntPtr CursorFromBitmap(Bitmap bitmap) {
+            IntPtr hIcon = bitmap.GetHicon();
+            WinAPI.GetIconInfo(hIcon, out var info);
+            info.xHotspot = 0;
+            info.yHotspot = 0;
+            info.fIcon = false;
 
-            return invisible;
+            IntPtr hCursor = WinAPI.CreateIconIndirect(ref info);
+            WinAPI.DestroyIcon(hIcon);
+            return hCursor;
         }
     }
 }
