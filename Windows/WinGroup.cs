@@ -64,9 +64,9 @@ namespace WinUtilities {
         /// <summary>Matches the taskbar</summary>
         public static WinMatch Taskbar { get; } = new WinMatch(className: "Shell_TrayWnd");
         /// <summary>Matches Steam games installed in a normal install folder</summary>
-        public static WinMatch SteamGames { get; } = new WinMatch(exePath: "steamapps");
+        public static WinMatch SteamGame { get; } = new WinMatch(exePath: "steamapps");
         /// <summary>Matches file explorer windows aka folders</summary>
-        public static WinMatch Folders { get; } = new WinMatch(className: "CabinetWClass", exe: "explorer");
+        public static WinMatch Folder { get; } = new WinMatch(className: "CabinetWClass", exe: "explorer");
         #endregion
 
         /// <summary>A group of window descriptions that can match a variety of windows.</summary>
