@@ -36,6 +36,9 @@ namespace WinUtilities {
         /// <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
         /// <returns>True if all found windows were enumerated</returns>
         Task<bool> ForAll(Func<Window, Task<bool>> action, WinFindMode mode = WinFindMode.TopLevel);
+
+        /// <summary>A window from this group is the active window</summary>
+        bool IsActive();
     }
 
     internal static class MatchActions {

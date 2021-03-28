@@ -131,6 +131,9 @@ namespace WinUtilities {
             return IsReverse ^ result;
         }
 
+        /// <summary>A window from this group is the active window</summary>
+        public bool IsActive() => Window.Active.Match(this);
+
         /// <summary>Perform an action on all matching windows</summary>
         public void ForAll(Action<Window> action, WinFindMode mode = WinFindMode.TopLevel) => MatchActions.ForAll(this, action, mode);
 

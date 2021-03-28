@@ -98,6 +98,9 @@ namespace WinUtilities {
         /// <remarks>The Match is true if the info matches the Whitelist but not the Blacklist.</remarks>
         public bool Match(WindowInfo info) => IsReverse ^ (MatchList(Blacklist, info) ? false : MatchList(Whitelist, info));
 
+        /// <summary>A window from this group is the active window</summary>
+        public bool IsActive() => Window.Active.Match(this);
+
         private bool MatchList(List<IWinMatch> list, WindowInfo info) {
             for (int i = 0; i < list.Count; i++) {
                 if (list[i].Match(info)) {
