@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WinUtilities {
 
@@ -39,6 +40,18 @@ namespace WinUtilities {
             KeyMap = MapNormalKeys();
             KeyExtendedMap = MapExtendedKeys();
             StringToKey = MapStrings();
+        }
+
+        /// <summary>Get all keys as a list. Does not include duplicates</summary>
+        public static List<Key> GetKeys() {
+            HashSet<Key> set = new HashSet<Key>();
+            foreach (Key key in Enum.GetValues(typeof(Key))) {
+                if (key.IsKey() && key != Key.Unknown && key != Key.NoMapping) {
+                    set.Add(key);
+                }
+            }
+
+            return set.ToList();
         }
 
         #region mapping
@@ -100,7 +113,7 @@ namespace WinUtilities {
         public static bool HasAll(this Key key, Key flags) => (key & flags) == flags;
 
         /// <summary>Check if the Key value is a key instead of a flag etc.</summary>
-        public static bool IsKey(this Key key) => key.HasAny(Key.M_KeyMask) && key != Key.M_KeyMask;
+        public static bool IsKey(this Key key) => key.HasAny(Key.M_KeyMask) && key != Key.M_KeyMask && !key.IsNone() && !key.IsMouseMove();
         /// <summary>Check if the Key value is a flag</summary>
         public static bool IsFlag(this Key key) => (key & ~Key.M_FlagMask) == 0 && key != Key.M_FlagMask;
         /// <summary>Check if the Key value is a mask</summary>

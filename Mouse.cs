@@ -76,7 +76,7 @@ namespace WinUtilities {
         public static bool Move(int x, int y, CoordRelation rel = CoordRelation.Screen) => Move(new Coord(x, y), rel);
         /// <summary>Move the mouse to a point</summary>
         public static bool Move(Coord point, CoordRelation rel = CoordRelation.Screen) {
-            if (rel == CoordRelation.ActiveWindow)
+            if (rel == CoordRelation.Window)
                 point += Window.Active.Area.Point;
             else if (rel == CoordRelation.Mouse)
                 return Input.MouseMoveRelative(point.IntX, point.IntY);

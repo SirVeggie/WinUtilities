@@ -20,6 +20,8 @@ namespace WinUtilities {
 
     internal static class SimpleDesktop {
         private static IVirtualDesktopManager manager = (IVirtualDesktopManager) new VirtualDesktopManager();
+        internal static Guid NormalPin { get; } = new Guid("c2ddea68-66f2-4cf9-8264-1bfd00fbbbac");
+        internal static Guid AppPin { get; } = new Guid("bb64d5b7-4de3-4ab2-a87c-db7601aea7dc");
 
         internal static bool IsOnCurrent(Window window) {
             manager.IsWindowOnCurrentVirtualDesktop(window.Hwnd, out bool result);
@@ -35,9 +37,8 @@ namespace WinUtilities {
             manager.MoveWindowToDesktop(window.Hwnd, desktop);
         }
 
-        internal static bool IsPinned(Window window) => window.Desktop == new Guid("c2ddea68-66f2-4cf9-8264-1bfd00fbbbac");
-
-        internal static bool IsPinnedApp(Window window) => window.Desktop == new Guid("bb64d5b7-4de3-4ab2-a87c-db7601aea7dc");
+        internal static bool IsPinned(Window window) => window.Desktop == NormalPin;
+        internal static bool IsPinnedApp(Window window) => window.Desktop == AppPin;
     }
 
     [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("a5cd92ff-29be-454c-8d04-d82879fb3f1b")]

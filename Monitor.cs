@@ -26,6 +26,11 @@ namespace WinUtilities {
         [DataMember]
         public IntPtr Handle { get; private set; }
 
+        /// <summary>Check if the monitor is in portrait mode instead of landscape</summary>
+        public bool IsPortrait => Area.W < Area.H;
+        /// <summary>Get the monitor's area as an image</summary>
+        public Image Image => GetImage(Area);
+
         /// <summary>Retrieve the current primary monitor</summary>
         public static Monitor Primary => FromPoint(0, 0, MonitorDefault.Primary);
         /// <summary>Get the total screen area</summary>
@@ -34,11 +39,6 @@ namespace WinUtilities {
         public static int Count => WinAPI.GetSystemMetrics(WinAPI.SM.CMONITORS);
         /// <summary>Get the entire screen as an image</summary>
         public static Image ScreenImage => GetImage(Screen);
-
-        /// <summary>Check if the monitor is in portrait mode instead of landscape</summary>
-        public bool IsPortrait => Area.W < Area.H;
-        /// <summary>Get the monitor's area as an image</summary>
-        public Image Image => GetImage(Area);
         #endregion
 
         #region constructors
@@ -52,6 +52,7 @@ namespace WinUtilities {
         }
         #endregion
 
+        #region static
         /// <summary>Find the monitor the that contains the specified point</summary>
         public static Monitor FromPoint(int x, int y, MonitorDefault def = MonitorDefault.Nearest) => GetMonitor(HandleFromPoint(x, y, def));
         /// <summary>Find the monitor the that contains the specified point</summary>
@@ -75,6 +76,19 @@ namespace WinUtilities {
             g.CopyFromScreen(area, Point.Empty, area);
             g.Dispose();
             return img;
+        }
+        #endregion
+
+        /// <summary>Find out the current index of this monitor</summary>
+        public int GetIndex() {
+            var list = GetMonitors();
+            for (int i = 0; i < list.Count; i++) {
+                if (list[i] == this) {
+                    return i;
+                }
+            }
+
+            throw new Exception("Monitor not found, was it disconnected from the computer?");
         }
 
         /// <summary>Set as the current primary monitor</summary>

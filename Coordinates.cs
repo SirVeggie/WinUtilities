@@ -20,8 +20,8 @@ namespace WinUtilities {
     public enum CoordRelation {
         /// <summary>Position [0,0] is the primary screen's left upper corner</summary>
         Screen,
-        /// <summary>Position [0,0] is the active window's upper left corner</summary>
-        ActiveWindow,
+        /// <summary>Position [0,0] is the target window's upper left corner</summary>
+        Window,
         /// <summary>Position [0,0] is the current mouse position</summary>
         Mouse
     }
@@ -40,6 +40,46 @@ namespace WinUtilities {
         BottomLeft = Bottom | Left,
         BottomRight = Bottom | Right
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    }
+
+    /// <summary>Extension methods for <see cref="EdgeType"/></summary>
+    public static class EdgeTypeExtensions {
+
+        /// <summary>Reverse the <see cref="EdgeType"/> to point at the opposite edge/corner</summary>
+        public static EdgeType Reverse(this EdgeType edge) => edge.ReverseVertical().ReverseHorizontal();
+
+        /// <summary>Reverse the <see cref="EdgeType"/> to point at the opposite horizontal edge</summary>
+        public static EdgeType ReverseHorizontal(this EdgeType edge) {
+            if (edge.HasFlag(EdgeType.Left)) {
+                edge = edge ^ EdgeType.Left | EdgeType.Right;
+            } else if (edge.HasFlag(EdgeType.Right)) {
+                edge = edge ^ EdgeType.Right | EdgeType.Left;
+            }
+
+            return edge;
+        }
+
+        /// <summary>Reverse the <see cref="EdgeType"/> to point at the opposite vertical edge</summary>
+        public static EdgeType ReverseVertical(this EdgeType edge) {
+            if (edge.HasFlag(EdgeType.Top)) {
+                edge = edge ^ EdgeType.Top | EdgeType.Bottom;
+            } else if (edge.HasFlag(EdgeType.Bottom)) {
+                edge = edge ^ EdgeType.Bottom | EdgeType.Top;
+            }
+
+            return edge;
+        }
+
+        /// <summary>Check if the edge is <see cref="EdgeType.None"/></summary>
+        public static bool IsNone(this EdgeType edge) => edge == 0;
+        /// <summary>Check if the edge is the left or the top edge</summary>
+        public static bool IsTopOrLeft(this EdgeType edge) => edge.HasFlag(EdgeType.Left) || edge.HasFlag(EdgeType.Top) && !edge.IsCorner();
+        /// <summary>Check if the edge has horizontal component</summary>
+        public static bool IsHorizontal(this EdgeType edge) => edge.HasFlag(EdgeType.Top) || edge.HasFlag(EdgeType.Bottom);
+        /// <summary>Check if the edge has vertical component</summary>
+        public static bool IsVertical(this EdgeType edge) => edge.HasFlag(EdgeType.Left) || edge.HasFlag(EdgeType.Right);
+        /// <summary>Check if the edge has both vertical and horizontal components</summary>
+        public static bool IsCorner(this EdgeType edge) => edge.IsHorizontal() && edge.IsVertical();
     }
 
     /// <summary>A struct combining a target edge and a point</summary>
@@ -551,8 +591,8 @@ namespace WinUtilities {
         /// <summary>Grows the area outwards by the specified value. Shrinks if negative.</summary>
         public Area Grow(double value) {
             var area = new Area(this);
-            area.X -= value;
-            area.Y -= value;
+            area.X -= Math.Max(value, -area.W / 2);
+            area.Y -= Math.Max(value, -area.H / 2);
             area.W += value * 2;
             area.H += value * 2;
             return area;
