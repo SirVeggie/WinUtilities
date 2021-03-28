@@ -47,6 +47,16 @@ namespace WinUtilities {
         /// <summary>Enumerates top level windows on current virtual desktop</summary>
         CurrentDesktop
     }
+
+    /// <summary>Determines the method of activating a window</summary>
+    public enum WinActivateMode {
+        /// <summary>Uses a simple activation logic that is graceful. Activation might fail sometimes.</summary>
+        Soft,
+        /// <summary>Uses a forceful method of activation that is more reliable</summary>
+        Force,
+        /// <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
+        SoftThenForce
+    }
     #endregion
 
     /// <summary>A wrapper object for a windows window</summary>
@@ -296,6 +306,7 @@ namespace WinUtilities {
 
         private void SetRawArea(Area area) {
             Area target = area.IsValid ? area : area.FillNaN(GetRawArea());
+            target = target.Round();
             WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
         }
 
@@ -396,12 +407,12 @@ namespace WinUtilities {
 
         #region basic actions
         /// <summary>Set this window as the foreground window</summary>
-        public Window Activate(Activation policy = Activation.SoftThenForce) {
+        public Window Activate(WinActivateMode policy = WinActivateMode.SoftThenForce) {
             if (IsActive)
                 return this;
-            if (policy == Activation.Soft)
+            if (policy == WinActivateMode.Soft)
                 WinAPI.SetForegroundWindow(Hwnd);
-            else if (policy == Activation.Force)
+            else if (policy == WinActivateMode.Force)
                 ActivateForce();
             else
                 _ = ActivateComplex();
@@ -409,12 +420,12 @@ namespace WinUtilities {
         }
 
         /// <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
-        public async Task<bool> ActivateAsync(Activation policy = Activation.SoftThenForce) {
+        public async Task<bool> ActivateAsync(WinActivateMode policy = WinActivateMode.SoftThenForce) {
             if (IsActive)
                 return true;
-            if (policy == Activation.Soft)
+            if (policy == WinActivateMode.Soft)
                 return await ActivateSimple(1);
-            if (policy == Activation.SoftThenForce)
+            if (policy == WinActivateMode.SoftThenForce)
                 return await ActivateComplex();
             ActivateForce();
             await Task.Delay(1);
@@ -743,6 +754,7 @@ namespace WinUtilities {
         private Window OffsetMove(Area pos, Area offset, Area raw) {
             pos = pos.IsValid ? pos : pos.FillNaN(offset);
             pos += raw - offset;
+            pos = pos.Round();
             WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, pos.IntX, pos.IntY, pos.IntW, pos.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
@@ -768,7 +780,9 @@ namespace WinUtilities {
         /// <param name="area">Area in which the window is centered to</param>
         /// <param name="size">Set the target size of the window before centering</param>
         public Window Center(Area area, Coord? size = null) => Move(new Area(area.Center - (size ?? Area.Size) / 2, size ?? Area.Size));
+        #endregion
 
+        #region desktops
         /// <summary>Move the window to a virtual desktop with the specifid id</summary>
         public Window MoveToDesktop(Guid desktop) {
             SimpleDesktop.MoveWindow(this, desktop);
@@ -780,6 +794,7 @@ namespace WinUtilities {
         /// <summary>Set only a specified area of a window visible.</summary>
         /// <param name="region">Relative to raw window coordinates.</param>
         public Window SetRegion(Area region) {
+            region = region.Round();
             var r = WinAPI.CreateRectRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom);
             WinAPI.SetWindowRgn(Hwnd, r, true);
             WinAPI.DeleteObject(r);
@@ -791,6 +806,7 @@ namespace WinUtilities {
         /// <param name="horizontalRounding">Amount of horizontal rounding</param>
         /// <param name="verticalRounding">Amount of vertical rounding</param>
         public Window SetRoundedRegion(Area region, int horizontalRounding, int verticalRounding) {
+            region = region.Round();
             var r = WinAPI.CreateRoundRectRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom, horizontalRounding, verticalRounding);
             WinAPI.SetWindowRgn(Hwnd, r, true);
             WinAPI.DeleteObject(r);
@@ -800,6 +816,7 @@ namespace WinUtilities {
         /// <summary>Set only a specified area of a window visible. Has an elliptic shape.</summary>
         /// <param name="region">Relative to raw window coordinates.</param>
         public Window SetEllipticRegion(Area region) {
+            region = region.Round();
             var r = WinAPI.CreateEllipticRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom);
             WinAPI.SetWindowRgn(Hwnd, r, true);
             WinAPI.DeleteObject(r);
@@ -816,9 +833,9 @@ namespace WinUtilities {
             }
 
             IntPtr full = IntPtr.Zero;
-
             IntPtr[] r = new IntPtr[regions.Length];
             for (int i = 0; i < regions.Length; i++) {
+                regions[i] = regions[i].Round();
                 r[i] = WinAPI.CreateRectRgn((int) regions[i].Left, (int) regions[i].Top, (int) regions[i].Right, (int) regions[i].Bottom);
             }
 
@@ -846,6 +863,10 @@ namespace WinUtilities {
         public Window SetComplexRegion(WinAPI.FillRgnFlags fillType, params Coord[] points) {
             if (points.Length < 3) {
                 throw new ArgumentException("Must have at least 3 points to make a polygon shape");
+            }
+
+            for (int i = 0; i < points.Length; i++) {
+                points[i] = points[i].Round();
             }
 
             var region = WinAPI.CreatePolygonRgn(points.Cast<WinAPI.POINT>().ToArray(), points.Length, fillType);
@@ -1015,7 +1036,7 @@ namespace WinUtilities {
 
 
         /// <summary>Emulates a click at the specified position.</summary>
-        public Window Click(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public Window Click(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             WM down;
             WM up;
 
@@ -1044,13 +1065,13 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a right click at the specified position.</summary>
-        public Window RightClick(Coord pos, CoordRelation rel = CoordRelation.ActiveWindow) => Click(pos, Key.RButton, rel);
+        public Window RightClick(Coord pos, CoordRelation rel = CoordRelation.Window) => Click(pos, Key.RButton, rel);
 
         /// <summary>Emulates a middle click at the specified position.</summary>
-        public Window MiddleClick(Coord pos, CoordRelation rel = CoordRelation.ActiveWindow) => Click(pos, Key.MButton, rel);
+        public Window MiddleClick(Coord pos, CoordRelation rel = CoordRelation.Window) => Click(pos, Key.MButton, rel);
 
         /// <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
-        public async Task ClickNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public async Task ClickNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             var na = !HasExStyle(WS_EX.NOACTIVATE);
             if (na) SetExStyle(WS_EX.NOACTIVATE, true);
             await Task.Delay(1);
@@ -1060,7 +1081,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a click at the specified position.</summary>
-        public Window DoubleClick(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public Window DoubleClick(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             WM msg;
 
             if (key == Key.LButton) {
@@ -1084,7 +1105,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
-        public async Task DoubleClickNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public async Task DoubleClickNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             var na = !HasExStyle(WS_EX.NOACTIVATE);
             if (na) SetExStyle(WS_EX.NOACTIVATE, true);
             await Task.Delay(1);
@@ -1094,7 +1115,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a click at the specified position.</summary>
-        public Window ClickDown(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public Window ClickDown(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             WM msg;
 
             if (key == Key.LButton) {
@@ -1118,7 +1139,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
-        public async Task ClickDownNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public async Task ClickDownNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             var na = !HasExStyle(WS_EX.NOACTIVATE);
             if (na) SetExStyle(WS_EX.NOACTIVATE, true);
             await Task.Delay(1);
@@ -1128,7 +1149,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a click at the specified position.</summary>
-        public Window ClickUp(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public Window ClickUp(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             WM msg;
 
             if (key == Key.LButton) {
@@ -1152,7 +1173,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a click at the specified position. Tries to prevent window activation.</summary>
-        public async Task ClickUpNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public async Task ClickUpNA(Coord pos, Key key = Key.LButton, CoordRelation rel = CoordRelation.Window) {
             var na = !HasExStyle(WS_EX.NOACTIVATE);
             if (na) SetExStyle(WS_EX.NOACTIVATE, true);
             await Task.Delay(1);
@@ -1162,7 +1183,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Emulates a mouse move event at the specified position.</summary>
-        public Window MouseMove(Coord pos, CoordRelation rel = CoordRelation.ActiveWindow) {
+        public Window MouseMove(Coord pos, CoordRelation rel = CoordRelation.Window) {
             if (rel == CoordRelation.Screen) {
                 pos = pos.SetRelative(RawArea);
             } else if (rel == CoordRelation.Mouse) {
@@ -1419,16 +1440,6 @@ namespace WinUtilities {
         #endregion
 
         #region structs
-        /// <summary>Determines the method of activating a window</summary>
-        public enum Activation {
-            /// <summary>Uses a simple activation logic that is graceful. Activation might fail sometimes.</summary>
-            Soft,
-            /// <summary>Uses a forceful method of activation that is more reliable</summary>
-            Force,
-            /// <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
-            SoftThenForce
-        }
-
         /// <summary>Select window flash target</summary>
         public enum FlashF {
             /// <summary>Flashes the taskbar button</summary>

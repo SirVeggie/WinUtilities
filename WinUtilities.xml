@@ -22,14 +22,41 @@
         <member name="F:WinUtilities.CoordRelation.Screen">
             <summary>Position [0,0] is the primary screen's left upper corner</summary>
         </member>
-        <member name="F:WinUtilities.CoordRelation.ActiveWindow">
-            <summary>Position [0,0] is the active window's upper left corner</summary>
+        <member name="F:WinUtilities.CoordRelation.Window">
+            <summary>Position [0,0] is the target window's upper left corner</summary>
         </member>
         <member name="F:WinUtilities.CoordRelation.Mouse">
             <summary>Position [0,0] is the current mouse position</summary>
         </member>
         <member name="T:WinUtilities.EdgeType">
             <summary>Specifies which edge of an area to target</summary>
+        </member>
+        <member name="T:WinUtilities.EdgeTypeExtensions">
+            <summary>Extension methods for <see cref="T:WinUtilities.EdgeType"/></summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.Reverse(WinUtilities.EdgeType)">
+            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite edge/corner</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.ReverseHorizontal(WinUtilities.EdgeType)">
+            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite horizontal edge</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.ReverseVertical(WinUtilities.EdgeType)">
+            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite vertical edge</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsNone(WinUtilities.EdgeType)">
+            <summary>Check if the edge is <see cref="F:WinUtilities.EdgeType.None"/></summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsTopOrLeft(WinUtilities.EdgeType)">
+            <summary>Check if the edge is the left or the top edge</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsHorizontal(WinUtilities.EdgeType)">
+            <summary>Check if the edge has horizontal component</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsVertical(WinUtilities.EdgeType)">
+            <summary>Check if the edge has vertical component</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsCorner(WinUtilities.EdgeType)">
+            <summary>Check if the edge has both vertical and horizontal components</summary>
         </member>
         <member name="T:WinUtilities.Edge">
             <summary>A struct combining a target edge and a point</summary>
@@ -6735,6 +6762,9 @@
         <member name="T:WinUtilities.EnhancedKey">
             <summary>Extension methods for the enhanced Key enum</summary>
         </member>
+        <member name="M:WinUtilities.EnhancedKey.GetKeys">
+            <summary>Get all keys as a list. Does not include duplicates</summary>
+        </member>
         <member name="P:WinUtilities.EnhancedKey.KeyMap">
             <summary>Map virtual key codes to the Key enum</summary>
         </member>
@@ -7269,6 +7299,12 @@
         <member name="P:WinUtilities.Monitor.Handle">
             <summary>Handle to the monitor</summary>
         </member>
+        <member name="P:WinUtilities.Monitor.IsPortrait">
+            <summary>Check if the monitor is in portrait mode instead of landscape</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.Image">
+            <summary>Get the monitor's area as an image</summary>
+        </member>
         <member name="P:WinUtilities.Monitor.Primary">
             <summary>Retrieve the current primary monitor</summary>
         </member>
@@ -7280,12 +7316,6 @@
         </member>
         <member name="P:WinUtilities.Monitor.ScreenImage">
             <summary>Get the entire screen as an image</summary>
-        </member>
-        <member name="P:WinUtilities.Monitor.IsPortrait">
-            <summary>Check if the monitor is in portrait mode instead of landscape</summary>
-        </member>
-        <member name="P:WinUtilities.Monitor.Image">
-            <summary>Get the monitor's area as an image</summary>
         </member>
         <member name="M:WinUtilities.Monitor.#ctor(System.String,System.Boolean,System.IntPtr,WinUtilities.Area,WinUtilities.Area)">
             <summary>Create a new monitor object</summary>
@@ -7313,6 +7343,9 @@
         </member>
         <member name="M:WinUtilities.Monitor.GetImage(WinUtilities.Area)">
             <summary>Retrieve an image from the current screen</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetIndex">
+            <summary>Find out the current index of this monitor</summary>
         </member>
         <member name="M:WinUtilities.Monitor.SetPrimary">
             <summary>Set as the current primary monitor</summary>
@@ -7594,6 +7627,9 @@
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
+        <member name="M:WinUtilities.IWinMatch.IsActive">
+            <summary>A window from this group is the active window</summary>
+        </member>
         <member name="M:WinUtilities.MatchActions.ForAll(WinUtilities.IWinMatch,System.Func{WinUtilities.Window,System.Boolean},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
@@ -7635,6 +7671,18 @@
         </member>
         <member name="F:WinUtilities.WinFindMode.CurrentDesktop">
             <summary>Enumerates top level windows on current virtual desktop</summary>
+        </member>
+        <member name="T:WinUtilities.WinActivateMode">
+            <summary>Determines the method of activating a window</summary>
+        </member>
+        <member name="F:WinUtilities.WinActivateMode.Soft">
+            <summary>Uses a simple activation logic that is graceful. Activation might fail sometimes.</summary>
+        </member>
+        <member name="F:WinUtilities.WinActivateMode.Force">
+            <summary>Uses a forceful method of activation that is more reliable</summary>
+        </member>
+        <member name="F:WinUtilities.WinActivateMode.SoftThenForce">
+            <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
         </member>
         <member name="T:WinUtilities.Window">
             <summary>A wrapper object for a windows window</summary>
@@ -7822,10 +7870,10 @@
         <member name="M:WinUtilities.Window.HasExStyle(WinUtilities.WS_EX)">
             <summary>Check for individual Window Ex Styles.</summary>
         </member>
-        <member name="M:WinUtilities.Window.Activate(WinUtilities.Window.Activation)">
+        <member name="M:WinUtilities.Window.Activate(WinUtilities.WinActivateMode)">
             <summary>Set this window as the foreground window</summary>
         </member>
-        <member name="M:WinUtilities.Window.ActivateAsync(WinUtilities.Window.Activation)">
+        <member name="M:WinUtilities.Window.ActivateAsync(WinUtilities.WinActivateMode)">
             <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
         </member>
         <member name="M:WinUtilities.Window.ActivateForce(System.Boolean)">
@@ -8163,18 +8211,6 @@
         <member name="M:WinUtilities.Window.HwndActive(System.IntPtr)">
             <summary>Check if a window with the specified handle is active</summary>
         </member>
-        <member name="T:WinUtilities.Window.Activation">
-            <summary>Determines the method of activating a window</summary>
-        </member>
-        <member name="F:WinUtilities.Window.Activation.Soft">
-            <summary>Uses a simple activation logic that is graceful. Activation might fail sometimes.</summary>
-        </member>
-        <member name="F:WinUtilities.Window.Activation.Force">
-            <summary>Uses a forceful method of activation that is more reliable</summary>
-        </member>
-        <member name="F:WinUtilities.Window.Activation.SoftThenForce">
-            <summary>Tries to first use the soft activation, but will resort to force if it failed. Using this method might make the taskbar flash briefly if the soft activation fails.</summary>
-        </member>
         <member name="T:WinUtilities.Window.FlashF">
             <summary>Select window flash target</summary>
         </member>
@@ -8249,6 +8285,9 @@
             <summary>Check if a window matches this description group.</summary>
             <remarks>The Match is true if the info matches the Whitelist but not the Blacklist.</remarks>
         </member>
+        <member name="M:WinUtilities.WinGroup.IsActive">
+            <summary>A window from this group is the active window</summary>
+        </member>
         <member name="M:WinUtilities.WinGroup.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows</summary>
         </member>
@@ -8304,6 +8343,9 @@
         </member>
         <member name="M:WinUtilities.WinMatch.Match(WinUtilities.WindowInfo)">
             <summary>Check if the given info matches</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.IsActive">
+            <summary>A window from this group is the active window</summary>
         </member>
         <member name="M:WinUtilities.WinMatch.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows</summary>
