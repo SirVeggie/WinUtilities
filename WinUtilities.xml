@@ -4495,7 +4495,7 @@
             <summary>Access to a variety of native Windows API calls, structures, enums and some custom macros</summary>
         </member>
         <member name="M:WinUtilities.WinAPI.FlashWindow(System.IntPtr,System.Boolean)">
-            <summary>Flashes the specified window one time. It does not change the active state of the window. To flash the window a specified number of times, use the <see cref="!:FlashWindowEx(FLASHWININFO)"/> function.</summary>
+            <summary>Flashes the specified window one time. It does not change the active state of the window. To flash the window a specified number of times, use the <see cref="M:WinUtilities.WinAPI.FlashWindowEx(WinUtilities.WinAPI.FLASHWINFO)"/> function.</summary>
             <param name="hwnd">Window handle of the target window</param>
             <param name="bInvert">If this parameter is TRUE, the window is flashed from one state to the other. If it is FALSE, the window is returned to its original state (either active or inactive).</param>
         </member>
@@ -4540,6 +4540,15 @@
         </member>
         <member name="M:WinUtilities.WinAPI.GetExeNameFromPid(System.UInt32)">
             <summary>Get the name of the exe file from a process id</summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.SystemParametersInfo(WinUtilities.WinAPI.SPI,System.UInt32,WinUtilities.WinAPI.RECT,WinUtilities.WinAPI.SPIF)">
+            <summary><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa"></a></summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.SystemParametersInfo(WinUtilities.WinAPI.SPI,System.UInt32,System.UInt32@,WinUtilities.WinAPI.SPIF)">
+            <summary><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa"></a></summary>
+        </member>
+        <member name="M:WinUtilities.WinAPI.SystemParametersInfo(WinUtilities.WinAPI.SPI,System.Int32,WinUtilities.WinAPI.NONCLIENTMETRICS@,WinUtilities.WinAPI.SPIF)">
+            <summary><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa"></a></summary>
         </member>
         <member name="M:WinUtilities.WinAPI.SetFlashCount(System.Int32)">
             <summary>Value 0 causes flashing to last forever. Value 7 (default) is the maximum. Requires Windows reboot to take effect.</summary>
@@ -6524,6 +6533,22 @@
         <member name="F:WinUtilities.WinAPI.SPI.SPI_SETFONTSMOOTHINGORIENTATION">
             <summary>
             Not implemented.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.LOGFONT.lfFaceName">
+            <summary>
+            <see cref="F:System.Runtime.InteropServices.UnmanagedType.ByValTStr"/> means that the string
+            should be marshalled as an array of TCHAR embedded in the
+            structure.  This implies that the font names can be no larger
+            than 32 including the terminating '\0'.
+            That works out to 31 characters.
+            </summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.NONCLIENTMETRICS.lfCaptionFont">
+            <summary>
+            Since <see cref="T:WinUtilities.WinAPI.LOGFONT"/> is a struct instead of a class,
+            we don't have to do any special marshalling here.  Much
+            simpler this way.
             </summary>
         </member>
         <member name="F:WinUtilities.WinAPI.SCROLLINFO.cbSize">

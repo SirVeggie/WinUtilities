@@ -37,6 +37,7 @@ The project is also still under development so later versions can contain breaki
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
     <PackageReference Include="System.Linq" Version="4.3.0" />
   </ItemGroup>

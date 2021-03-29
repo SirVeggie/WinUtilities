@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -16,7 +17,7 @@ namespace WinUtilities {
         #endregion
 
         #region imports
-        /// <summary>Flashes the specified window one time. It does not change the active state of the window. To flash the window a specified number of times, use the <see cref="FlashWindowEx(FLASHWININFO)"/> function.</summary>
+        /// <summary>Flashes the specified window one time. It does not change the active state of the window. To flash the window a specified number of times, use the <see cref="FlashWindowEx(FLASHWINFO)"/> function.</summary>
         /// <param name="hwnd">Window handle of the target window</param>
         /// <param name="bInvert">If this parameter is TRUE, the window is flashed from one state to the other. If it is FALSE, the window is returned to its original state (either active or inactive).</param>
         [DllImport("user32.dll")]
@@ -454,10 +455,16 @@ namespace WinUtilities {
         public static string GetExeNameFromPid(uint pid) => GetExeNameFromPath(GetPathFromPid(pid));
 
 
+        /// <summary><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa"></a></summary>
         [DllImport("user32.dll")]
         public static extern bool SystemParametersInfo(SPI action, uint uiParam, RECT pvParam, SPIF fWinIni);
+        /// <summary><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa"></a></summary>
         [DllImport("user32.dll")]
         public static extern bool SystemParametersInfo(SPI action, uint uiParam, out uint pvParam, SPIF fWinIni);
+        /// <summary><a href="https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfoa"></a></summary>
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern bool SystemParametersInfo(SPI action, int uiParam, ref NONCLIENTMETRICS pvParam, SPIF fWinIni);
+
         public static bool SetWorkArea(RECT rect) => SystemParametersInfo(SPI.SPI_SETWORKAREA, 0, rect, SPIF.None);
         public static bool ResetSystemCursors() => SystemParametersInfo(SPI.SPI_SETCURSORS, 0, 0, SPIF.None);
 
@@ -482,6 +489,23 @@ namespace WinUtilities {
             if (SystemParametersInfo(SPI.SPI_GETFOREGROUNDFLASHCOUNT, 0, out uint count, SPIF.None))
                 return (int) count;
             return -1;
+        }
+
+        public static int GetBorderPadding() {
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop\WindowMetrics", true)) {
+                var value = int.Parse((string) key.GetValue("PaddedBorderWidth"));
+                return value / -15;
+            }
+        }
+
+        public static int GetBorder() {
+            throw new NotImplementedException();
+            var metrics = new NONCLIENTMETRICS();
+            var size = Marshal.SizeOf(metrics);
+            metrics.cbSize = size;
+            if (!SystemParametersInfo(SPI.SPI_GETNONCLIENTMETRICS, size, ref metrics, SPIF.None))
+                Console.WriteLine(Marshal.GetLastWin32Error());
+            return metrics.iBorderWidth;
         }
         #endregion
 
@@ -2695,6 +2719,66 @@ namespace WinUtilities {
         #endregion
 
         #region structs
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        public struct LOGFONT {
+            public int lfHeight;
+            public int lfWidth;
+            public int lfEscapement;
+            public int lfOrientation;
+            public int lfWeight;
+            public byte lfItalic;
+            public byte lfUnderline;
+            public byte lfStrikeOut;
+            public byte lfCharSet;
+            public byte lfOutPrecision;
+            public byte lfClipPrecision;
+            public byte lfQuality;
+            public byte lfPitchAndFamily;
+
+            /// <summary>
+            /// <see cref="UnmanagedType.ByValTStr"/> means that the string
+            /// should be marshalled as an array of TCHAR embedded in the
+            /// structure.  This implies that the font names can be no larger
+            /// than 32 including the terminating '\0'.
+            /// That works out to 31 characters.
+            /// </summary>
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+            public string lfFaceName;
+
+            // to shut it up about the warnings
+            public LOGFONT(string lfFaceName) {
+                this.lfFaceName = lfFaceName;
+                lfHeight = lfWidth = lfEscapement = lfOrientation = lfWeight = 0;
+                lfItalic = lfUnderline = lfStrikeOut = lfCharSet = lfOutPrecision
+                = lfClipPrecision = lfQuality = lfPitchAndFamily = 0;
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct NONCLIENTMETRICS {
+            public int cbSize;
+            public int iBorderWidth;
+            public int iScrollWidth;
+            public int iScrollHeight;
+            public int iCaptionWidth;
+            public int iCaptionHeight;
+            /// <summary>
+            /// Since <see cref="LOGFONT"/> is a struct instead of a class,
+            /// we don't have to do any special marshalling here.  Much
+            /// simpler this way.
+            /// </summary>
+            public LOGFONT lfCaptionFont;
+            public int iSMCaptionWidth;
+            public int iSMCaptionHeight;
+            public LOGFONT lfSMCaptionFont;
+            public int iMenuWidth;
+            public int iMenuHeight;
+            public LOGFONT lfMenuFont;
+            public LOGFONT lfStatusFont;
+            public LOGFONT lfMessageFont;
+            //public int iPaddedBorderWidth;
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         public struct FLASHWINFO {
             public UInt32 cbSize;

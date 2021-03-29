@@ -77,7 +77,7 @@ namespace WinUtilities {
         private double? opacity;
         private Color? transcolor;
 
-        private static int borderWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXSIZEFRAME);
+        private static int borderWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXSIZEFRAME) + WinAPI.GetBorderPadding();
         private static int borderVisibleWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXBORDER);
 
         #region properties
