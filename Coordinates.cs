@@ -614,7 +614,7 @@ namespace WinUtilities {
 
             if (Left < clamp.Left) {
                 if (resize) {
-                    area.Left = clamp.Left;
+                    area.LeftR = clamp.Left;
                 } else {
                     area.Left = clamp.Left;
                 }
@@ -624,13 +624,13 @@ namespace WinUtilities {
                 if (resize) {
                     area.RightR = clamp.Right;
                 } else {
-                    area.RightR = clamp.Right;
+                    area.Right = clamp.Right;
                 }
             }
 
             if (Top < clamp.Top) {
                 if (resize) {
-                    area.Top = clamp.Top;
+                    area.TopR = clamp.Top;
                 } else {
                     area.Top = clamp.Top;
                 }
@@ -640,7 +640,7 @@ namespace WinUtilities {
                 if (resize) {
                     area.BottomR = clamp.Bottom;
                 } else {
-                    area.BottomR = clamp.Bottom;
+                    area.Bottom = clamp.Bottom;
                 }
             }
 

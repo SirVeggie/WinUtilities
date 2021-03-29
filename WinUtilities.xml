@@ -8131,6 +8131,9 @@
         <member name="M:WinUtilities.Window.Flash(System.Int32,WinUtilities.Window.FlashF,System.Int32)">
             <summary>Flash a window to attract attention to it for <paramref name="duration"/> milliseconds</summary>
         </member>
+        <member name="M:WinUtilities.Window.FindTopLevel(System.Func{WinUtilities.Window,System.Boolean})">
+            <summary>Find a top level window that matches the given predicate</summary>
+        </member>
         <member name="M:WinUtilities.Window.Find(System.Func{WinUtilities.Window,System.Boolean})">
             <summary>Find a window that matches the given predicate</summary>
         </member>

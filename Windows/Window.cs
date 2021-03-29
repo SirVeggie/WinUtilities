@@ -1287,6 +1287,8 @@ namespace WinUtilities {
         #region static
 
         #region find
+        /// <summary>Find a top level window that matches the given predicate</summary>
+        public static Window FindTopLevel(Func<Window, bool> predicate) => Find(w => w.IsTopLevel && predicate.Invoke(w));
         /// <summary>Find a window that matches the given predicate</summary>
         public static Window Find(Func<Window, bool> predicate) {
             Window found = None;
