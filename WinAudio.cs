@@ -469,7 +469,7 @@ namespace WinUtilities {
         }
 
         private static void SetDefaultEndpoint(string deviceId) {
-
+            throw new NotImplementedException();
         }
         #endregion
 
