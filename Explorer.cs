@@ -3,9 +3,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
-using WinUtilities;
 
-namespace Apprentice.Tools {
+namespace WinUtilities {
     /// <summary>Class for accessing a file explorer window's content</summary>
     public static class Explorer {
 

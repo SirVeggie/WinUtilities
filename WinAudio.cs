@@ -64,6 +64,18 @@ namespace WinUtilities {
             }
         }
 
+        /// <summary>Adjust relative performance using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
+        /// <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.</remarks>
+        public void AdjustVolume(float percentage) {
+            if (percentage > 0) {
+                percentage += 1;
+                SetVolume(Volume * percentage);
+            } else {
+                percentage = 1 - percentage;
+                SetVolume(Volume / percentage);
+            }
+        }
+
         /// <summary>Get the mute of the included process/processes</summary>
         public bool GetMute() {
             foreach (var ISAV in audios) {

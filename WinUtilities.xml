@@ -7101,6 +7101,21 @@
         <member name="F:WinUtilities.Key.MouseMove">
             <summary>Mouse movement</summary>
         </member>
+        <member name="T:WinUtilities.Explorer">
+            <summary>Class for accessing a file explorer window's content</summary>
+        </member>
+        <member name="M:WinUtilities.Explorer.GetPath(WinUtilities.Window)">
+            <summary>Get the path of the currently opened folder</summary>
+        </member>
+        <member name="M:WinUtilities.Explorer.GetAll(WinUtilities.Window)">
+            <summary>Get all file and folder paths in the currently opened folder</summary>
+        </member>
+        <member name="M:WinUtilities.Explorer.GetSelected(WinUtilities.Window)">
+            <summary>Get all selected file and folder paths in the currently opened folder</summary>
+        </member>
+        <member name="M:WinUtilities.Explorer.GetShortcutTarget(System.String)">
+            <summary>Get the filepath the shortcut points towards</summary>
+        </member>
         <member name="T:WinUtilities.SendMode">
             <summary>Specifies what method is used to send the input</summary>
         </member>
@@ -7539,6 +7554,10 @@
         <member name="M:WinUtilities.AppVolume.SetVolume(System.Single)">
             <summary>Set the volume of the included process/processes</summary>
         </member>
+        <member name="M:WinUtilities.AppVolume.AdjustVolume(System.Single)">
+            <summary>Adjust relative performance using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
+            <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.</remarks>
+        </member>
         <member name="M:WinUtilities.AppVolume.GetMute">
             <summary>Get the mute of the included process/processes</summary>
         </member>
@@ -7731,7 +7750,7 @@
             <summary>The process handle of this window's <see cref="T:System.Diagnostics.Process"/></summary>
         </member>
         <member name="P:WinUtilities.Window.Process">
-            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to. Getting this info is slow (1000x slower than other properties) so prefer other ways like ExePath and Exe if possible.</summary>
+            <summary>The <see cref="T:System.Diagnostics.Process"/> this window belongs to. Getting this info for the first time is slow (1000x slower than other properties) so prefer other ways like ExePath and Exe if possible.</summary>
         </member>
         <member name="P:WinUtilities.Window.ThreadID">
             <summary>The ID of the system thread that spawned this window</summary>
@@ -7920,7 +7939,7 @@
             <summary>Kill the process associated with the window.</summary>
         </member>
         <member name="M:WinUtilities.Window.Close">
-            <summary>Send a request to close to the window. Returns true on success.</summary>
+            <summary>Send a request to close to the window</summary>
         </member>
         <member name="M:WinUtilities.Window.Minimize">
             <summary>Minimize the window.</summary>
@@ -8406,21 +8425,6 @@
         </member>
         <member name="M:WinUtilities.WinMatch.op_Explicit(WinUtilities.Window)~WinUtilities.WinMatch">
             <summary>Get a match object that matches the given window</summary>
-        </member>
-        <member name="T:Apprentice.Tools.Explorer">
-            <summary>Class for accessing a file explorer window's content</summary>
-        </member>
-        <member name="M:Apprentice.Tools.Explorer.GetPath(WinUtilities.Window)">
-            <summary>Get the path of the currently opened folder</summary>
-        </member>
-        <member name="M:Apprentice.Tools.Explorer.GetAll(WinUtilities.Window)">
-            <summary>Get all file and folder paths in the currently opened folder</summary>
-        </member>
-        <member name="M:Apprentice.Tools.Explorer.GetSelected(WinUtilities.Window)">
-            <summary>Get all selected file and folder paths in the currently opened folder</summary>
-        </member>
-        <member name="M:Apprentice.Tools.Explorer.GetShortcutTarget(System.String)">
-            <summary>Get the filepath the shortcut points towards</summary>
         </member>
     </members>
 </doc>

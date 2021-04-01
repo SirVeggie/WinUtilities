@@ -86,6 +86,7 @@ namespace WinUtilities {
         /// <summary>The title of the window</summary>
         public string Title {
             get {
+                if (IsNone) return "";
                 int length = WinAPI.GetWindowTextLength(Hwnd);
                 StringBuilder title = new StringBuilder(length);
                 WinAPI.GetWindowText(Hwnd, title, length + 1);
@@ -97,7 +98,7 @@ namespace WinUtilities {
         public string Class {
             get {
                 if (@class == null) {
-                    @class = WinAPI.GetClassFromHwnd(Hwnd);
+                    @class = IsNone ? "" : WinAPI.GetClassFromHwnd(Hwnd);
                     if (@class == null) return "";
                 }
 
@@ -109,7 +110,7 @@ namespace WinUtilities {
         public string Exe {
             get {
                 if (exe == null)
-                    exe = WinAPI.GetExeNameFromPath(ExePath);
+                    exe = IsNone ? "" : WinAPI.GetExeNameFromPath(ExePath);
                 return exe;
             }
         }
@@ -118,7 +119,7 @@ namespace WinUtilities {
         public string ExePath {
             get {
                 if (exepath == null) {
-                    exepath = WinAPI.GetPathFromPid(PID);
+                    exepath = IsNone ? "" : WinAPI.GetPathFromPid(PID);
                     if (exepath == null) return "";
                 }
 
@@ -130,16 +131,16 @@ namespace WinUtilities {
         public uint PID {
             get {
                 if (pid == 0)
-                    pid = WinAPI.GetPidFromHwnd(Hwnd);
+                    pid = IsNone ? 0 : WinAPI.GetPidFromHwnd(Hwnd);
                 return pid;
             }
         }
 
-        /// <summary>The <see cref="System.Diagnostics.Process"/> this window belongs to. Getting this info is slow (1000x slower than other properties) so prefer other ways like ExePath and Exe if possible.</summary>
+        /// <summary>The <see cref="System.Diagnostics.Process"/> this window belongs to. Getting this info for the first time is slow (1000x slower than other properties) so prefer other ways like ExePath and Exe if possible.</summary>
         public Process Process {
             get {
                 if (process == null)
-                    process = Process.GetProcessById((int) PID);
+                    process = IsNone ? null : Process.GetProcessById((int) PID);
                 return process;
             }
         }
@@ -148,7 +149,7 @@ namespace WinUtilities {
         public uint ThreadID {
             get {
                 if (threadID == 0)
-                    threadID = WinAPI.GetWindowThreadProcessId(Hwnd, out _);
+                    threadID = IsNone ? 0 : WinAPI.GetWindowThreadProcessId(Hwnd, out _);
                 return threadID;
             }
         }
@@ -408,6 +409,8 @@ namespace WinUtilities {
         #region basic actions
         /// <summary>Set this window as the foreground window</summary>
         public Window Activate(WinActivateMode policy = WinActivateMode.SoftThenForce) {
+            if (IsNone)
+                return this;
             if (IsActive)
                 return this;
             if (policy == WinActivateMode.Soft)
@@ -421,6 +424,8 @@ namespace WinUtilities {
 
         /// <summary>Set the window as the foreground window and wait for the operation to finish. Returns true on success.</summary>
         public async Task<bool> ActivateAsync(WinActivateMode policy = WinActivateMode.SoftThenForce) {
+            if (IsNone)
+                return false;
             if (IsActive)
                 return true;
             if (policy == WinActivateMode.Soft)
@@ -434,6 +439,8 @@ namespace WinUtilities {
 
         /// <summary>Forceful window activation</summary>
         private Window ActivateForce(bool alternate = false) {
+            if (IsNone)
+                return this;
             if (IsActive)
                 return this;
 
@@ -463,6 +470,8 @@ namespace WinUtilities {
 
         /// <summary>A complex but more reliable window activation</summary>
         private async Task<bool> ActivateComplex(bool alternate = false) {
+            if (IsNone)
+                return false;
             int checkDelay = 1;
             var targetThread = ThreadID;
             var currentThread = WinAPI.GetCurrentThreadId();
@@ -515,6 +524,8 @@ namespace WinUtilities {
 
         /// <summary>Activate a window and check if it succeeded</summary>
         private async Task<bool> ActivateSimple(int checkDelay) {
+            if (IsNone)
+                return false;
             WinAPI.SetForegroundWindow(Hwnd);
             await Task.Delay(checkDelay);
             var newForeWindow = Active;
@@ -527,6 +538,8 @@ namespace WinUtilities {
 
         /// <summary>If active, Move the window to the bottom and activate the highest window</summary>
         public Window Deactivate() {
+            if (IsNone)
+                return this;
             if (!IsActive)
                 return this;
             var next = Find(w => w.IsTopLevel && !w.IsAlwaysOnTop && w.IsOnCurrentDesktop && w != this);
@@ -544,20 +557,29 @@ namespace WinUtilities {
         }
         /// <summary>Enable/disable the window. Disabled windows cannot be interacted with.</summary>
         public Window Enable(bool state) {
+            if (IsNone)
+                return this;
             WinAPI.EnableWindow(Hwnd, state);
             return this;
         }
         /// <summary>Kill the process associated with the window.</summary>
         public Window Kill() {
+            if (IsNone)
+                return this;
             Process.Kill();
             return this;
         }
-
-        /// <summary>Send a request to close to the window. Returns true on success.</summary>
-        public bool Close() => Ancestor.PostMessage(WM.CLOSE, 0, 0);
-
+        /// <summary>Send a request to close to the window</summary>
+        public Window Close() {
+            if (IsNone)
+                return this;
+            Ancestor.PostMessage(WM.CLOSE, 0, 0);
+            return this;
+        }
         /// <summary>Minimize the window.</summary>
         public Window Minimize() {
+            if (IsNone)
+                return this;
             if (IsMinimized)
                 return this;
             WinAPI.ShowWindow(Hwnd, WinAPI.SW.MINIMIZE);
@@ -567,6 +589,8 @@ namespace WinUtilities {
         }
         /// <summary>Maximize the window.</summary>
         public Window Maximize() {
+            if (IsNone)
+                return this;
             if (IsMaximized)
                 return this;
             WinAPI.ShowWindow(Hwnd, WinAPI.SW.MAXIMIZE);
@@ -574,17 +598,23 @@ namespace WinUtilities {
         }
         /// <summary>Restore the window from a minimized or a maximized state to normal.</summary>
         public Window Restore() {
+            if (IsNone)
+                return this;
             if (IsMinimized || IsMaximized)
                 WinAPI.ShowWindow(Hwnd, WinAPI.SW.RESTORE);
             return this;
         }
         /// <summary>Set window visibility. False hides the window from the user completely. It's more complex than simple transparency.</summary>
         public Window SetVisible(bool state) {
+            if (IsNone)
+                return this;
             WinAPI.ShowWindow(Hwnd, state ? WinAPI.SW.SHOWNA : WinAPI.SW.HIDE);
             return this;
         }
         /// <summary>Normally hidden windows often have weird alternate behaviour. This version is less prone to that while not 'truly' hiding a window.</summary>
         public Window SetVisibleSoft(bool state) {
+            if (IsNone)
+                return this;
             SetClickThrough(!state);
             return SetOpacity(state ? 100 : 0);
         }
@@ -595,6 +625,8 @@ namespace WinUtilities {
         public IntPtr SendMessage(WM msg, int wParam, int lParam) => WinAPI.SendMessage(Hwnd, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
         /// <summary>Set individual Window Styles on and off.</summary>
         public Window SetStyle(WS style, bool state) {
+            if (IsNone)
+                return this;
             WS newStyle = state ? Style | style : Style & ~style;
             WinAPI.SetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_STYLE, (IntPtr) newStyle);
             WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
@@ -602,6 +634,8 @@ namespace WinUtilities {
         }
         /// <summary>Set individual Window Ex Styles on and off.</summary>
         public Window SetExStyle(WS_EX style, bool state) {
+            if (IsNone)
+                return this;
             WS_EX newStyle = state ? ExStyle | style : ExStyle & ~style;
             WinAPI.SetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWL_EXSTYLE, (IntPtr) newStyle);
             WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
@@ -610,22 +644,30 @@ namespace WinUtilities {
 
         /// <summary>Brings the window to the top of visibility.</summary>
         public Window MoveTop() {
+            if (IsNone)
+                return this;
             WinAPI.SetWindowPos(Hwnd, (IntPtr) WinAPI.HWND_Z.TOP, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
         /// <summary>Drop the window to the bottom of visibility.</summary>
         public Window MoveBottom() {
+            if (IsNone)
+                return this;
             WinAPI.SetWindowPos(Hwnd, (IntPtr) WinAPI.HWND_Z.BOTTOM, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
         /// <summary>Move this window under the specified window in visibility.</summary>
         public Window MoveUnder(Window win) {
+            if (IsNone)
+                return this;
             WinAPI.SetWindowPos(Hwnd, win.Hwnd, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
 
         /// <summary>Make a window always stay visible.</summary>
         public Window SetAlwaysOnTop(bool state) {
+            if (IsNone)
+                return this;
             IntPtr msg = state ? (IntPtr) WinAPI.HWND_Z.TOPMOST : (IntPtr) WinAPI.HWND_Z.NOTOPMOST;
             WinAPI.SetWindowPos(Hwnd, msg, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
@@ -633,6 +675,8 @@ namespace WinUtilities {
 
         /// <summary>Make clicks phase through the window to the windows below.</summary>
         public Window SetClickThrough(bool state) {
+            if (IsNone)
+                return this;
             if (state) {
                 return SetExStyle(WS_EX.TRANSPARENT | WS_EX.LAYERED, true);
             } else {
@@ -642,6 +686,8 @@ namespace WinUtilities {
 
         /// <summary>Set the degree of see-through of the window in percentages.</summary>
         public Window SetOpacity(double percentage) {
+            if (IsNone)
+                return this;
             if (!HasExStyle(WS_EX.LAYERED)) {
                 SetExStyle(WS_EX.LAYERED, true);
             }
@@ -661,6 +707,8 @@ namespace WinUtilities {
 
         /// <summary>Set the color of the window that is rendered as fully transparent.</summary>
         public Window SetTranscolor(Color color) {
+            if (IsNone)
+                return this;
             if (!HasExStyle(WS_EX.LAYERED)) {
                 SetExStyle(WS_EX.LAYERED, true);
             }
@@ -679,6 +727,8 @@ namespace WinUtilities {
 
         /// <summary>Fully disable transparency. Might improve performance after window transparency has been tweaked.</summary>
         public Window DisableTransparency() {
+            if (IsNone)
+                return this;
             opacity = null;
             transcolor = null;
 
@@ -695,12 +745,17 @@ namespace WinUtilities {
 
         /// <summary>Set the parent window of this window</summary>
         public Window SetParent(Window window, out Window prevParent) {
+            prevParent = null;
+            if (IsNone)
+                return this;
             prevParent = new Window(WinAPI.SetParent(Hwnd, window?.Hwnd ?? IntPtr.Zero));
             return this;
         }
 
         /// <summary>Set the owner of this window</summary>
         public Window SetOwner(Window window) {
+            if (IsNone)
+                return this;
             if (IsChild)
                 SetParent(null);
             WinAPI.SetWindowLongPtr(Hwnd, WinAPI.WindowLongFlags.GWLP_HWNDPARENT, window?.Hwnd ?? IntPtr.Zero);
@@ -709,6 +764,8 @@ namespace WinUtilities {
 
         /// <summary>Disable the resizing limits of the window.</summary>
         public Window UnlockSize() {
+            if (IsNone)
+                return this;
             throw new NotImplementedException();
         }
         #endregion
@@ -738,6 +795,8 @@ namespace WinUtilities {
         /// <param name="area">The target area of the window.</param>
         /// <param name="type">Set what the coordinates are relative to.</param>
         public Window Move(Area area, CoordType type = CoordType.Normal) {
+            if (IsNone)
+                return this;
             if (type == CoordType.Normal) {
                 SetArea(area);
             } else if (type == CoordType.Client) {
@@ -785,6 +844,8 @@ namespace WinUtilities {
         #region desktops
         /// <summary>Move the window to a virtual desktop with the specifid id</summary>
         public Window MoveToDesktop(Guid desktop) {
+            if (IsNone)
+                return this;
             SimpleDesktop.MoveWindow(this, desktop);
             return this;
         }
@@ -794,6 +855,8 @@ namespace WinUtilities {
         /// <summary>Set only a specified area of a window visible.</summary>
         /// <param name="region">Relative to raw window coordinates.</param>
         public Window SetRegion(Area region) {
+            if (IsNone)
+                return this;
             region = region.Round();
             var r = WinAPI.CreateRectRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom);
             WinAPI.SetWindowRgn(Hwnd, r, true);
@@ -806,6 +869,8 @@ namespace WinUtilities {
         /// <param name="horizontalRounding">Amount of horizontal rounding</param>
         /// <param name="verticalRounding">Amount of vertical rounding</param>
         public Window SetRoundedRegion(Area region, int horizontalRounding, int verticalRounding) {
+            if (IsNone)
+                return this;
             region = region.Round();
             var r = WinAPI.CreateRoundRectRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom, horizontalRounding, verticalRounding);
             WinAPI.SetWindowRgn(Hwnd, r, true);
@@ -816,6 +881,8 @@ namespace WinUtilities {
         /// <summary>Set only a specified area of a window visible. Has an elliptic shape.</summary>
         /// <param name="region">Relative to raw window coordinates.</param>
         public Window SetEllipticRegion(Area region) {
+            if (IsNone)
+                return this;
             region = region.Round();
             var r = WinAPI.CreateEllipticRgn((int) region.Left, (int) region.Top, (int) region.Right, (int) region.Bottom);
             WinAPI.SetWindowRgn(Hwnd, r, true);
@@ -826,6 +893,8 @@ namespace WinUtilities {
         /// <summary>Set only a specified area of a window visible. Create a region with multiple areas.</summary>
         /// <param name="regions">Relative to raw window coordinates.</param>
         public Window SetComplexRegion(params Area[] regions) {
+            if (IsNone)
+                return this;
             if (regions.Length == 0) {
                 throw new ArgumentException("Must have at least 2 rectangles specified");
             } else if (regions.Length == 1) {
@@ -861,6 +930,8 @@ namespace WinUtilities {
         /// <param name="fillType">Set the fill logic of when lines intersect</param>
         /// <param name="points">Relative to raw window coordinates</param>
         public Window SetComplexRegion(WinAPI.FillRgnFlags fillType, params Coord[] points) {
+            if (IsNone)
+                return this;
             if (points.Length < 3) {
                 throw new ArgumentException("Must have at least 3 points to make a polygon shape");
             }
@@ -878,6 +949,8 @@ namespace WinUtilities {
 
         /// <summary>Remove the window's region to display the full window.</summary>
         public Window RemoveRegion() {
+            if (IsNone)
+                return this;
             WinAPI.SetWindowRgn(Hwnd, IntPtr.Zero, true);
             return this;
         }
@@ -886,6 +959,8 @@ namespace WinUtilities {
         #region borderless
         /// <summary>Set the window to borderless mode.</summary>
         public Window SetBorderless(bool state) {
+            if (IsNone)
+                return this;
             var style = WS.BORDER | WS.SIZEFRAME | WS.DLGFRAME;
 
             if (state) {
@@ -931,6 +1006,8 @@ namespace WinUtilities {
         /// <param name="subArea">Set the capture sub area relative to the full capture area</param>
         /// <param name="clientOnly">Capture only the client area</param>
         public Image GetImage(Area subArea, bool clientOnly = false) {
+            if (IsNone)
+                return null;
             Area area = Area;
             Area client = ClientArea;
             Area capture;
@@ -969,6 +1046,8 @@ namespace WinUtilities {
 
         /// <summary>Get an image of the window using WindowPrint API. Capable of imaging off screen windows.</summary>
         public Image GetImagePrint(bool clientOnly = false) {
+            if (IsNone)
+                return null;
             Area area = clientOnly ? ClientArea : Area;
             Image img = new Bitmap(area.IntW, area.IntH);
             Graphics g = Graphics.FromImage(img);
@@ -986,6 +1065,8 @@ namespace WinUtilities {
         /// <param name="subArea">Set the capture sub area relative to the full capture area</param>
         /// <param name="clientOnly">Capture only the client area</param>
         public Image GetImageDesktop(Area subArea, bool clientOnly = false) {
+            if (IsNone)
+                return null;
             var area = clientOnly ? ClientArea : Area;
 
             if (subArea.IsValid) {
@@ -1198,6 +1279,8 @@ namespace WinUtilities {
         #region flashing
         /// <summary>Stop a window from flashing</summary>
         public Window FlashStop() {
+            if (IsNone)
+                return this;
             var data = new WinAPI.FLASHWINFO {
                 hwnd = Hwnd,
                 cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
@@ -1212,6 +1295,8 @@ namespace WinUtilities {
 
         /// <summary>Flash a window to attract attention to it until activated</summary>
         public Window Flash(FlashF target = FlashF.Taskbar, int flashDelayMS = 0) {
+            if (IsNone)
+                return this;
             var data = new WinAPI.FLASHWINFO {
                 hwnd = Hwnd,
                 cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
@@ -1226,6 +1311,8 @@ namespace WinUtilities {
 
         /// <summary>Flash a window to attract attention to it <paramref name="count"/> times</summary>
         public Window FlashCount(int count, FlashF target = FlashF.Taskbar, int flashDelayMS = 1000) {
+            if (IsNone)
+                return this;
             var data = new WinAPI.FLASHWINFO {
                 hwnd = Hwnd,
                 cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
@@ -1248,6 +1335,8 @@ namespace WinUtilities {
 
         /// <summary>Flash a window to attract attention to it for <paramref name="duration"/> milliseconds</summary>
         public Window Flash(int duration, FlashF target = FlashF.Taskbar, int flashDelayMS = 0) {
+            if (IsNone)
+                return this;
             var data = new WinAPI.FLASHWINFO {
                 hwnd = Hwnd,
                 cbSize = (uint) Marshal.SizeOf(typeof(WinAPI.FLASHWINFO)),
