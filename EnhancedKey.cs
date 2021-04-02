@@ -39,19 +39,6 @@ namespace WinUtilities {
         static EnhancedKey() {
             KeyMap = MapNormalKeys();
             KeyExtendedMap = MapExtendedKeys();
-            StringToKey = MapStrings();
-        }
-
-        /// <summary>Get all keys as a list. Does not include duplicates</summary>
-        public static List<Key> GetKeys() {
-            HashSet<Key> set = new HashSet<Key>();
-            foreach (Key key in Enum.GetValues(typeof(Key))) {
-                if (key.IsKey() && key != Key.Unknown && key != Key.NoMapping) {
-                    set.Add(key);
-                }
-            }
-
-            return set.ToList();
         }
 
         #region mapping
@@ -60,7 +47,6 @@ namespace WinUtilities {
         /// <summary>Map extended versions of virtual key codes to the Key enum</summary>
         public static Dictionary<VKey, Key> KeyExtendedMap { get; }
         /// <summary>Map strings to the Key enum</summary>
-        public static Dictionary<string, Key> StringToKey { get; }
 
         private static Dictionary<VKey, Key> MapNormalKeys() {
             var dict = new Dictionary<VKey, Key>();
@@ -90,19 +76,6 @@ namespace WinUtilities {
             }
 
             return dict;
-        }
-
-        private static Dictionary<string, Key> MapStrings() {
-            var toKey = new Dictionary<string, Key>();
-
-            foreach (Key key in Enum.GetValues(typeof(Key))) {
-                var s = key.ToString().ToLower();
-                if (!toKey.ContainsKey(s)) {
-                    toKey.Add(s, key);
-                }
-            }
-
-            return toKey;
         }
         #endregion
 
@@ -203,6 +176,18 @@ namespace WinUtilities {
             throw new Exception("This virtual key is not defined in the Key enum.");
         }
         #endregion
+
+        /// <summary>Get all keys as a list. Does not include duplicates</summary>
+        public static List<Key> GetKeys() {
+            HashSet<Key> set = new HashSet<Key>();
+            foreach (Key key in Enum.GetValues(typeof(Key))) {
+                if (key.IsKey() && key != Key.Unknown && key != Key.NoMapping) {
+                    set.Add(key);
+                }
+            }
+
+            return set.ToList();
+        }
 
         private static ushort scMask = 0xFF00;
         private static ushort scValue = 0xE000;

@@ -6787,16 +6787,13 @@
         <member name="T:WinUtilities.EnhancedKey">
             <summary>Extension methods for the enhanced Key enum</summary>
         </member>
-        <member name="M:WinUtilities.EnhancedKey.GetKeys">
-            <summary>Get all keys as a list. Does not include duplicates</summary>
-        </member>
         <member name="P:WinUtilities.EnhancedKey.KeyMap">
             <summary>Map virtual key codes to the Key enum</summary>
         </member>
         <member name="P:WinUtilities.EnhancedKey.KeyExtendedMap">
             <summary>Map extended versions of virtual key codes to the Key enum</summary>
         </member>
-        <member name="P:WinUtilities.EnhancedKey.StringToKey">
+        <member name="M:WinUtilities.EnhancedKey.MapNormalKeys">
             <summary>Map strings to the Key enum</summary>
         </member>
         <member name="M:WinUtilities.EnhancedKey.HasAny(WinUtilities.Key,WinUtilities.Key)">
@@ -6890,6 +6887,9 @@
             <summary>Get the <see cref="T:WinUtilities.Key"/> equivalent of this <see cref="T:WinUtilities.VKey"/>. If an extended key is not found, a non-extended version is returned if possible.</summary>
             <param name="key">The <see cref="T:WinUtilities.VKey"/> to cast into a <see cref="T:WinUtilities.ScanCode"/></param>
             <param name="extended">Set true to prioritize the extended version of the key (Example: Enter vs NumpadEnter). Returns non-extended version as fallback if not found and vice versa.</param>
+        </member>
+        <member name="M:WinUtilities.EnhancedKey.GetKeys">
+            <summary>Get all keys as a list. Does not include duplicates</summary>
         </member>
         <member name="M:WinUtilities.EnhancedKey.IsExtended(WinUtilities.ScanCode)">
             <summary>Check if the <see cref="T:WinUtilities.ScanCode"/> is an extended key</summary>

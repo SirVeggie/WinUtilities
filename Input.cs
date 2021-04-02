@@ -48,68 +48,68 @@ namespace WinUtilities {
         /// <summary>Retrieve the Key equivalent from a <see cref="WM"/> message</summary>
         public static KeyState FromMouseEvent(WM message, int data = 0) {
             switch (message) {
-                case WM.LBUTTONDOWN: {
-                    return new KeyState(Key.LButton, true);
+            case WM.LBUTTONDOWN: {
+                return new KeyState(Key.LButton, true);
+            }
+            case WM.LBUTTONUP: {
+                return new KeyState(Key.LButton, false);
+            }
+            case WM.LBUTTONDBLCLK: {
+                return new KeyState(Key.LButton, true);
+            }
+            case WM.RBUTTONDOWN: {
+                return new KeyState(Key.RButton, true);
+            }
+            case WM.RBUTTONUP: {
+                return new KeyState(Key.RButton, false);
+            }
+            case WM.RBUTTONDBLCLK: {
+                return new KeyState(Key.RButton, true);
+            }
+            case WM.MBUTTONDOWN: {
+                return new KeyState(Key.MButton, true);
+            }
+            case WM.MBUTTONUP: {
+                return new KeyState(Key.MButton, false);
+            }
+            case WM.MBUTTONDBLCLK: {
+                return new KeyState(Key.MButton, true);
+            }
+            case WM.MOUSEWHEEL: {
+                var key = data >> 16 > 0 ? Key.WheelUp : Key.WheelDown;
+                return new KeyState(key, true);
+            }
+            case WM.MOUSEHWHEEL: {
+                var key = data >> 16 > 0 ? Key.WheelRight : Key.WheelLeft;
+                return new KeyState(key, true);
+            }
+            case WM.XBUTTONDOWN: {
+                data >>= 16;
+                if (data == 1) {
+                    return new KeyState(Key.XButton1, true);
+                } else {
+                    return new KeyState(Key.XButton2, true);
                 }
-                case WM.LBUTTONUP: {
-                    return new KeyState(Key.LButton, false);
+            }
+            case WM.XBUTTONUP: {
+                data >>= 16;
+                if (data == 1) {
+                    return new KeyState(Key.XButton1, false);
+                } else {
+                    return new KeyState(Key.XButton2, false);
                 }
-                case WM.LBUTTONDBLCLK: {
-                    return new KeyState(Key.LButton, true);
+            }
+            case WM.XBUTTONDBLCLK: {
+                data >>= 16;
+                if (data == 1) {
+                    return new KeyState(Key.XButton1, true);
+                } else {
+                    return new KeyState(Key.XButton2, true);
                 }
-                case WM.RBUTTONDOWN: {
-                    return new KeyState(Key.RButton, true);
-                }
-                case WM.RBUTTONUP: {
-                    return new KeyState(Key.RButton, false);
-                }
-                case WM.RBUTTONDBLCLK: {
-                    return new KeyState(Key.RButton, true);
-                }
-                case WM.MBUTTONDOWN: {
-                    return new KeyState(Key.MButton, true);
-                }
-                case WM.MBUTTONUP: {
-                    return new KeyState(Key.MButton, false);
-                }
-                case WM.MBUTTONDBLCLK: {
-                    return new KeyState(Key.MButton, true);
-                }
-                case WM.MOUSEWHEEL: {
-                    var key = data >> 16 > 0 ? Key.WheelUp : Key.WheelDown;
-                    return new KeyState(key, true);
-                }
-                case WM.MOUSEHWHEEL: {
-                    var key = data >> 16 > 0 ? Key.WheelRight : Key.WheelLeft;
-                    return new KeyState(key, true);
-                }
-                case WM.XBUTTONDOWN: {
-                    data >>= 16;
-                    if (data == 1) {
-                        return new KeyState(Key.XButton1, true);
-                    } else {
-                        return new KeyState(Key.XButton2, true);
-                    }
-                }
-                case WM.XBUTTONUP: {
-                    data >>= 16;
-                    if (data == 1) {
-                        return new KeyState(Key.XButton1, false);
-                    } else {
-                        return new KeyState(Key.XButton2, false);
-                    }
-                }
-                case WM.XBUTTONDBLCLK: {
-                    data >>= 16;
-                    if (data == 1) {
-                        return new KeyState(Key.XButton1, true);
-                    } else {
-                        return new KeyState(Key.XButton2, true);
-                    }
-                }
-                case WM.MOUSEMOVE: {
-                    return new KeyState(Key.MouseMove, true);
-                }
+            }
+            case WM.MOUSEMOVE: {
+                return new KeyState(Key.MouseMove, true);
+            }
             }
 
             throw new Exception("Unknown mouse input" + message);
@@ -579,9 +579,12 @@ namespace WinUtilities {
 
                     // Parse close character outside of parse
                 } else if (chars[i] == ParseClose) {
-                    if (i + 1 >= chars.Length || chars[i + 1] != ParseClose) {
+                    if (i + 1 >= chars.Length)
+                        throw new Exception($"Unexpected closing {ParseClose} at end of string");
+                    if (chars[i + 1] != ParseClose)
                         throw new Exception($"Unexpected closing {ParseClose}");
-                    }
+                    res.AddRange(GetCharInput(ParseClose));
+                    i++;
 
                     // Normal characters
                 } else {
@@ -659,9 +662,9 @@ namespace WinUtilities {
                 keyString = Regex.Replace(keyString, "Control", "Ctrl", RegexOptions.IgnoreCase);
                 keyString = Regex.Replace(keyString, @"^\d$", "D" + keyString);
 
-                if (!EnhancedKey.StringToKey.ContainsKey(keyString))
-                    throw new Exception($"Key named {keyString} not found");
-                return EnhancedKey.StringToKey[keyString];
+                if (Enum.TryParse(keyString, true, out Key key))
+                    return key;
+                throw new Exception($"Key named {keyString} not found");
             }
 
             public List<WinAPI.INPUT> Parse() {
