@@ -107,10 +107,10 @@
             <summary>Height of the area as an int</summary>
         </member>
         <member name="P:WinUtilities.Area.IsValid">
-            <summary>Check if all the components are not NaN.</summary>
+            <summary>Check if all the components are not NaN and size is not negative</summary>
         </member>
         <member name="P:WinUtilities.Area.IsNaN">
-            <summary>Check if all the components are NaN.</summary>
+            <summary>Check if all the components are NaN</summary>
         </member>
         <member name="P:WinUtilities.Area.Zero">
             <summary>All components are 0.</summary>
@@ -208,11 +208,17 @@
         <member name="M:WinUtilities.Area.Round">
             <summary>Rounds all components to closest integer</summary>
         </member>
+        <member name="M:WinUtilities.Area.Validate">
+            <summary>Sets negative size values to 0</summary>
+        </member>
         <member name="M:WinUtilities.Area.FillNaN(WinUtilities.Area)">
             <summary>Fills the current NaN values with the new ones</summary>
         </member>
         <member name="M:WinUtilities.Area.CenterOn(WinUtilities.Area)">
             <summary>Center this area in another area so that both area's center points match</summary>
+        </member>
+        <member name="M:WinUtilities.Area.CenterOn(WinUtilities.Coord)">
+            <summary>Center this area to the specified point</summary>
         </member>
         <member name="M:WinUtilities.Area.GetRelativePoint(System.Double,System.Double)">
             <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>

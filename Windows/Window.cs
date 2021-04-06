@@ -286,16 +286,16 @@ namespace WinUtilities {
         private Area GetArea() => CalculateRealArea();
 
         private void SetArea(Area area) {
-            bool borderless = IsBorderless;
+            Area region = GetRegionBounds();
+            bool borderless = !region.IsNaN;
             Area raw = GetRawArea();
             Area client = GetClientArea();
-            Area? region = borderless ? (Area?) GetRegionBounds() : null;
-            Area real = CalculateRealArea(raw, client, region);
+            Area real = CalculateRealArea(raw, client, borderless ? (Area?) region : null);
 
             OffsetMove(area, real, raw);
 
             if (borderless) {
-                SetRegion(((Area) region).AddSize(area.FillNaN(real) - real));
+                SetRegion(region.AddSize(area.FillNaN(real) - real));
             }
         }
 

@@ -113,16 +113,16 @@ namespace WinUtilities {
         /// <summary>Location of the upper left corner of the area</summary>
         public Coord Point { get => point; set => point = value; }
         /// <summary>Size of the area</summary>
-        public Coord Size { get => size; set => size = value.AsPositive(); }
+        public Coord Size { get => size; set => size = value; }
 
         /// <summary>Left edge of the area</summary>
         public double X { get => point.X; set => point.X = value; }
         /// <summary>Top edge of the area</summary>
         public double Y { get => point.Y; set => point.Y = value; }
         /// <summary>Width of the area</summary>
-        public double W { get => size.X; set => size.X = Math.Max(0, value); }
+        public double W { get => size.X; set => size.X = value; }
         /// <summary>Height of the area</summary>
-        public double H { get => size.Y; set => size.Y = Math.Max(0, value); }
+        public double H { get => size.Y; set => size.Y = value; }
 
         /// <summary>Left edge of the area as an int</summary>
         public int IntX => point.IntX;
@@ -133,9 +133,9 @@ namespace WinUtilities {
         /// <summary>Height of the area as an int</summary>
         public int IntH => size.IntY;
 
-        /// <summary>Check if all the components are not NaN.</summary>
-        public bool IsValid => point.IsValid && size.IsValid;
-        /// <summary>Check if all the components are NaN.</summary>
+        /// <summary>Check if all the components are not NaN and size is not negative</summary>
+        public bool IsValid => point.IsValid && size.IsValid && W >= 0 && H >= 0;
+        /// <summary>Check if all the components are NaN</summary>
         public bool IsNaN => point.IsNaN && size.IsNaN;
 
         /// <summary>All components are 0.</summary>
@@ -327,17 +327,17 @@ namespace WinUtilities {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public Area(double? x = null, double? y = null, double? w = null, double? h = null) {
             point = new Coord(x, y);
-            size = new Coord(w, h).AsPositive();
+            size = new Coord(w, h);
         }
 
         public Area(Coord? point = null, Coord? size = null) {
             this.point = point ?? Coord.NaN;
-            this.size = (size ?? Coord.NaN).AsPositive();
+            this.size = (size ?? Coord.NaN);
         }
 
         public Area(Area other) {
             point = other.point;
-            size = other.size.AsPositive();
+            size = other.size;
         }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
@@ -358,6 +358,13 @@ namespace WinUtilities {
         /// <summary>Rounds all components to closest integer</summary>
         public Area Round() => new Area(point.Round(), size.Round());
 
+        /// <summary>Sets negative size values to 0</summary>
+        public Area Validate() {
+            var area = this;
+            area.Size = area.Size.AsPositive();
+            return area;
+        }
+
         /// <summary>Fills the current NaN values with the new ones</summary>
         public Area FillNaN(Area p) => new Area(point.Fill(p.Point), size.Fill(p.Size));
 
@@ -365,6 +372,13 @@ namespace WinUtilities {
         public Area CenterOn(Area other) {
             var area = this;
             area.Center = other.Center;
+            return area;
+        }
+
+        /// <summary>Center this area to the specified point</summary>
+        public Area CenterOn(Coord point) {
+            var area = this;
+            area.Center = point;
             return area;
         }
 
