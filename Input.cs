@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ namespace WinUtilities {
 
     /// <summary>Class for sending native windows input</summary>
     public static class Input {
+
+        private static readonly uint pid = (uint) Process.GetCurrentProcess().Id;
 
         /// <summary>The text character for parsing special input when sending text. Default is '['.</summary>
         public static char ParseOpen { get; } = '[';
@@ -396,7 +399,7 @@ namespace WinUtilities {
                         sc = sc != 0 ? sc : key.AsScanCode(),
                         flags = flags,
                         time = 0,
-                        extraInfo = UIntPtr.Zero
+                        extraInfo = (UIntPtr) pid
                     }
                 }
             };
@@ -413,7 +416,7 @@ namespace WinUtilities {
                         mouseData = data,
                         flags = flags,
                         time = 0,
-                        extraInfo = UIntPtr.Zero
+                        extraInfo = (UIntPtr) pid
                     }
                 }
             };
