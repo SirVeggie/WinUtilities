@@ -185,7 +185,11 @@ namespace WinUtilities {
 
             ExtraInfo = raw.dwExtraInfo;
 
-            Key = ((VKey) raw.vkCode).AsCustom(Extended);
+            try {
+                Key = ((VKey) raw.vkCode).AsCustom(Extended);
+            } catch {
+                Key = (Key) raw.vkCode | Key.F_Unknown;
+            }
         }
 
         /// <summary>Return the object as a string that shows the main information</summary>

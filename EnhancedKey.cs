@@ -115,6 +115,8 @@ namespace WinUtilities {
         public static bool IsStateless(this Key key) => key.HasFlag(Key.F_Stateless);
         /// <summary>Check if the key is a toggleable key</summary>
         public static bool IsToggle(this Key key) => key.HasFlag(Key.F_Toggle);
+        /// <summary>Check if the key is an unknown key</summary>
+        public static bool IsUnknown(this Key key) => key.HasFlag(Key.F_Unknown);
         /// <summary>Check if the key is the None key. Represents a fail or null state.</summary>
         public static bool IsNone(this Key key) => key == Key.None;
 
@@ -224,6 +226,8 @@ namespace WinUtilities {
         F_Toggle = F_Custom << 10,
         /// <summary>Flag for keys that are out of the norm somehow</summary>
         F_Special = F_Custom << 11,
+        /// <summary>Flag for keys that are unknown</summary>
+        F_Unknown = F_Custom << 12,
 
         /// <summary>Flag for shift keys</summary>
         Shift = F_Custom << 20 | F_Modifier,

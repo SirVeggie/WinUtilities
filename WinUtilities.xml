@@ -6853,6 +6853,9 @@
         <member name="M:WinUtilities.EnhancedKey.IsToggle(WinUtilities.Key)">
             <summary>Check if the key is a toggleable key</summary>
         </member>
+        <member name="M:WinUtilities.EnhancedKey.IsUnknown(WinUtilities.Key)">
+            <summary>Check if the key is an unknown key</summary>
+        </member>
         <member name="M:WinUtilities.EnhancedKey.IsNone(WinUtilities.Key)">
             <summary>Check if the key is the None key. Represents a fail or null state.</summary>
         </member>
@@ -6938,6 +6941,9 @@
         </member>
         <member name="F:WinUtilities.Key.F_Special">
             <summary>Flag for keys that are out of the norm somehow</summary>
+        </member>
+        <member name="F:WinUtilities.Key.F_Unknown">
+            <summary>Flag for keys that are unknown</summary>
         </member>
         <member name="F:WinUtilities.Key.Shift">
             <summary>Flag for shift keys</summary>
