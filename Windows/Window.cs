@@ -354,7 +354,7 @@ namespace WinUtilities {
         /// <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
         private Area CalculateRealArea(Area? raw = null, Area? client = null, Area? region = null) {
             if (IsMaximized) {
-                return Monitor.Area;
+                return Monitor.WorkArea;
             }
 
             if (IsBorderless) {
