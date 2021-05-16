@@ -91,6 +91,22 @@ namespace WinUtilities {
             throw new Exception("Monitor not found, was it disconnected from the computer?");
         }
 
+        /// <summary>Get the next monitor that is <paramref name="steps"/> forward from current index while looping around</summary>
+        public Monitor Next(int steps = 1) {
+            if (steps < 1)
+                throw new ArgumentException("Invalid step value, must be 1 or higher");
+            int index = (GetIndex() + steps) % Count;
+            return FromIndex(index);
+        }
+
+        /// <summary>Get the previous monitor that is <paramref name="steps"/> behind from current index while looping around</summary>
+        public Monitor Previous(int steps = 1) {
+            if (steps < 1)
+                throw new ArgumentException("Invalid step value, must be 1 or higher");
+            int index = (Count + (GetIndex() - steps) % Count) % Count;
+            return FromIndex(index);
+        }
+
         /// <summary>Set as the current primary monitor</summary>
         public bool SetPrimary() {
             throw new NotImplementedException();

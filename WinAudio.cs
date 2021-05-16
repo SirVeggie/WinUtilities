@@ -18,6 +18,8 @@ namespace WinUtilities {
         public float Volume { get => GetVolume(); set => SetVolume(value); }
         /// <summary>Get or set the mute of the included process/processes</summary>
         public bool Mute { get => GetMute(); set => SetMute(value); }
+        /// <summary>Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold</summary>
+        public float LowThreshold { get; } = 0.005f;
 
         #region creation
         private AppVolume() { }
@@ -64,15 +66,15 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Adjust relative performance using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
-        /// <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.</remarks>
+        /// <summary>Adjust relative volume using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
+        /// <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.
+        /// If volume is LowThreshold or lower while decreasing, volume goes straight to 0. When increasing, new volume is at least the LowThreshold.</remarks>
         public void AdjustVolume(float percentage) {
+            var volume = Volume;
             if (percentage > 0) {
-                percentage += 1;
-                SetVolume(Volume * percentage);
+                SetVolume(Math.Max(volume * (1 + percentage), LowThreshold));
             } else {
-                percentage = 1 - percentage;
-                SetVolume(Volume / percentage);
+                SetVolume(volume <= LowThreshold ? 0 : volume / (1 - percentage));
             }
         }
 

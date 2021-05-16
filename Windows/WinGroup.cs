@@ -111,6 +111,40 @@ namespace WinUtilities {
             return false;
         }
 
+        /// <summary>Remove all matching items from the group's whitelist. Returns true if any items were deleted.</summary>
+        public bool Remove(Func<WinMatch, bool> predicate) => RemoveFromList(predicate, whitelist);
+        /// <summary>Remove all matching items from the group's blacklist. Returns true if any items were deleted.</summary>
+        public bool RemoveBlacklist(Func<WinMatch, bool> predicate) => RemoveFromList(predicate, blacklist);
+
+        private bool RemoveFromList(Func<WinMatch, bool> predicate, List<IWinMatch> list) {
+            if (predicate == null)
+                throw new ArgumentNullException("Predicate can't be null");
+            bool changed = false;
+            List<int> deleted = new List<int>();
+
+            for (int i = 0; i < list.Count; i++) {
+                var match = whitelist[i];
+                if (match is WinMatch wm) {
+                    if (predicate(wm)) {
+                        changed = true;
+                        deleted.Add(i);
+                    }
+                } else {
+                    var group = (WinGroup) match;
+                    if (group.Remove(predicate))
+                        changed = true;
+                    if (group.Size == 0)
+                        deleted.Add(i);
+                }
+            }
+
+            foreach (int i in deleted) {
+                list.RemoveAt(i);
+            }
+
+            return changed;
+        }
+
         /// <summary>Perform an action on all matching windows</summary>
         public void ForAll(Action<Window> action, WinFindMode mode = WinFindMode.TopLevel) => MatchActions.ForAll(this, action, mode);
 

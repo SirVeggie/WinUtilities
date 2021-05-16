@@ -70,14 +70,79 @@ namespace WinUtilities {
             return edge;
         }
 
+        /// <summary>Rotate the <see cref="EdgeType"/> in either direction</summary>
+        /// <remarks>If the <see cref="EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
+        public static EdgeType Rotate(this EdgeType dir, bool clockwise = true) {
+            EdgeType result;
+
+            if (!dir.IsCorner()) {
+                switch (dir) {
+                case EdgeType.None:
+                    result = EdgeType.None;
+                    break;
+                case EdgeType.Left:
+                    result = EdgeType.Top;
+                    break;
+                case EdgeType.Right:
+                    result = EdgeType.Bottom;
+                    break;
+                case EdgeType.Top:
+                    result = EdgeType.Right;
+                    break;
+                case EdgeType.Bottom:
+                    result = EdgeType.Left;
+                    break;
+                default:
+                    result = dir;
+                    break;
+                }
+            } else {
+                switch (dir) {
+                case EdgeType.None:
+                    result = EdgeType.None;
+                    break;
+                case EdgeType.TopLeft:
+                    result = EdgeType.TopRight;
+                    break;
+                case EdgeType.TopRight:
+                    result = EdgeType.BottomRight;
+                    break;
+                case EdgeType.BottomLeft:
+                    result = EdgeType.TopLeft;
+                    break;
+                case EdgeType.BottomRight:
+                    result = EdgeType.BottomLeft;
+                    break;
+                default:
+                    result = dir;
+                    break;
+                }
+            }
+
+            if (clockwise)
+                return result;
+            return result.Reverse();
+        }
+
+        /// <summary>Rotate the <see cref="EdgeType"/> certain amount of steps in either direction</summary>
+        /// <remarks>If the <see cref="EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
+        public static EdgeType Rotate(this EdgeType type, int steps) {
+            if (steps == 0)
+                return type;
+            steps = ((Math.Abs(steps) - 1) % 4 + 1) * (steps < 0 ? -1 : 1);
+            for (int i = 0; i < steps; i++)
+                type = type.Rotate(steps > 0);
+            return type;
+        }
+
         /// <summary>Check if the edge is <see cref="EdgeType.None"/></summary>
         public static bool IsNone(this EdgeType edge) => edge == 0;
-        /// <summary>Check if the edge is the left or the top edge</summary>
+        /// <summary>Check if the edge is the left or the top edge (not a corner)</summary>
         public static bool IsTopOrLeft(this EdgeType edge) => edge.HasFlag(EdgeType.Left) || edge.HasFlag(EdgeType.Top) && !edge.IsCorner();
         /// <summary>Check if the edge has horizontal component</summary>
-        public static bool IsHorizontal(this EdgeType edge) => edge.HasFlag(EdgeType.Top) || edge.HasFlag(EdgeType.Bottom);
+        public static bool IsHorizontal(this EdgeType edge) => edge.HasFlag(EdgeType.Left) || edge.HasFlag(EdgeType.Right);
         /// <summary>Check if the edge has vertical component</summary>
-        public static bool IsVertical(this EdgeType edge) => edge.HasFlag(EdgeType.Left) || edge.HasFlag(EdgeType.Right);
+        public static bool IsVertical(this EdgeType edge) => edge.HasFlag(EdgeType.Top) || edge.HasFlag(EdgeType.Bottom);
         /// <summary>Check if the edge has both vertical and horizontal components</summary>
         public static bool IsCorner(this EdgeType edge) => edge.IsHorizontal() && edge.IsVertical();
     }
@@ -408,6 +473,15 @@ namespace WinUtilities {
             }
 
             throw new ArgumentException("Illegal edge type, must be one of the main types");
+        }
+
+        /// <summary>Get the [Left, Right, Top, Bottom] of the area as a double</summary>
+        public double GetSide(EdgeType type) {
+            if (type == EdgeType.Left) return Left;
+            if (type == EdgeType.Right) return Right;
+            if (type == EdgeType.Top) return Top;
+            if (type == EdgeType.Bottom) return Bottom;
+            throw new ArgumentException("Invalid edge type, must be left, right, top or bottom");
         }
 
         /// <summary>Returns the <see cref="Edge"/> of the closest corner</summary>

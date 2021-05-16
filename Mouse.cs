@@ -104,10 +104,10 @@ namespace WinUtilities {
                 return;
             }
 
-            if (IsHidden)
-                return;
+            if (!IsHidden)
+                AppDomain.CurrentDomain.ProcessExit += Unhide;
             IsHidden = true;
-            AppDomain.CurrentDomain.ProcessExit += Unhide;
+
             foreach (CursorType type in Enum.GetValues(typeof(CursorType))) {
                 if (type == CursorType.Undefined)
                     continue;

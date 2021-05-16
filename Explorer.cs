@@ -26,14 +26,14 @@ namespace WinUtilities {
         public static List<string> GetAll(Window win) {
             List<string> res = null;
             new Thread(() => res = Get(win, false)).RunStaJoin();
-            return res;
+            return res ?? new List<string>();
         }
 
         /// <summary>Get all selected file and folder paths in the currently opened folder</summary>
         public static List<string> GetSelected(Window win) {
             List<string> res = null;
             new Thread(() => res = Get(win, true)).RunStaJoin();
-            return res;
+            return res ?? new List<string>();
         }
 
         private static dynamic GetWindow(Window win) {

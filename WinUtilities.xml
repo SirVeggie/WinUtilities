@@ -43,11 +43,19 @@
         <member name="M:WinUtilities.EdgeTypeExtensions.ReverseVertical(WinUtilities.EdgeType)">
             <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite vertical edge</summary>
         </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.Rotate(WinUtilities.EdgeType,System.Boolean)">
+            <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> in either direction</summary>
+            <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.Rotate(WinUtilities.EdgeType,System.Int32)">
+            <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> certain amount of steps in either direction</summary>
+            <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
+        </member>
         <member name="M:WinUtilities.EdgeTypeExtensions.IsNone(WinUtilities.EdgeType)">
             <summary>Check if the edge is <see cref="F:WinUtilities.EdgeType.None"/></summary>
         </member>
         <member name="M:WinUtilities.EdgeTypeExtensions.IsTopOrLeft(WinUtilities.EdgeType)">
-            <summary>Check if the edge is the left or the top edge</summary>
+            <summary>Check if the edge is the left or the top edge (not a corner)</summary>
         </member>
         <member name="M:WinUtilities.EdgeTypeExtensions.IsHorizontal(WinUtilities.EdgeType)">
             <summary>Check if the edge has horizontal component</summary>
@@ -227,6 +235,9 @@
         </member>
         <member name="M:WinUtilities.Area.GetEdge(WinUtilities.EdgeType)">
             <summary>Get the <see cref="T:WinUtilities.Edge"/> of a given <see cref="T:WinUtilities.EdgeType"/></summary>
+        </member>
+        <member name="M:WinUtilities.Area.GetSide(WinUtilities.EdgeType)">
+            <summary>Get the [Left, Right, Top, Bottom] of the area as a double</summary>
         </member>
         <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord)">
             <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
@@ -7399,6 +7410,12 @@
         <member name="M:WinUtilities.Monitor.GetIndex">
             <summary>Find out the current index of this monitor</summary>
         </member>
+        <member name="M:WinUtilities.Monitor.Next(System.Int32)">
+            <summary>Get the next monitor that is <paramref name="steps"/> forward from current index while looping around</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.Previous(System.Int32)">
+            <summary>Get the previous monitor that is <paramref name="steps"/> behind from current index while looping around</summary>
+        </member>
         <member name="M:WinUtilities.Monitor.SetPrimary">
             <summary>Set as the current primary monitor</summary>
         </member>
@@ -7554,6 +7571,9 @@
         <member name="P:WinUtilities.AppVolume.Mute">
             <summary>Get or set the mute of the included process/processes</summary>
         </member>
+        <member name="P:WinUtilities.AppVolume.LowThreshold">
+            <summary>Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold</summary>
+        </member>
         <member name="M:WinUtilities.AppVolume.New(System.UInt32)">
             <summary>Get app volume controller by process id</summary>
         </member>
@@ -7567,8 +7587,9 @@
             <summary>Set the volume of the included process/processes</summary>
         </member>
         <member name="M:WinUtilities.AppVolume.AdjustVolume(System.Single)">
-            <summary>Adjust relative performance using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
-            <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.</remarks>
+            <summary>Adjust relative volume using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
+            <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.
+            If volume is LowThreshold or lower while decreasing, volume goes straight to 0. When increasing, new volume is at least the LowThreshold.</remarks>
         </member>
         <member name="M:WinUtilities.AppVolume.GetMute">
             <summary>Get the mute of the included process/processes</summary>
@@ -8346,6 +8367,12 @@
         </member>
         <member name="M:WinUtilities.WinGroup.IsActive">
             <summary>A window from this group is the active window</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.Remove(System.Func{WinUtilities.WinMatch,System.Boolean})">
+            <summary>Remove all matching items from the group's whitelist. Returns true if any items were deleted.</summary>
+        </member>
+        <member name="M:WinUtilities.WinGroup.RemoveBlacklist(System.Func{WinUtilities.WinMatch,System.Boolean})">
+            <summary>Remove all matching items from the group's blacklist. Returns true if any items were deleted.</summary>
         </member>
         <member name="M:WinUtilities.WinGroup.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
             <summary>Perform an action on all matching windows</summary>
