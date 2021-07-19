@@ -7548,15 +7548,15 @@
         </member>
         <member name="M:WinUtilities.SystemUtils.Shutdown(System.Int32)">
             <summary>Shutdown the computer</summary>
-            <param name="delay">Delay until activation in seconds</param>
+            <param name="delaySeconds">Delay until activation in seconds</param>
         </member>
         <member name="M:WinUtilities.SystemUtils.Restart(System.Int32)">
             <summary>Restart the computer</summary>
-            <param name="delay">Delay until activation in seconds</param>
+            <param name="delaySeconds">Delay until activation in seconds</param>
         </member>
         <member name="M:WinUtilities.SystemUtils.Sleep(System.Int32)">
             <summary>Put the computer to sleep</summary>
-            <param name="delay">Delay until activation in seconds</param>
+            <param name="delaySeconds">Delay until activation in seconds</param>
         </member>
         <member name="M:WinUtilities.SystemUtils.StopShutdown">
             <summary>Stops Shutdown, Restart or Sleep started from this process</summary>
