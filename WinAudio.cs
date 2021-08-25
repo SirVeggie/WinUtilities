@@ -8,6 +8,19 @@ using WinUtilities.CoreAudio.Externals;
 using WinUtilities.CoreAudio.Interfaces;
 
 namespace WinUtilities {
+    /// <summary>Specifies the state of a Windows audio device</summary>
+    [Flags]
+    public enum AudioDeviceState {
+        /// <summary>The device is active</summary>
+        Active = 0x1,
+        /// <summary>The device is disabled</summary>
+        Disabled = 0x2,
+        /// <summary>The audio endpoint device is not present because the audio adapter that connects to the endpoint device has been removed or disabled</summary>
+        NotPresent = 0x4,
+        /// <summary>The device has been unplugged</summary>
+        Unplugged = 0x8
+    }
+
     /// <summary>Class for controlling a specific application's volume</summary>
     /// <remarks>Note: if created by exe name, new audio sources with the same exe name will not be controlled</remarks>
     public class AppVolume : IDisposable {
@@ -97,40 +110,82 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary></summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        private bool _disposed;
         public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        ~AppVolume() => Dispose(false);
+        protected virtual void Dispose(bool disposing) {
+            if (_disposed)
+                return;
+            _disposed = true;
+
             foreach (var ISAV in audios) {
                 Marshal.ReleaseComObject(ISAV);
             }
+
+            audios = null;
         }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     }
 
     /// <summary>Audio device used to set its volume or default device</summary>
-    public class AudioDevice : IDisposable {
+    public class AudioDevice {
 
         /// <summary>ID of the audio device</summary>
         public string ID { get; }
         /// <summary>Display name of the audio device</summary>
-        public string Name => GetName();
+        public string Name { get; }
         /// <summary>Control the device's master volume</summary>
         public float Volume { get => GetVolume(); set => SetVolume(value); }
+        /// <summary>Audio data flow direction (Playback/Capture)</summary>
+        public EDataFlow? Flow { get; }
         /// <summary>Role of the device when fetched</summary>
-        public ERole? PreviousRole;
+        public ERole? Role { get; }
 
         /// <summary></summary>
-        internal AudioDevice(string id, ERole? prevRole = null) {
+        internal AudioDevice(string id, string name = null, EDataFlow? flow = null, ERole? prevRole = null) {
             ID = id;
-            PreviousRole = prevRole;
+            Flow = flow;
+            Role = prevRole;
+
+            if (name == null) {
+                Name = FindByID(id).Name;
+            } else {
+                Name = name;
+            }
         }
 
-        /// <summary>Set device as the default device</summary>
+        internal AudioDevice(IMMDevice device, EDataFlow? flow = null, ERole? role = null) {
+            device.GetId(out string id);
+
+            ID = id;
+            Name = GetName(device);
+            Flow = flow;
+            Role = role;
+        }
+
+        /// <summary>Set device as the default device with a specific role</summary>
+        public void SetDefault(ERole role) => WinAudio.SetDefaultEndpoint(ID, role);
+        /// <summary>Set device as the default device (all roles)</summary>
         public void SetDefault() {
-            throw new NotImplementedException();
+            WinAudio.SetDefaultEndpoint(ID, ERole.eConsole, ERole.eCommunications);
         }
 
         /// <summary>Get device's master volume</summary>
         public float GetVolume() {
-            throw new NotImplementedException();
+            IMMDevice device = null;
+
+            try {
+                device = GetDevice();
+                device.Activate(Guid.Parse(ComIIDs.IAudioEndpointVolumeIID), 7, IntPtr.Zero, out object instPtr);
+                return (float) instPtr;
+            } finally {
+                if (device != null)
+                    Marshal.ReleaseComObject(device);
+            }
         }
 
         /// <summary>Set device's master volume</summary>
@@ -138,14 +193,113 @@ namespace WinUtilities {
             throw new NotImplementedException();
         }
 
-        private string GetName() {
-            throw new NotImplementedException();
+        #region helpers
+        internal IMMDevice GetDevice() {
+            IMMDeviceEnumerator enumerator = null;
+            IMMDevice device = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator.GetDevice(ID, out device);
+                return device;
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+            }
         }
 
-        /// <summary></summary>
-        public void Dispose() {
+        internal static IMMDevice GetDevice(string id) {
+            IMMDeviceEnumerator enumerator = null;
 
+            try {
+                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator.GetDevice(id, out var device);
+                return device;
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+            }
         }
+
+        internal static string GetName(IMMDevice device) {
+            IPropertyStore store = null;
+
+            try {
+                Marshal.ThrowExceptionForHR(device.OpenPropertyStore(0, out store));
+                PROPERTYKEY key = new PROPERTYKEY { fmtid = Guid.Parse("A45C254E-DF1C-4EFD-8020-67D146A850E0"), pid = 14 };
+                Marshal.ThrowExceptionForHR(store.GetValue(ref key, out var value));
+                Console.WriteLine($"hello {value.Data.AsStringPtr}");
+                return Marshal.PtrToStringAuto(value.Data.AsStringPtr);
+            } finally {
+                if (store != null)
+                    Marshal.ReleaseComObject(store);
+            }
+        }
+        #endregion
+
+        #region find
+        /// <summary>Find a device by its ID</summary>
+        public static AudioDevice FindByID(string id) {
+            IMMDeviceEnumerator enumerator = null;
+            IMMDevice device = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator.GetDevice(id, out device);
+                return new AudioDevice(device);
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (device != null)
+                    Marshal.ReleaseComObject(device);
+            }
+        }
+
+        /// <summary>Find a device by its name</summary>
+        public static AudioDevice FindByName(string name) {
+            IMMDeviceEnumerator enumerator = null;
+            IMMDevice device = null;
+            IMMDeviceCollection collection = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator.EnumAudioEndpoints(EDataFlow.eAll, 1, out collection);
+                collection.GetCount(out uint count);
+
+                for (uint i = 0; i < count; i++) {
+                    if (collection.Item(i, out device) == 0) {
+                        string temp = GetName(device);
+                        if (temp.Contains(name)) {
+                            device.GetId(out string id);
+                            return new AudioDevice(id, temp);
+                        } else {
+                            Marshal.ReleaseComObject(device);
+                            device = null;
+                        }
+                    }
+                }
+
+                return null;
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (device != null)
+                    Marshal.ReleaseComObject(device);
+                if (collection != null)
+                    Marshal.ReleaseComObject(collection);
+            }
+        }
+        #endregion
+
+        #region operators
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public static bool operator ==(AudioDevice a, AudioDevice b) => (a is null && b is null) || !(a is null) && !(b is null) && a.ID == b.ID;
+        public static bool operator !=(AudioDevice a, AudioDevice b) => !(a == b);
+        public override bool Equals(object obj) => obj is AudioDevice device && this == device;
+        public override int GetHashCode() => 1213502048 + ID.GetHashCode();
+        public override string ToString() => $"{{AudioDevice: {Name}}}";
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        #endregion
     }
 
     /// <summary>Tools to control audio volume and devices</summary>
@@ -227,6 +381,31 @@ namespace WinUtilities {
         public static bool HasAudioSource(uint pid) => GetVolumeObject(pid) != null ? true : false;
         /// <summary>Check if any process with a specified exe name is playing audio</summary>
         public static bool HasAudioSource(string exe) => GetVolumeObject(exe).Count > 0 ? true : false;
+
+        /// <summary>Find an audio device by its full or partial name</summary>
+        public static AudioDevice GetDevice(string name) => AudioDevice.FindByName(name);
+
+        /// <summary>Get the default playback audio device</summary>
+        public static AudioDevice GetDefaultPlayback() => GetDefaultDevice(true);
+        /// <summary>Get the default microphone</summary>
+        public static AudioDevice GetDefaultCapture() => GetDefaultDevice(false);
+        private static AudioDevice GetDefaultDevice(bool playback) {
+            EDataFlow flow = playback ? EDataFlow.eRender : EDataFlow.eCapture;
+            ERole role = ERole.eConsole;
+            IMMDeviceEnumerator enumerator = null;
+            IMMDevice device = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator) new MMDeviceEnumerator();
+                enumerator.GetDefaultAudioEndpoint(flow, role, out device);
+                return new AudioDevice(device, flow, role);
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (device != null)
+                    Marshal.ReleaseComObject(device);
+            }
+        }
 
         #region volume helpers
         private static float GetMasterVolume() {
@@ -425,6 +604,24 @@ namespace WinUtilities {
         #endregion
 
         #region device helpers
+        internal static void SetDefaultEndpoint(string deviceId, params ERole[] roles) {
+            IPolicyConfig config = null;
+
+            try {
+                config = (IPolicyConfig) new CPolicyConfigVistaClient();
+                foreach (var role in roles) {
+                    HRESULT hr = config.SetDefaultEndpoint(deviceId, role);
+                    if (hr != HRESULT.S_OK)
+                        throw new ExternalException($"SetDefaultEndpoint failed with code {hr}");
+                }
+            } finally {
+                if (config != null)
+                    Marshal.ReleaseComObject(config);
+            }
+        }
+        #endregion
+
+        #region device events
         private static void AddEvent() {
             if (eventCount == 0)
                 RegisterDeviceEvents();
@@ -481,14 +678,96 @@ namespace WinUtilities {
 
             }
         }
-
-        private static void SetDefaultEndpoint(string deviceId) {
-            throw new NotImplementedException();
-        }
         #endregion
 
-        [ComImport]
-        [Guid(ComCLSIDs.MMDeviceEnumeratorCLSID)]
+        [ComImport, Guid(ComCLSIDs.MMDeviceEnumeratorCLSID)]
         internal class MMDeviceEnumerator { }
+
+        #region policy config
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        [ComImport, Guid("870AF99C-171D-4F9E-AF0D-E63DF40C2BC9")]
+        internal class CPolicyConfigVistaClient { }
+
+        [ComImport]
+        [Guid("f8679f50-850a-41cf-9c72-430f290290c8")]
+        [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        interface IPolicyConfig {
+            HRESULT GetMixFormat([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, out WAVEFORMATEXTENSIBLE ppFormat);
+            HRESULT GetDeviceFormat([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.Bool)] bool bDefault, out WAVEFORMATEXTENSIBLE ppFormat);
+            HRESULT ResetDeviceFormat([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName);
+            HRESULT SetDeviceFormat([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.LPStruct)] WAVEFORMATEXTENSIBLE pEndpointFormat, [In][MarshalAs(UnmanagedType.LPStruct)] WAVEFORMATEXTENSIBLE pMixFormat);
+            HRESULT GetProcessingPeriod([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.Bool)] bool bDefault, out Int64 pmftDefaultPeriod, out Int64 pmftMinimumPeriod);
+            HRESULT SetProcessingPeriod([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, Int64 pmftPeriod);
+            HRESULT GetShareMode([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, out DeviceShareMode pMode);
+            HRESULT SetShareMode([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In] DeviceShareMode mode);
+            HRESULT GetPropertyValue([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.Bool)] bool bFxStore, ref PROPERTYKEY pKey, out PROPVARIANT pv);
+            HRESULT SetPropertyValue([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.Bool)] bool bFxStore, [In] ref PROPERTYKEY pKey, ref PROPVARIANT pv);
+            HRESULT SetDefaultEndpoint([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.U4)] ERole role);
+            HRESULT SetEndpointVisibility([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.Bool)] bool bVisible);
+        }
+
+        [StructLayout(LayoutKind.Explicit, Pack = 1)]
+        internal class WAVEFORMATEXTENSIBLE : WAVEFORMATEX {
+            [FieldOffset(0)]
+            public short wValidBitsPerSample;
+            [FieldOffset(0)]
+            public short wSamplesPerBlock;
+            [FieldOffset(0)]
+            public short wReserved;
+            [FieldOffset(2)]
+            public WaveMask dwChannelMask;
+            [FieldOffset(6)]
+            public Guid SubFormat;
+        }
+
+        [Flags]
+        internal enum WaveMask {
+            None = 0x0,
+            FrontLeft = 0x1,
+            FrontRight = 0x2,
+            FrontCenter = 0x4,
+            LowFrequency = 0x8,
+            BackLeft = 0x10,
+            BackRight = 0x20,
+            FrontLeftOfCenter = 0x40,
+            FrontRightOfCenter = 0x80,
+            BackCenter = 0x100,
+            SideLeft = 0x200,
+            SideRight = 0x400,
+            TopCenter = 0x800,
+            TopFrontLeft = 0x1000,
+            TopFrontCenter = 0x2000,
+            TopFrontRight = 0x4000,
+            TopBackLeft = 0x8000,
+            TopBackCenter = 0x10000,
+            TopBackRight = 0x20000
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 2)]
+        internal class WAVEFORMATEX {
+            public short wFormatTag;
+            public short nChannels;
+            public int nSamplesPerSec;
+            public int nAvgBytesPerSec;
+            public short nBlockAlign;
+            public short wBitsPerSample;
+            public short cbSize;
+        }
+
+        internal enum DeviceShareMode {
+            Shared,
+            Exclusive
+        }
+
+        internal enum HRESULT : int {
+            S_OK = 0,
+            S_FALSE = 1,
+            E_NOINTERFACE = unchecked((int) 0x80004002),
+            E_NOTIMPL = unchecked((int) 0x80004001),
+            E_FAIL = unchecked((int) 0x80004005),
+            E_UNEXPECTED = unchecked((int) 0x8000FFFF)
+        }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        #endregion
     }
 }

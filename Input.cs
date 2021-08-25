@@ -561,9 +561,16 @@ namespace WinUtilities {
                             throw new Exception("A parse pair cannot be empty");
                         var temp = s.Substring(i + 1, length).ToLower();
 
-                        // Parse string was a set of modifiers
-                        if (Regex.IsMatch(temp, @"^(\+|!|#|\^){1,4}$")) {
+                        // Parse string is a set of modifiers
+                        if (Regex.IsMatch(temp, @"^[!+^#]{1,4}$")) {
                             foreach (var c in temp) pendingModifiers.Add(ShortModifiers[c]);
+
+                            // Parse string is a set of stateful modifiers
+                        } else if (Regex.IsMatch(temp, @"^[!+^#]{1,4} (down|up)$", RegexOptions.IgnoreCase)) {
+                            Console.WriteLine("Parse stateful mods: " + temp);
+                            var split = temp.Split(' ');
+                            Console.WriteLine($"Split: {split[0]} : {split[1]}");
+                            res.AddRange(split[0].Select(c => GetInput(ShortModifiers[c], split[1].ToLower() == "down")));
 
                             // Parse input has leading modifiers
                         } else if (pendingModifiers.Count > 0) {
@@ -628,10 +635,11 @@ namespace WinUtilities {
             public int Count { get; }
             public string KeyString { get; }
             public Key? Key { get; }
+            public List<Key> Modifiers { get; private set; }
             public List<WinAPI.INPUT> Inputs { get; private set; }
 
             public InputParseObject(string s) {
-                if (!Regex.IsMatch(s, @"^.+?( (text|down|up|\d+)){0,3}$", RegexOptions.IgnoreCase)) {
+                if (!Regex.IsMatch(s, @"^[!+^#]*[^!+^#]+?( (text|down|up|\d+)){0,3}$", RegexOptions.IgnoreCase)) {
                     throw new Exception($"Unknown signature with '{s}'");
                 }
 
@@ -657,8 +665,10 @@ namespace WinUtilities {
                     }
                 }
 
-                KeyString = data[0];
+                KeyString = Regex.Match(data[0], "(?<=^[!+^#]*)[^!+^#]*$").Value;
                 Key = Unicode ? null : (Key?) GetKey(KeyString);
+                string modString = Regex.Match(data[0], "^[!+^#]").Value;
+                Modifiers = modString.Select(c => ShortModifiers[c]).ToList();
             }
 
             private static Key GetKey(string keyString) {
@@ -675,6 +685,10 @@ namespace WinUtilities {
                     return Inputs;
                 Inputs = new List<WinAPI.INPUT>();
 
+                if (Modifiers.Count > 0) {
+                    Inputs.AddRange(Modifiers.Select(m => GetInput(m, true)));
+                }
+
                 if (State != null) {
                     if (Unicode) {
                         Inputs.AddRange(KeyString.Select(c => GetCharInput(c)[(bool) State ? 0 : 1]));
@@ -683,9 +697,8 @@ namespace WinUtilities {
                     }
                 } else {
                     for (int i = 0; i < Count; i++) {
-                        if (Unicode) {
-                            Inputs.AddRange(KeyString.SelectMany(c => GetCharInput(c)).ToArray());
-                        }
+                        if (Unicode)
+                            Inputs.AddRange(KeyString.SelectMany(c => GetCharInput(c)));
                         if (((Key) Key).IsStateless()) {
                             Inputs.Add(GetInput((Key) Key, true));
                         } else {
@@ -693,6 +706,10 @@ namespace WinUtilities {
                             Inputs.Add(GetInput((Key) Key, false));
                         }
                     }
+                }
+
+                if (Modifiers.Count > 0) {
+                    Inputs.AddRange(Modifiers.Select(m => GetInput(m, false)));
                 }
 
                 return Inputs;

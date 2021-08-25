@@ -7554,12 +7554,30 @@
             <summary>Restart the computer</summary>
             <param name="delaySeconds">Delay until activation in seconds</param>
         </member>
-        <member name="M:WinUtilities.SystemUtils.Sleep(System.Int32)">
+        <member name="M:WinUtilities.SystemUtils.Sleep">
             <summary>Put the computer to sleep</summary>
+        </member>
+        <member name="M:WinUtilities.SystemUtils.RestartToBios(System.Int32)">
+            <summary>Restart the computer and boot straight to BIOS</summary>
             <param name="delaySeconds">Delay until activation in seconds</param>
         </member>
         <member name="M:WinUtilities.SystemUtils.StopShutdown">
             <summary>Stops Shutdown, Restart or Sleep started from this process</summary>
+        </member>
+        <member name="T:WinUtilities.AudioDeviceState">
+            <summary>Specifies the state of a Windows audio device</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.Active">
+            <summary>The device is active</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.Disabled">
+            <summary>The device is disabled</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.NotPresent">
+            <summary>The audio endpoint device is not present because the audio adapter that connects to the endpoint device has been removed or disabled</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.Unplugged">
+            <summary>The device has been unplugged</summary>
         </member>
         <member name="T:WinUtilities.AppVolume">
             <summary>Class for controlling a specific application's volume</summary>
@@ -7597,9 +7615,6 @@
         <member name="M:WinUtilities.AppVolume.SetMute(System.Boolean)">
             <summary>Set the mute of the included process/processes</summary>
         </member>
-        <member name="M:WinUtilities.AppVolume.Dispose">
-            <summary></summary>
-        </member>
         <member name="T:WinUtilities.AudioDevice">
             <summary>Audio device used to set its volume or default device</summary>
         </member>
@@ -7612,14 +7627,20 @@
         <member name="P:WinUtilities.AudioDevice.Volume">
             <summary>Control the device's master volume</summary>
         </member>
-        <member name="F:WinUtilities.AudioDevice.PreviousRole">
+        <member name="P:WinUtilities.AudioDevice.Flow">
+            <summary>Audio data flow direction (Playback/Capture)</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.Role">
             <summary>Role of the device when fetched</summary>
         </member>
-        <member name="M:WinUtilities.AudioDevice.#ctor(System.String,System.Nullable{WinUtilities.CoreAudio.Enumerations.ERole})">
+        <member name="M:WinUtilities.AudioDevice.#ctor(System.String,System.String,System.Nullable{WinUtilities.CoreAudio.Enumerations.EDataFlow},System.Nullable{WinUtilities.CoreAudio.Enumerations.ERole})">
             <summary></summary>
         </member>
+        <member name="M:WinUtilities.AudioDevice.SetDefault(WinUtilities.CoreAudio.Enumerations.ERole)">
+            <summary>Set device as the default device with a specific role</summary>
+        </member>
         <member name="M:WinUtilities.AudioDevice.SetDefault">
-            <summary>Set device as the default device</summary>
+            <summary>Set device as the default device (all roles)</summary>
         </member>
         <member name="M:WinUtilities.AudioDevice.GetVolume">
             <summary>Get device's master volume</summary>
@@ -7627,8 +7648,11 @@
         <member name="M:WinUtilities.AudioDevice.SetVolume(System.Single)">
             <summary>Set device's master volume</summary>
         </member>
-        <member name="M:WinUtilities.AudioDevice.Dispose">
-            <summary></summary>
+        <member name="M:WinUtilities.AudioDevice.FindByID(System.String)">
+            <summary>Find a device by its ID</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.FindByName(System.String)">
+            <summary>Find a device by its name</summary>
         </member>
         <member name="T:WinUtilities.WinAudio">
             <summary>Tools to control audio volume and devices</summary>
@@ -7662,6 +7686,15 @@
         </member>
         <member name="M:WinUtilities.WinAudio.HasAudioSource(System.String)">
             <summary>Check if any process with a specified exe name is playing audio</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetDevice(System.String)">
+            <summary>Find an audio device by its full or partial name</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetDefaultPlayback">
+            <summary>Get the default playback audio device</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetDefaultCapture">
+            <summary>Get the default microphone</summary>
         </member>
         <member name="T:WinUtilities.WinMatchType">
             <summary>Specifies how string matching is performed</summary>

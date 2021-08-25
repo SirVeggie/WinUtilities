@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace WinUtilities {
     /// <summary>Some utilities used to perform system actions</summary>
     public static class SystemUtils {
+
+        [DllImport("Powrprof.dll")]
+        private static extern uint SetSuspendState(bool hibernate, bool forceCritical, bool disableWakeEvent);
 
         /// <summary>Go to windows lock screen</summary>
         public static bool Lock() => WinAPI.LockWorkStation();
@@ -15,28 +19,33 @@ namespace WinUtilities {
 
         /// <summary>Shutdown the computer</summary>
         /// <param name="delaySeconds">Delay until activation in seconds</param>
-        public static void Shutdown(int delaySeconds = 1) {
-            string arguments = "/s" + (delaySeconds > 0 ? $" /t {delaySeconds}" : "");
+        public static void Shutdown(int delaySeconds = 0) {
+            string arguments = $"-s -t {delaySeconds} -f";
             StartHidden(@"shutdown.exe", arguments);
         }
 
         /// <summary>Restart the computer</summary>
         /// <param name="delaySeconds">Delay until activation in seconds</param>
         public static void Restart(int delaySeconds = 1) {
-            string arguments = "/r" + (delaySeconds > 0 ? $" /t {delaySeconds}" : "");
+            string arguments = $"-r -t {delaySeconds} -f";
             StartHidden(@"shutdown.exe", arguments);
         }
 
         /// <summary>Put the computer to sleep</summary>
+        public static void Sleep() {
+            SetSuspendState(false, true, false);
+        }
+        
+        /// <summary>Restart the computer and boot straight to BIOS</summary>
         /// <param name="delaySeconds">Delay until activation in seconds</param>
-        public static void Sleep(int delaySeconds = 1) {
-            string arguments = "/h" + (delaySeconds > 0 ? $" /t {delaySeconds}" : "");
+        public static void RestartToBios(int delaySeconds = 1) {
+            string arguments = $"-fw -r -t {delaySeconds}";
             StartHidden(@"shutdown.exe", arguments);
         }
 
         /// <summary>Stops Shutdown, Restart or Sleep started from this process</summary>
         public static void StopShutdown() {
-            StartHidden(@"shutdown.exe", "/a");
+            StartHidden(@"shutdown.exe", "-a");
         }
 
         private static void StartHidden(string filename, string arguments = null, string directory = null) {
