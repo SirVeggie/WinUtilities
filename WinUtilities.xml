@@ -7947,6 +7947,9 @@
         <member name="P:WinUtilities.Window.Audio">
             <summary>Get the application specific volume controller</summary>
         </member>
+        <member name="E:WinUtilities.Window.OnMove">
+            <summary>This event triggers every time the Move function is called</summary>
+        </member>
         <member name="M:WinUtilities.Window.CalculateRealArea(System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area})">
             <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
         </member>

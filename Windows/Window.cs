@@ -273,6 +273,11 @@ namespace WinUtilities {
 
         #endregion
 
+        #region events
+        /// <summary>This event triggers every time the Move function is called</summary>
+        public static event Action<Window, Area, CoordType> OnMove;
+        #endregion
+
         #region constructors
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         private Window() { }
@@ -805,11 +810,13 @@ namespace WinUtilities {
                 SetRawArea(area);
             }
 
+            OnMove?.Invoke(this, area, type);
+
             return this;
         }
 
         /// <summary>Move a window by using an offset.</summary>
-        public Window OffsetMove(Area pos, Area offset) => OffsetMove(pos, offset, RawArea);
+        private Window OffsetMove(Area pos, Area offset) => OffsetMove(pos, offset, RawArea);
         private Window OffsetMove(Area pos, Area offset, Area raw) {
             pos = pos.IsValid ? pos : pos.FillNaN(offset);
             pos += raw - offset;
