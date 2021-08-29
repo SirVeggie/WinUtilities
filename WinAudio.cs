@@ -228,7 +228,6 @@ namespace WinUtilities {
                 Marshal.ThrowExceptionForHR(device.OpenPropertyStore(0, out store));
                 PROPERTYKEY key = new PROPERTYKEY { fmtid = Guid.Parse("A45C254E-DF1C-4EFD-8020-67D146A850E0"), pid = 14 };
                 Marshal.ThrowExceptionForHR(store.GetValue(ref key, out var value));
-                Console.WriteLine($"hello {value.Data.AsStringPtr}");
                 return Marshal.PtrToStringAuto(value.Data.AsStringPtr);
             } finally {
                 if (store != null)
