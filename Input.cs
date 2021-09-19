@@ -138,13 +138,25 @@ namespace WinUtilities {
         /// <para/>Specifying 'text' in the special input sends the 'key' as text instead. For example [Enter 5] sends the Enter key five times but [Enter 5 text] sends the text 'Enter' 5 times.
         /// <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
         /// </remarks>
-        public static void Send(string text, SendMode mode) {
-            if (mode == SendMode.Input) {
-                Send(text);
-            } else if (mode == SendMode.Event) {
-                SendEvent(text);
-            } else {
-                SendControl(Window.Active, text);
+        public static async void Send(string text, SendMode mode) {
+            var inputs = ParseDelays(text);
+
+            for (int i = 0; i < inputs.Item1.Count; i++) {
+                if (!string.IsNullOrEmpty(inputs.Item1[i])) {
+                    Console.WriteLine($"Sending: {inputs.Item1[i]}");
+                    if (mode == SendMode.Input) {
+                        SendText(inputs.Item1[i]);
+                    } else if (mode == SendMode.Event) {
+                        SendEvent(inputs.Item1[i]);
+                    } else {
+                        SendControl(Window.Active, inputs.Item1[i]);
+                    }
+                }
+
+                if (i < inputs.Item2.Count) {
+                    Console.WriteLine($"Delay: {inputs.Item2[i]}");
+                    await Task.Delay(inputs.Item2[i]);
+                }
             }
         }
 
@@ -181,7 +193,8 @@ namespace WinUtilities {
         /// <para/>Specifying 'text' in the special input sends the 'key' as text instead. For example [Enter 5] sends the Enter key five times but [Enter 5 text] sends the text 'Enter' 5 times.
         /// <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
         /// </remarks>
-        public static bool Send(string text) => SendInput(ToInputList(text));
+        public static void Send(string text) => Send(text, SendMode.Input);
+        private static bool SendText(string text) => SendInput(ToInputList(text));
         /// <summary>Send chars in Input mode</summary>
         public static bool Send(params char[] chars) => SendInput(chars.SelectMany(c => GetCharInput(c)).ToArray());
         /// <summary>Send keys in Input mode</summary>
@@ -194,7 +207,7 @@ namespace WinUtilities {
         public static bool SendRaw(string text) => SendInput(text.SelectMany(c => GetCharInput(c)).ToArray());
 
         /// <summary>Send a scroll event in Input mode</summary>
-        public static bool Scroll(Key key, int amount) => SendInput(GetMouseInputScroll(key, amount));
+        public static bool Scroll(int amount) => SendInput(GetMouseInputScroll(amount >= 0 ? Key.WheelDown : Key.WheelUp, Math.Abs(amount)));
         /// <summary>Send relative mouse movement in Input mode</summary>
         public static bool MouseMoveRelative(int dx, int dy) => SendInput(GetMouseInputMove(dx, dy));
 
@@ -526,6 +539,18 @@ namespace WinUtilities {
         }
 
         #region string input parsing
+        public static (List<string>, List<int>) ParseDelays(string textInput) {
+            List<int> delays = new List<int>();
+            List<string> inputs = new List<string>();
+
+            var match = Regex.Match(textInput, @"(?<=\[)\d+(?=ms\])", RegexOptions.IgnoreCase);
+            foreach (Capture item in match.Captures)
+                delays.Add(int.Parse(item.Value));
+            var splits = Regex.Split(textInput, @"\[\d+ms\]", RegexOptions.IgnoreCase);
+            inputs = splits.ToList();
+            return (inputs, delays);
+        }
+
         /// <summary>Parse a string to a list of inputs</summary>
         private static WinAPI.INPUT[] ToInputList(string s) {
             s = Regex.Replace(s, @"\r?\n|\r\n?", "[Enter]");

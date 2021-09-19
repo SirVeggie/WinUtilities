@@ -434,16 +434,30 @@ namespace WinUtilities {
         public Area FillNaN(Area p) => new Area(point.Fill(p.Point), size.Fill(p.Size));
 
         /// <summary>Center this area in another area so that both area's center points match</summary>
-        public Area CenterOn(Area other) {
+        public Area SetCenter(Area other) {
             var area = this;
             area.Center = other.Center;
             return area;
         }
 
         /// <summary>Center this area to the specified point</summary>
-        public Area CenterOn(Coord point) {
+        public Area SetCenter(Coord point) {
             var area = this;
             area.Center = point;
+            return area;
+        }
+
+        /// <summary>Center the x axis of this area to the given value</summary>
+        public Area SetCenterX(double x) {
+            var area = this;
+            area.Center = new Coord(x, area.Center.Y);
+            return area;
+        }
+
+        /// <summary>Center the y axis of this area to the given value</summary>
+        public Area SetCenterY(double y) {
+            var area = this;
+            area.Center = new Coord(area.Center.X, y);
             return area;
         }
 

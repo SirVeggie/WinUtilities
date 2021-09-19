@@ -222,11 +222,17 @@
         <member name="M:WinUtilities.Area.FillNaN(WinUtilities.Area)">
             <summary>Fills the current NaN values with the new ones</summary>
         </member>
-        <member name="M:WinUtilities.Area.CenterOn(WinUtilities.Area)">
+        <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Area)">
             <summary>Center this area in another area so that both area's center points match</summary>
         </member>
-        <member name="M:WinUtilities.Area.CenterOn(WinUtilities.Coord)">
+        <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Coord)">
             <summary>Center this area to the specified point</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetCenterX(System.Double)">
+            <summary>Center the x axis of this area to the given value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetCenterY(System.Double)">
+            <summary>Center the y axis of this area to the given value</summary>
         </member>
         <member name="M:WinUtilities.Area.GetRelativePoint(System.Double,System.Double)">
             <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
@@ -7220,7 +7226,7 @@
         <member name="M:WinUtilities.Input.SendRaw(System.String)">
             <summary>Send raw text in Input mode. This string is not parsed in any way before sending.</summary>
         </member>
-        <member name="M:WinUtilities.Input.Scroll(WinUtilities.Key,System.Int32)">
+        <member name="M:WinUtilities.Input.Scroll(System.Int32)">
             <summary>Send a scroll event in Input mode</summary>
         </member>
         <member name="M:WinUtilities.Input.MouseMoveRelative(System.Int32,System.Int32)">
@@ -7494,11 +7500,9 @@
         <member name="M:WinUtilities.Mouse.DoubleClick(System.Nullable{WinUtilities.Coord},WinUtilities.CoordRelation)">
             <summary>Send a double click</summary>
         </member>
-        <member name="M:WinUtilities.Mouse.Scroll(WinUtilities.Key,System.Double)">
-            <summary>Send a scroll wheel event</summary>
-        </member>
-        <member name="M:WinUtilities.Mouse.Scroll(WinUtilities.Key,System.Int32)">
-            <summary>Send a scroll wheel event</summary>
+        <member name="M:WinUtilities.Mouse.Scroll(System.Double)">
+            <summary>Send a scroll wheel event. 1 for default downwards scroll and -1 for default upwards scroll</summary>
+            <remarks>Scroll amount calculation: (int) Math.Round(amount * 12)</remarks>
         </member>
         <member name="M:WinUtilities.Mouse.Move(System.Int32,System.Int32,WinUtilities.CoordRelation)">
             <summary>Move the mouse to a point</summary>
