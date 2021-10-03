@@ -7166,6 +7166,9 @@
         <member name="P:WinUtilities.Input.ParseClose">
             <summary>The text character for parsing special input when sending text. Default is ']'.</summary>
         </member>
+        <member name="P:WinUtilities.Input.ForceScan">
+            <summary>Set to true to force the SCANCODE flag</summary>
+        </member>
         <member name="P:WinUtilities.Input.ShortModifiers">
             <summary>List of short modifier symbols used in parsed string input</summary>
         </member>
@@ -7340,6 +7343,9 @@
         </member>
         <member name="M:WinUtilities.Input.ToInputList(WinUtilities.Key[],System.Nullable{System.Boolean})">
             <summary>Turn an array of keys into inputs</summary>
+        </member>
+        <member name="M:WinUtilities.Input.ParseDelays(System.String)">
+            <summary></summary>
         </member>
         <member name="M:WinUtilities.Input.ToInputList(System.String)">
             <summary>Parse a string to a list of inputs</summary>
@@ -7594,7 +7600,7 @@
             <summary>Get or set the mute of the included process/processes</summary>
         </member>
         <member name="P:WinUtilities.AppVolume.LowThreshold">
-            <summary>Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold</summary>
+            <summary>Used by <see cref="M:WinUtilities.AppVolume.AdjustVolume(System.Single)"/>. Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold.</summary>
         </member>
         <member name="M:WinUtilities.AppVolume.New(System.UInt32)">
             <summary>Get app volume controller by process id</summary>
@@ -8250,30 +8256,43 @@
         </member>
         <member name="M:WinUtilities.Window.FindTopLevel(System.Func{WinUtilities.Window,System.Boolean})">
             <summary>Find a top level window that matches the given predicate</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.Find(System.Func{WinUtilities.Window,System.Boolean})">
             <summary>Find a window that matches the given predicate</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
+        </member>
+        <member name="M:WinUtilities.Window.Find(System.Func{WinUtilities.Window,System.Boolean},System.Collections.Generic.HashSet{WinUtilities.Window})">
+            <summary>Find a window that matches the given predicate. Can ignore specific windows and speed up search with a HashSet.</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.Find(WinUtilities.IWinMatch,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given description</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.Find(System.String,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given title</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.FindByExe(System.String,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given .exe name</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.FindByClass(System.String,WinUtilities.WinFindMode)">
             <summary>Find a window that matches the given class</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.FindByPid(System.UInt32,WinUtilities.WinFindMode)">
             <summary>Find a window whose process's id matches the given id</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.FindCached(System.Func{WinUtilities.Window,System.Boolean})">
             <summary>Find a matching window from a cached list of windows</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.FindCached(WinUtilities.IWinMatch,WinUtilities.WinFindMode)">
             <summary>Find a matching window from a cached list of windows</summary>
+            <returns><see cref="P:WinUtilities.Window.None"/> if nothing was found</returns>
         </member>
         <member name="M:WinUtilities.Window.GetWindows">
             <summary>Get all existing windows</summary>

@@ -810,7 +810,8 @@ namespace WinUtilities {
                 SetRawArea(area);
             }
 
-            OnMove?.Invoke(this, area, type);
+            if (OnMove != null)
+                Task.Run(() => OnMove.Invoke(this, area, type));
 
             return this;
         }
@@ -1366,14 +1367,14 @@ namespace WinUtilities {
 
         private WinAPI.FlashWF GetFlashTarget(FlashF target) {
             switch (target) {
-                case FlashF.Titlebar:
-                    return WinAPI.FlashWF.CAPTION;
-                case FlashF.Both:
-                    return WinAPI.FlashWF.ALL;
-                case FlashF.Taskbar:
-                    return WinAPI.FlashWF.TRAY;
-                default:
-                    return WinAPI.FlashWF.TRAY;
+            case FlashF.Titlebar:
+                return WinAPI.FlashWF.CAPTION;
+            case FlashF.Both:
+                return WinAPI.FlashWF.ALL;
+            case FlashF.Taskbar:
+                return WinAPI.FlashWF.TRAY;
+            default:
+                return WinAPI.FlashWF.TRAY;
             }
         }
         #endregion
@@ -1384,9 +1385,14 @@ namespace WinUtilities {
 
         #region find
         /// <summary>Find a top level window that matches the given predicate</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window FindTopLevel(Func<Window, bool> predicate) => Find(w => w.IsTopLevel && predicate.Invoke(w));
         /// <summary>Find a window that matches the given predicate</summary>
-        public static Window Find(Func<Window, bool> predicate) {
+        /// <returns><see cref="None"/> if nothing was found</returns>
+        public static Window Find(Func<Window, bool> predicate) => Find(predicate, null);
+        /// <summary>Find a window that matches the given predicate. Can ignore specific windows and speed up search with a HashSet.</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
+        public static Window Find(Func<Window, bool> predicate, HashSet<Window> ignore) {
             Window found = None;
             var windows = new Dictionary<IntPtr, Window>();
             WinAPI.EnumWindows(Collector, IntPtr.Zero);
@@ -1398,6 +1404,8 @@ namespace WinUtilities {
                 windows.Add(hwnd, window);
                 if (!found.IsNone)
                     return true;
+                if (ignore?.Contains(window) ?? false)
+                    return true;
                 if (predicate(window))
                     found = window;
                 return true;
@@ -1405,19 +1413,26 @@ namespace WinUtilities {
         }
 
         /// <summary>Find a window that matches the given description</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window Find(IWinMatch match, WinFindMode mode = WinFindMode.TopLevel) => Find(w => MatchFilter(w, match, mode));
         /// <summary>Find a window that matches the given title</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window Find(string title, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(title: title), mode);
         /// <summary>Find a window that matches the given .exe name</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window FindByExe(string exe, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(exe: exe), mode);
         /// <summary>Find a window that matches the given class</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window FindByClass(string className, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(className: className), mode);
         /// <summary>Find a window whose process's id matches the given id</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window FindByPid(uint pid, WinFindMode mode = WinFindMode.TopLevel) => Find(new WinMatch(pid: pid), mode);
 
         /// <summary>Find a matching window from a cached list of windows</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window FindCached(Func<Window, bool> predicate) => CachedWindows.First(pair => predicate(pair.Value)).Value;
         /// <summary>Find a matching window from a cached list of windows</summary>
+        /// <returns><see cref="None"/> if nothing was found</returns>
         public static Window FindCached(IWinMatch match, WinFindMode mode) => CachedWindows.First(pair => MatchFilter(pair.Value, match, mode)).Value;
         #endregion
 
@@ -1555,7 +1570,7 @@ namespace WinUtilities {
         public static bool operator !=(Window a, Window b) => !(a == b);
         public override bool Equals(object obj) => obj is Window && this == (Window) obj;
         public override int GetHashCode() => -640239398 + Hwnd.GetHashCode();
-        public override string ToString() => $"{{Window: {(Hwnd == IntPtr.Zero ? "None" : Hwnd.ToString())}}}";
+        public override string ToString() => $"Window:{(Hwnd == IntPtr.Zero ? "None" : Hwnd.ToString())}";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }

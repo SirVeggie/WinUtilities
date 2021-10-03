@@ -30,6 +30,9 @@ namespace WinUtilities {
         private const int keydownflag = 0x00000001;
         private const int keyupflag = unchecked((int) 0xC0000001);
 
+        /// <summary>Set to true to force the SCANCODE flag</summary>
+        public static bool ForceScan { get; set; } = false;
+
         #region mappings
         private static Dictionary<KeyState, WinAPI.MOUSEEVENTF> MouseMap { get; } = new Dictionary<KeyState, WinAPI.MOUSEEVENTF> {
             { new KeyState(Key.LButton, true), WinAPI.MOUSEEVENTF.LEFTDOWN },
@@ -143,7 +146,6 @@ namespace WinUtilities {
 
             for (int i = 0; i < inputs.Item1.Count; i++) {
                 if (!string.IsNullOrEmpty(inputs.Item1[i])) {
-                    Console.WriteLine($"Sending: {inputs.Item1[i]}");
                     if (mode == SendMode.Input) {
                         SendText(inputs.Item1[i]);
                     } else if (mode == SendMode.Event) {
@@ -154,7 +156,6 @@ namespace WinUtilities {
                 }
 
                 if (i < inputs.Item2.Count) {
-                    Console.WriteLine($"Delay: {inputs.Item2[i]}");
                     await Task.Delay(inputs.Item2[i]);
                 }
             }
@@ -404,6 +405,8 @@ namespace WinUtilities {
 
         /// <summary>Build a keyboard input object with given data</summary>
         private static WinAPI.INPUT RawKeyboardInput(WinAPI.KEYEVENTF flags, Key key = 0, ScanCode sc = 0) {
+            if (ForceScan)
+                flags |= WinAPI.KEYEVENTF.SCANCODE;
             return new WinAPI.INPUT {
                 type = WinAPI.InputType.Keyboard,
                 union = {
@@ -539,6 +542,7 @@ namespace WinUtilities {
         }
 
         #region string input parsing
+        /// <summary></summary>
         public static (List<string>, List<int>) ParseDelays(string textInput) {
             List<int> delays = new List<int>();
             List<string> inputs = new List<string>();

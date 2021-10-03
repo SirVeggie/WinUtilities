@@ -31,8 +31,8 @@ namespace WinUtilities {
         public float Volume { get => GetVolume(); set => SetVolume(value); }
         /// <summary>Get or set the mute of the included process/processes</summary>
         public bool Mute { get => GetMute(); set => SetMute(value); }
-        /// <summary>Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold</summary>
-        public float LowThreshold { get; } = 0.005f;
+        /// <summary>Used by <see cref="AdjustVolume(float)"/>. Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold.</summary>
+        public static float LowThreshold { get; set; } = 0.005f;
 
         #region creation
         private AppVolume() { }
