@@ -211,7 +211,7 @@ namespace WinUtilities {
         /// <summary>The color of the window that is rendered as fully transparent. Uses a cached value.</summary>
         public Color Transcolor => transcolor == null ? FetchCache(Hwnd)?.transcolor ?? default : (Color) transcolor;
         /// <summary>Check if a window has a region</summary>
-        public bool HasRegion => !GetRegionBounds().IsNaN;
+        public bool HasRegion => GetRegionBounds() != null;
         /// <summary>Check the type of the region</summary>
         public WinAPI.RegionType RegionType => WinAPI.GetWindowRgnBox(Hwnd, out _);
         #endregion
@@ -226,7 +226,7 @@ namespace WinUtilities {
         /// <summary>The visible area of the window when in borderless mode</summary>
         public Area BorderlessArea => GetBorderlessArea();
         /// <summary>Get the bounding area of the current region. Relative to raw window coordinates</summary>
-        public Area RegionBounds => GetRegionBounds();
+        public Area? RegionBounds => GetRegionBounds();
         #endregion
 
         #region static
@@ -289,18 +289,25 @@ namespace WinUtilities {
 
         #region positions
         private Area GetArea() => CalculateRealArea();
+        private Area GetArea(CoordType type) {
+            if (type == CoordType.Normal)
+                return GetArea();
+            if (type == CoordType.Client)
+                return GetClientArea();
+            return GetRawArea();
+        }
 
-        private void SetArea(Area area) {
-            Area region = GetRegionBounds();
-            bool borderless = !region.IsNaN;
-            Area raw = GetRawArea();
-            Area client = GetClientArea();
-            Area real = CalculateRealArea(raw, client, borderless ? (Area?) region : null);
+        private void SetArea(Area area, Area? _raw = null, Area? _client = null) {
+            Area? region = GetRegionBounds();
+            bool borderless = region != null;
+            Area raw = _raw ?? GetRawArea();
+            Area client = _client ?? GetClientArea();
+            Area real = CalculateRealArea(raw, client, borderless ? region : null);
 
             OffsetMove(area, real, raw);
 
             if (borderless) {
-                SetRegion(region.AddSize(area.FillNaN(real) - real));
+                SetRegion(region.Value.AddSize(area - real));
             }
         }
 
@@ -311,8 +318,7 @@ namespace WinUtilities {
         }
 
         private void SetRawArea(Area area) {
-            Area target = area.IsValid ? area : area.FillNaN(GetRawArea());
-            target = target.Round();
+            Area target = area.Round();
             WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, target.IntX, target.IntY, target.IntW, target.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
         }
 
@@ -326,8 +332,8 @@ namespace WinUtilities {
             return new Area(point.X, point.Y, rect.Width, rect.Height);
         }
 
-        private void SetClientArea(Area area) {
-            OffsetMove(area, GetClientArea());
+        private void SetClientArea(Area area, Area? _client = null) {
+            OffsetMove(area, _client ?? GetClientArea());
         }
 
         private Area GetBorderlessArea() {
@@ -342,9 +348,19 @@ namespace WinUtilities {
             SetArea(area);
         }
 
-        private Area GetRegionBounds() {
+        /// <summary>Move a window by using an offset</summary>
+        private Window OffsetMove(Area pos, Area offset) => OffsetMove(pos, offset, RawArea);
+        /// <summary>Move a window by using an offset</summary>
+        private Window OffsetMove(Area pos, Area offset, Area raw) {
+            pos += raw - offset;
+            pos = pos.Round();
+            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, pos.IntX, pos.IntY, pos.IntW, pos.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
+            return this;
+        }
+
+        private Area? GetRegionBounds() {
             if (HasStyle(WS.BORDER)) {
-                return Area.NaN;
+                return null;
             }
 
             for (int i = 0; i < 5; i++) {
@@ -353,7 +369,7 @@ namespace WinUtilities {
                 }
             }
 
-            return Area.NaN;
+            return null;
         }
 
         /// <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
@@ -379,8 +395,8 @@ namespace WinUtilities {
 
         private Area CalculateRegionArea(Area? raw = null, Area? region = null) {
             Area realRaw = raw == null ? GetRawArea() : (Area) raw;
-            Area realRegion = region == null ? GetRegionBounds() : (Area) region;
-            return realRegion.IsValid ? realRegion.AddPoint(realRaw) : realRaw;
+            Area? realRegion = region ?? GetRegionBounds();
+            return realRegion != null ? ((Area) realRegion).AddPoint(realRaw) : realRaw;
         }
         #endregion
 
@@ -783,7 +799,15 @@ namespace WinUtilities {
         /// <param name="h">Height of the window. Null to not change.</param>
         /// <param name="type">Set what the coordinates are relative to.</param>
         public Window Move(int? x = null, int? y = null, int? w = null, int? h = null, CoordType type = CoordType.Normal) {
-            return Move(new Area(x ?? double.NaN, y ?? double.NaN, w ?? double.NaN, h ?? double.NaN), type);
+            if (x == null || y == null || w == null || h == null) {
+                Area current = GetArea(type);
+                x = x ?? current.IntX;
+                y = y ?? current.IntY;
+                w = w ?? current.IntW;
+                h = h ?? current.IntH;
+            }
+
+            return Move(new Area(x.Value, y.Value, w.Value, h.Value), type);
         }
 
         /// <summary>Move the window to the new coordinates.</summary>
@@ -791,14 +815,19 @@ namespace WinUtilities {
         /// <param name="size">Size of the window. Null to not resize the window.</param>
         /// <param name="type">Set what the coordinates are relative to.</param>
         public Window Move(Coord? point = null, Coord? size = null, CoordType type = CoordType.Normal) {
-            point = point ?? Coord.NaN;
-            size = size ?? Coord.NaN;
-            return Move(new Area(point, size), type);
+            if (point == null || size == null) {
+                Area current = GetArea(type);
+                point = point ?? current.Point;
+                size = size ?? current.Size;
+            }
+
+            return Move(new Area(point.Value, size.Value), type);
         }
 
         /// <summary>Move the window to the new coordinates.</summary>
         /// <param name="area">The target area of the window.</param>
         /// <param name="type">Set what the coordinates are relative to.</param>
+        //public Window Move(Area area, CoordType type = CoordType.Normal) => Move(area, type, null);
         public Window Move(Area area, CoordType type = CoordType.Normal) {
             if (IsNone)
                 return this;
@@ -813,16 +842,6 @@ namespace WinUtilities {
             if (OnMove != null)
                 Task.Run(() => OnMove.Invoke(this, area, type));
 
-            return this;
-        }
-
-        /// <summary>Move a window by using an offset.</summary>
-        private Window OffsetMove(Area pos, Area offset) => OffsetMove(pos, offset, RawArea);
-        private Window OffsetMove(Area pos, Area offset, Area raw) {
-            pos = pos.IsValid ? pos : pos.FillNaN(offset);
-            pos += raw - offset;
-            pos = pos.Round();
-            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, pos.IntX, pos.IntY, pos.IntW, pos.IntH, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
 
@@ -1009,7 +1028,7 @@ namespace WinUtilities {
         #region images
         /// <summary>Get an image of the window using BitBlt</summary>
         /// <param name="clientOnly">Capture only the client area</param>
-        public Image GetImage(bool clientOnly = false) => GetImage(Area.NaN, clientOnly);
+        public Image GetImage(bool clientOnly = false) => GetImage(Area.Zero, clientOnly);
         /// <summary>Get a cropped image of the window using BitBlt</summary>
         /// <param name="subArea">Set the capture sub area relative to the full capture area</param>
         /// <param name="clientOnly">Capture only the client area</param>
@@ -1020,7 +1039,7 @@ namespace WinUtilities {
             Area client = ClientArea;
             Area capture;
 
-            if (subArea.IsValid) {
+            if (subArea.IsZero) {
                 Area raw = RawArea;
                 Area fullArea = clientOnly ? client : area;
                 if (!fullArea.Contains(subArea.AddPoint(fullArea.Point)))
@@ -1068,7 +1087,7 @@ namespace WinUtilities {
 
         /// <summary>Get an image of the window based on what's visible on the desktop currently</summary>
         /// <param name="clientOnly">Capture only the client area</param>
-        public Image GetImageDesktop(bool clientOnly = false) => GetImageDesktop(Area.NaN, clientOnly);
+        public Image GetImageDesktop(bool clientOnly = false) => GetImageDesktop(Area.Zero, clientOnly);
         /// <summary>Get a cropped image of the window based on what's visible on the desktop currently</summary>
         /// <param name="subArea">Set the capture sub area relative to the full capture area</param>
         /// <param name="clientOnly">Capture only the client area</param>
@@ -1077,7 +1096,7 @@ namespace WinUtilities {
                 return null;
             var area = clientOnly ? ClientArea : Area;
 
-            if (subArea.IsValid) {
+            if (subArea.IsZero) {
                 subArea.Point += area.Point;
                 if (!area.Contains(subArea))
                     throw new ArgumentException("Given sub area does not fit within the capture area");

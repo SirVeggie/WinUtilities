@@ -79,37 +79,37 @@ namespace WinUtilities {
         #endregion
 
         #region areas
-        private Area area = Area.NaN;
+        private Area area = Area.Zero;
         public Area Area {
             get {
-                if (area.IsNaN)
+                if (area.IsZero)
                     area = Window.Area;
                 return area;
             }
         }
 
-        private Area rawarea = Area.NaN;
+        private Area rawarea = Area.Zero;
         public Area RawArea {
             get {
-                if (rawarea.IsNaN)
+                if (rawarea.IsZero)
                     rawarea = Window.RawArea;
                 return rawarea;
             }
         }
 
-        private Area clientarea = Area.NaN;
+        private Area clientarea = Area.Zero;
         public Area ClientArea {
             get {
-                if (clientarea.IsNaN)
+                if (clientarea.IsZero)
                     clientarea = Window.ClientArea;
                 return clientarea;
             }
         }
 
-        private Area borderlessarea = Area.NaN;
+        private Area borderlessarea = Area.Zero;
         public Area BorderlessArea {
             get {
-                if (borderlessarea.IsNaN)
+                if (borderlessarea.IsZero)
                     borderlessarea = Window.BorderlessArea;
                 return borderlessarea;
             }
@@ -315,10 +315,10 @@ namespace WinUtilities {
             }
         }
 
-        private Area regionbounds = Area.NaN;
-        public Area RegionBounds {
+        private Area? regionbounds = null;
+        public Area? RegionBounds {
             get {
-                if (regionbounds.IsNaN)
+                if (regionbounds == null)
                     regionbounds = Window.RegionBounds;
                 return regionbounds;
             }

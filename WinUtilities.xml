@@ -115,19 +115,16 @@
             <summary>Height of the area as an int</summary>
         </member>
         <member name="P:WinUtilities.Area.IsValid">
-            <summary>Check if all the components are not NaN and size is not negative</summary>
+            <summary>Area is not valid if size is negative</summary>
         </member>
-        <member name="P:WinUtilities.Area.IsNaN">
-            <summary>Check if all the components are NaN</summary>
+        <member name="P:WinUtilities.Area.IsZero">
+            <summary>True if all components are 0</summary>
         </member>
         <member name="P:WinUtilities.Area.Zero">
-            <summary>All components are 0.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.NaN">
-            <summary>All components are NaN.</summary>
+            <summary>All components are 0</summary>
         </member>
         <member name="P:WinUtilities.Area.Center">
-            <summary>Get or set the center of the area.</summary>
+            <summary>Get or set the center of the area</summary>
         </member>
         <member name="P:WinUtilities.Area.Corners">
             <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight]</summary>
@@ -218,9 +215,6 @@
         </member>
         <member name="M:WinUtilities.Area.Validate">
             <summary>Sets negative size values to 0</summary>
-        </member>
-        <member name="M:WinUtilities.Area.FillNaN(WinUtilities.Area)">
-            <summary>Fills the current NaN values with the new ones</summary>
         </member>
         <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Area)">
             <summary>Center this area in another area so that both area's center points match</summary>
@@ -382,16 +376,10 @@
             <summary>Y value of the coordinate as an int</summary>
         </member>
         <member name="P:WinUtilities.Coord.Zero">
-            <summary>All components are 0.</summary>
+            <summary>All components are 0</summary>
         </member>
-        <member name="P:WinUtilities.Coord.NaN">
-            <summary>All components are NaN.</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.IsValid">
-            <summary>Check if all the components are not NaN.</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.IsNaN">
-            <summary>Check if all the components are NaN.</summary>
+        <member name="P:WinUtilities.Coord.IsZero">
+            <summary>True if all components are 0</summary>
         </member>
         <member name="P:WinUtilities.Coord.AsValue">
             <summary>Gives the current Coord as a single integer.</summary>
@@ -409,10 +397,6 @@
         </member>
         <member name="M:WinUtilities.Coord.FromInt(System.Int32)">
             <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Fill(WinUtilities.Coord)">
-            <summary>Fills the current Coord's NaN values with the other one.</summary>
-            <returns>A copy of itself.</returns>
         </member>
         <member name="M:WinUtilities.Coord.Round">
             <summary>Rounds all components to closest integer.</summary>
@@ -7960,6 +7944,12 @@
         <member name="E:WinUtilities.Window.OnMove">
             <summary>This event triggers every time the Move function is called</summary>
         </member>
+        <member name="M:WinUtilities.Window.OffsetMove(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Move a window by using an offset</summary>
+        </member>
+        <member name="M:WinUtilities.Window.OffsetMove(WinUtilities.Area,WinUtilities.Area,WinUtilities.Area)">
+            <summary>Move a window by using an offset</summary>
+        </member>
         <member name="M:WinUtilities.Window.CalculateRealArea(System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area},System.Nullable{WinUtilities.Area})">
             <summary>Attempt at reusing area information because getting them is somewhat costly</summary>
         </member>
@@ -8101,9 +8091,6 @@
             <summary>Move the window to the new coordinates.</summary>
             <param name="area">The target area of the window.</param>
             <param name="type">Set what the coordinates are relative to.</param>
-        </member>
-        <member name="M:WinUtilities.Window.OffsetMove(WinUtilities.Area,WinUtilities.Area)">
-            <summary>Move a window by using an offset.</summary>
         </member>
         <member name="M:WinUtilities.Window.Center(System.Boolean)">
             <summary>Center the window to the specified monitor</summary>

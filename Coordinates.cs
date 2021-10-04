@@ -198,17 +198,15 @@ namespace WinUtilities {
         /// <summary>Height of the area as an int</summary>
         public int IntH => size.IntY;
 
-        /// <summary>Check if all the components are not NaN and size is not negative</summary>
-        public bool IsValid => point.IsValid && size.IsValid && W >= 0 && H >= 0;
-        /// <summary>Check if all the components are NaN</summary>
-        public bool IsNaN => point.IsNaN && size.IsNaN;
+        /// <summary>Area is not valid if size is negative</summary>
+        public bool IsValid => W >= 0 && H >= 0;
+        /// <summary>True if all components are 0</summary>
+        public bool IsZero => point.IsZero && size.IsZero;
 
-        /// <summary>All components are 0.</summary>
+        /// <summary>All components are 0</summary>
         public static Area Zero => new Area(0, 0, 0, 0);
-        /// <summary>All components are NaN.</summary>
-        public static Area NaN => new Area(Coord.NaN, Coord.NaN);
 
-        /// <summary>Get or set the center of the area.</summary>
+        /// <summary>Get or set the center of the area</summary>
         public Coord Center {
             get => new Coord(X + W / 2, Y + H / 2);
             set => point = value - size / 2;
@@ -390,14 +388,24 @@ namespace WinUtilities {
 
         #region constructors
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public Area(double? x = null, double? y = null, double? w = null, double? h = null) {
+        public Area(double x, double y, double w, double h) {
             point = new Coord(x, y);
             size = new Coord(w, h);
         }
 
-        public Area(Coord? point = null, Coord? size = null) {
-            this.point = point ?? Coord.NaN;
-            this.size = (size ?? Coord.NaN);
+        public Area(Coord point, Coord size) {
+            this.point = point;
+            this.size = size;
+        }
+
+        public Area(Coord point, double w, double h) {
+            this.point = point;
+            this.size = new Coord(w, h);
+        }
+
+        public Area(double x, double y, Coord size) {
+            this.point = new Coord(x, y);
+            this.size = size;
         }
 
         public Area(Area other) {
@@ -429,9 +437,6 @@ namespace WinUtilities {
             area.Size = area.Size.AsPositive();
             return area;
         }
-
-        /// <summary>Fills the current NaN values with the new ones</summary>
-        public Area FillNaN(Area p) => new Area(point.Fill(p.Point), size.Fill(p.Size));
 
         /// <summary>Center this area in another area so that both area's center points match</summary>
         public Area SetCenter(Area other) {
@@ -997,15 +1002,10 @@ namespace WinUtilities {
         /// <summary>Y value of the coordinate as an int</summary>
         public int IntY => (int) Math.Round(Y);
 
-        /// <summary>All components are 0.</summary>
+        /// <summary>All components are 0</summary>
         public static Coord Zero => new Coord(0, 0);
-        /// <summary>All components are NaN.</summary>
-        public static Coord NaN => new Coord(double.NaN, double.NaN);
-
-        /// <summary>Check if all the components are not NaN.</summary>
-        public bool IsValid => !double.IsNaN(X) && !double.IsNaN(Y);
-        /// <summary>Check if all the components are NaN.</summary>
-        public bool IsNaN => double.IsNaN(X) && double.IsNaN(Y);
+        /// <summary>True if all components are 0</summary>
+        public bool IsZero => X == 0 && Y == 0;
 
         /// <summary>Gives the current Coord as a single integer.</summary>
         public int AsValue => (IntY << 16) | (IntX & 0xFFFF);
@@ -1037,15 +1037,14 @@ namespace WinUtilities {
 
         #region constructors
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public Coord(double? x = null, double? y = null) {
-            X = x ?? double.NaN;
-            Y = y ?? double.NaN;
+        public Coord(double x, double y) {
+            if (double.IsNaN(x) || double.IsNaN(y))
+                throw new ArgumentException("Cannot initialize Coord with NaN values");
+            X = x;
+            Y = y;
         }
 
-        public Coord(Coord other) {
-            X = other.X;
-            Y = other.Y;
-        }
+        public Coord(Coord other) : this(other.X, other.Y) { }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
@@ -1057,14 +1056,6 @@ namespace WinUtilities {
         #endregion
 
         #region methods
-        /// <summary>Fills the current Coord's NaN values with the other one.</summary>
-        /// <returns>A copy of itself.</returns>
-        public Coord Fill(Coord c) {
-            var x = double.IsNaN(X) ? c.X : X;
-            var y = double.IsNaN(Y) ? c.Y : Y;
-            return new Coord(x, y);
-        }
-
         /// <summary>Rounds all components to closest integer.</summary>
         /// <returns>A copy of itself.</returns>
         public Coord Round() {
@@ -1159,16 +1150,16 @@ namespace WinUtilities {
 
         public static bool operator ==(Coord a, Coord b) => a.X == b.X && a.Y == b.Y;
         public static bool operator !=(Coord a, Coord b) => !(a == b);
-        public static Coord operator +(Coord a, Coord b) => new Coord(double.IsNaN(a.X + b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X + b.X, double.IsNaN(a.Y + b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y + b.Y);
-        public static Coord operator -(Coord a, Coord b) => new Coord(double.IsNaN(a.X - b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X - b.X, double.IsNaN(a.Y - b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y - b.Y);
-        public static Coord operator -(Coord a) => new Coord(-a.X, -a.Y);
-        public static Coord operator *(Coord a, Coord b) => new Coord(double.IsNaN(a.X * b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X * b.X, double.IsNaN(a.Y * b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y * b.Y);
-        public static Coord operator /(Coord a, Coord b) => new Coord(double.IsNaN(a.X / b.X) ? throw new Exception("Operator fail on value that contains NaN") : a.X / b.X, double.IsNaN(a.Y / b.Y) ? throw new Exception("Operator fail on value that contains NaN") : a.Y / b.Y);
-        public static Coord operator *(Coord a, double b) => new Coord(a.X * b, a.Y * b);
-        public static Coord operator *(double a, Coord b) => new Coord(b.X * a, b.Y * a);
-        public static Coord operator /(Coord a, double b) => new Coord(a.X / b, a.Y / b);
+        public static Coord operator +(Coord a, Coord b) => new Coord(ValidateNaN(a.X + b.X), ValidateNaN(a.Y + b.Y));
+        public static Coord operator -(Coord a, Coord b) => new Coord(ValidateNaN(a.X - b.X), ValidateNaN(a.Y - b.Y));
+        public static Coord operator *(Coord a, Coord b) => new Coord(ValidateNaN(a.X * b.X), ValidateNaN(a.Y * b.Y));
+        public static Coord operator /(Coord a, Coord b) => new Coord(ValidateNaN(a.X / b.X), ValidateNaN(a.Y / b.Y));
+        public static Coord operator *(Coord a, double b) => new Coord(ValidateNaN(a.X * b), ValidateNaN(a.Y * b));
+        public static Coord operator *(double a, Coord b) => new Coord(ValidateNaN(b.X * a), ValidateNaN(b.Y * a));
+        public static Coord operator /(Coord a, double b) => new Coord(ValidateNaN(a.X / b), ValidateNaN(a.Y / b));
+        public static Coord operator -(Coord a) => new Coord(ValidateNaN(-a.X), ValidateNaN(-a.Y));
         public override bool Equals(object obj) => obj is Coord && this == (Coord) obj;
-        public override string ToString() => "{" + X + ", " + Y + "}";
+        public override string ToString() => "(" + X + ", " + Y + ")";
         public override int GetHashCode() {
             int hashCode = 1861411795;
             hashCode = hashCode * -1521134295 + X.GetHashCode();
@@ -1176,9 +1167,9 @@ namespace WinUtilities {
             return hashCode;
         }
 
-        private static double DefNaN(double value, double def) {
+        private static double ValidateNaN(double value) {
             if (double.IsNaN(value))
-                return def;
+                throw new InvalidOperationException("Coord object contained NaN values during operation");
             return value;
         }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
