@@ -207,7 +207,7 @@ namespace WinUtilities {
         /// <summary>Send raw text in Input mode. This string is not parsed in any way before sending.</summary>
         public static bool SendRaw(string text) => SendInput(text.SelectMany(c => GetCharInput(c)).ToArray());
 
-        /// <summary>Send a scroll event in Input mode</summary>
+        /// <summary>Send a scroll event in Input mode. Uses raw scroll values, 120 for default downward scroll.</summary>
         public static bool Scroll(int amount) => SendInput(GetMouseInputScroll(amount >= 0 ? Key.WheelDown : Key.WheelUp, Math.Abs(amount)));
         /// <summary>Send relative mouse movement in Input mode</summary>
         public static bool MouseMoveRelative(int dx, int dy) => SendInput(GetMouseInputMove(dx, dy));
@@ -458,7 +458,7 @@ namespace WinUtilities {
             if (key.IsScroll()) {
                 if (!state)
                     throw new Exception("Scroll keys cannot be released.");
-                return GetMouseInputScroll(key);
+                return GetMouseInputScroll(key, 120);
             } else if (key == Key.XButton1 || key == Key.XButton2) {
                 return GetMouseInputX(key, state);
             }
@@ -477,7 +477,8 @@ namespace WinUtilities {
         }
 
         /// <summary>Get a scroll event as input</summary>
-        private static WinAPI.INPUT GetMouseInputScroll(Key key, int amount = 120) {
+        /// <remarks>120 is the default speed of a normal scroll event</remarks>
+        private static WinAPI.INPUT GetMouseInputScroll(Key key, int amount) {
             if (amount < 0) {
                 throw new ArgumentException("Scroll amount cannot be negative.");
             }

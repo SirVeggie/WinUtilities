@@ -51,6 +51,18 @@
             <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> certain amount of steps in either direction</summary>
             <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
         </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasLeft(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Left flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasRight(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Right flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasTop(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Top flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasBottom(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Bottom flag</summary>
+        </member>
         <member name="M:WinUtilities.EdgeTypeExtensions.IsNone(WinUtilities.EdgeType)">
             <summary>Check if the edge is <see cref="F:WinUtilities.EdgeType.None"/></summary>
         </member>
@@ -395,8 +407,12 @@
         <member name="P:WinUtilities.Coord.SurfaceArea">
             <summary>Gets the surface area of the area object</summary>
         </member>
-        <member name="M:WinUtilities.Coord.FromInt(System.Int32)">
+        <member name="M:WinUtilities.Coord.From(System.Int32)">
             <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.From(WinUtilities.EdgeType)">
+            <summary>Create a direction Coord from an EdgeType</summary>
+            <remarks>BottomRight would be (1, 1) while TopLeft would be (-1, -1)</remarks>
         </member>
         <member name="M:WinUtilities.Coord.Round">
             <summary>Rounds all components to closest integer.</summary>
@@ -7214,7 +7230,7 @@
             <summary>Send raw text in Input mode. This string is not parsed in any way before sending.</summary>
         </member>
         <member name="M:WinUtilities.Input.Scroll(System.Int32)">
-            <summary>Send a scroll event in Input mode</summary>
+            <summary>Send a scroll event in Input mode. Uses raw scroll values, 120 for default downward scroll.</summary>
         </member>
         <member name="M:WinUtilities.Input.MouseMoveRelative(System.Int32,System.Int32)">
             <summary>Send relative mouse movement in Input mode</summary>
@@ -7318,6 +7334,7 @@
         </member>
         <member name="M:WinUtilities.Input.GetMouseInputScroll(WinUtilities.Key,System.Int32)">
             <summary>Get a scroll event as input</summary>
+            <remarks>120 is the default speed of a normal scroll event</remarks>
         </member>
         <member name="M:WinUtilities.Input.GetMouseInputMove(System.Int32,System.Int32,System.Boolean)">
             <summary>Get a mouse move as input</summary>
@@ -7492,7 +7509,7 @@
         </member>
         <member name="M:WinUtilities.Mouse.Scroll(System.Double)">
             <summary>Send a scroll wheel event. 1 for default downwards scroll and -1 for default upwards scroll</summary>
-            <remarks>Scroll amount calculation: (int) Math.Round(amount * 12)</remarks>
+            <remarks>Scroll amount calculation: (int) Math.Round(amount * 120)</remarks>
         </member>
         <member name="M:WinUtilities.Mouse.Move(System.Int32,System.Int32,WinUtilities.CoordRelation)">
             <summary>Move the mouse to a point</summary>

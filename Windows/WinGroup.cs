@@ -9,7 +9,7 @@ namespace WinUtilities {
 
     /// <summary>A match object that can have multiple match conditions</summary>
     [DataContract]
-    public struct WinGroup : IWinMatch {
+    public class WinGroup : IWinMatch {
 
         [DataMember]
         private List<IWinMatch> whitelist;

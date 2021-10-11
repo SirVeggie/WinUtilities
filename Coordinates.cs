@@ -135,6 +135,15 @@ namespace WinUtilities {
             return type;
         }
 
+        /// <summary>Check if the EdgeType includes the Left flag</summary>
+        public static bool HasLeft(this EdgeType edge) => edge.HasFlag(EdgeType.Left);
+        /// <summary>Check if the EdgeType includes the Right flag</summary>
+        public static bool HasRight(this EdgeType edge) => edge.HasFlag(EdgeType.Right);
+        /// <summary>Check if the EdgeType includes the Top flag</summary>
+        public static bool HasTop(this EdgeType edge) => edge.HasFlag(EdgeType.Top);
+        /// <summary>Check if the EdgeType includes the Bottom flag</summary>
+        public static bool HasBottom(this EdgeType edge) => edge.HasFlag(EdgeType.Bottom);
+
         /// <summary>Check if the edge is <see cref="EdgeType.None"/></summary>
         public static bool IsNone(this EdgeType edge) => edge == 0;
         /// <summary>Check if the edge is the left or the top edge (not a corner)</summary>
@@ -1048,10 +1057,16 @@ namespace WinUtilities {
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
-        public static Coord FromInt(int value) {
+        public static Coord From(int value) {
             var x = value & 0x0000FFFF;
             var y = value >> 16;
             return new Coord(x, y);
+        }
+
+        /// <summary>Create a direction Coord from an EdgeType</summary>
+        /// <remarks>BottomRight would be (1, 1) while TopLeft would be (-1, -1)</remarks>
+        public static Coord From(EdgeType dir) {
+            return new Coord(dir.HasLeft() ? -1 : dir.HasRight() ? 1 : 0, dir.HasTop() ? -1 : dir.HasBottom() ? 1 : 0);
         }
         #endregion
 

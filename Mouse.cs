@@ -69,8 +69,8 @@ namespace WinUtilities {
         /// <summary>Send a double click</summary>
         public static void DoubleClick(Coord? pos = null, CoordRelation rel = CoordRelation.Screen) => MoveAndSend(pos, rel, Key.LButton, Key.LButton);
         /// <summary>Send a scroll wheel event. 1 for default downwards scroll and -1 for default upwards scroll</summary>
-        /// <remarks>Scroll amount calculation: (int) Math.Round(amount * 12)</remarks>
-        public static void Scroll(double amount) { if (amount != 0) Input.Scroll((int) Math.Round(amount * 12)); }
+        /// <remarks>Scroll amount calculation: (int) Math.Round(amount * 120)</remarks>
+        public static void Scroll(double amount) { if (amount != 0) Input.Scroll((int) Math.Round(amount * 120)); }
         /// <summary>Move the mouse to a point</summary>
         public static bool Move(int x, int y, CoordRelation rel = CoordRelation.Screen) => Move(new Coord(x, y), rel);
         /// <summary>Move the mouse to a point</summary>
