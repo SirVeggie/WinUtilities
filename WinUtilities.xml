@@ -4,462 +4,6 @@
         <name>WinUtilities</name>
     </assembly>
     <members>
-        <member name="T:WinUtilities.CoordType">
-            <summary>Specifies the type of window coordinates used</summary>
-        </member>
-        <member name="F:WinUtilities.CoordType.Normal">
-            <summary>Matches the visible area of the window</summary>
-        </member>
-        <member name="F:WinUtilities.CoordType.Raw">
-            <summary>Matches the real area of the window</summary>
-        </member>
-        <member name="F:WinUtilities.CoordType.Client">
-            <summary>Matches the client area of the window</summary>
-        </member>
-        <member name="T:WinUtilities.CoordRelation">
-            <summary>Specifies what the coordinates are relative to</summary>
-        </member>
-        <member name="F:WinUtilities.CoordRelation.Screen">
-            <summary>Position [0,0] is the primary screen's left upper corner</summary>
-        </member>
-        <member name="F:WinUtilities.CoordRelation.Window">
-            <summary>Position [0,0] is the target window's upper left corner</summary>
-        </member>
-        <member name="F:WinUtilities.CoordRelation.Mouse">
-            <summary>Position [0,0] is the current mouse position</summary>
-        </member>
-        <member name="T:WinUtilities.EdgeType">
-            <summary>Specifies which edge of an area to target</summary>
-        </member>
-        <member name="T:WinUtilities.EdgeTypeExtensions">
-            <summary>Extension methods for <see cref="T:WinUtilities.EdgeType"/></summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.Reverse(WinUtilities.EdgeType)">
-            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite edge/corner</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.ReverseHorizontal(WinUtilities.EdgeType)">
-            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite horizontal edge</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.ReverseVertical(WinUtilities.EdgeType)">
-            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite vertical edge</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.Rotate(WinUtilities.EdgeType,System.Boolean)">
-            <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> in either direction</summary>
-            <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.Rotate(WinUtilities.EdgeType,System.Int32)">
-            <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> certain amount of steps in either direction</summary>
-            <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.HasLeft(WinUtilities.EdgeType)">
-            <summary>Check if the EdgeType includes the Left flag</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.HasRight(WinUtilities.EdgeType)">
-            <summary>Check if the EdgeType includes the Right flag</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.HasTop(WinUtilities.EdgeType)">
-            <summary>Check if the EdgeType includes the Top flag</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.HasBottom(WinUtilities.EdgeType)">
-            <summary>Check if the EdgeType includes the Bottom flag</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.IsNone(WinUtilities.EdgeType)">
-            <summary>Check if the edge is <see cref="F:WinUtilities.EdgeType.None"/></summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.IsTopOrLeft(WinUtilities.EdgeType)">
-            <summary>Check if the edge is the left or the top edge (not a corner)</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.IsHorizontal(WinUtilities.EdgeType)">
-            <summary>Check if the edge has horizontal component</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.IsVertical(WinUtilities.EdgeType)">
-            <summary>Check if the edge has vertical component</summary>
-        </member>
-        <member name="M:WinUtilities.EdgeTypeExtensions.IsCorner(WinUtilities.EdgeType)">
-            <summary>Check if the edge has both vertical and horizontal components</summary>
-        </member>
-        <member name="T:WinUtilities.Edge">
-            <summary>A struct combining a target edge and a point</summary>
-        </member>
-        <member name="P:WinUtilities.Edge.Type">
-            <summary>Edges to target</summary>
-        </member>
-        <member name="P:WinUtilities.Edge.Pos">
-            <summary>Corner position</summary>
-        </member>
-        <member name="M:WinUtilities.Edge.#ctor(WinUtilities.EdgeType,WinUtilities.Coord)">
-            <summary>Create a new <see cref="T:WinUtilities.Edge"/></summary>
-        </member>
-        <member name="M:WinUtilities.Edge.ToString">
-            <summary></summary>
-        </member>
-        <member name="T:WinUtilities.Area">
-            <summary>Specifies a rectangular area in [x, y] coordinates.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Point">
-            <summary>Location of the upper left corner of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Size">
-            <summary>Size of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.X">
-            <summary>Left edge of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Y">
-            <summary>Top edge of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.W">
-            <summary>Width of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.H">
-            <summary>Height of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.IntX">
-            <summary>Left edge of the area as an int</summary>
-        </member>
-        <member name="P:WinUtilities.Area.IntY">
-            <summary>Right edge of the area as an int</summary>
-        </member>
-        <member name="P:WinUtilities.Area.IntW">
-            <summary>Width of the area as an int</summary>
-        </member>
-        <member name="P:WinUtilities.Area.IntH">
-            <summary>Height of the area as an int</summary>
-        </member>
-        <member name="P:WinUtilities.Area.IsValid">
-            <summary>Area is not valid if size is negative</summary>
-        </member>
-        <member name="P:WinUtilities.Area.IsZero">
-            <summary>True if all components are 0</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Zero">
-            <summary>All components are 0</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Center">
-            <summary>Get or set the center of the area</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Corners">
-            <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight]</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Edges">
-            <summary>Returns a list of the edges' center positions in order of [Left, Right, Top, Bottom]</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Magnitude">
-            <summary>A 4D vector-like magnitude</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopLeft">
-            <summary>Get or set the Top Left corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopRight">
-            <summary>Get or set the Top Right corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomLeft">
-            <summary>Get or set the Bottom Left corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomRight">
-            <summary>Get or set the Bottom Right corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Left">
-            <summary>Get or set the Left edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Right">
-            <summary>Get or set the Right edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Top">
-            <summary>Get or set the Top edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.Bottom">
-            <summary>Get or set the Bottom edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopLeftR">
-            <summary>Resize from Top Left corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopRightR">
-            <summary>Resize from Top Right corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomLeftR">
-            <summary>Resize from Bottom Left corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomRightR">
-            <summary>Resize from Bottom Right corner of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.LeftR">
-            <summary>Resize from Left edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.RightR">
-            <summary>Resize from Right edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopR">
-            <summary>Resize from Top edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomR">
-            <summary>Resize from Bottom edge of the area.</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopLeftEdge">
-            <summary>Get the top left edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopRightEdge">
-            <summary>Get the top right edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomLeftEdge">
-            <summary>Get the bottom left edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomRightEdge">
-            <summary>Get the bottom right edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.LeftEdge">
-            <summary>Get the left center edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.RightEdge">
-            <summary>Get the right center edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.TopEdge">
-            <summary>Get the top center edge object</summary>
-        </member>
-        <member name="P:WinUtilities.Area.BottomEdge">
-            <summary>Get the bottom center edge object</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Slice(System.Double,System.Double,System.Double,System.Double)">
-            <summary>Create a copy while modifying the size using percentages</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Round">
-            <summary>Rounds all components to closest integer</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Validate">
-            <summary>Sets negative size values to 0</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Area)">
-            <summary>Center this area in another area so that both area's center points match</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Coord)">
-            <summary>Center this area to the specified point</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetCenterX(System.Double)">
-            <summary>Center the x axis of this area to the given value</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetCenterY(System.Double)">
-            <summary>Center the y axis of this area to the given value</summary>
-        </member>
-        <member name="M:WinUtilities.Area.GetRelativePoint(System.Double,System.Double)">
-            <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
-            <param name="x">Between 0 and 1. Giving 0 targets the area's left edge and 1 targets the right edge. Giving 0.5 would target the center.</param>
-            <param name="y">Between 0 and 1. Giving 0 targets the area's top edge and 1 targets the bottom edge. Giving 0.5 would target the center.</param>
-        </member>
-        <member name="M:WinUtilities.Area.GetEdge(WinUtilities.EdgeType)">
-            <summary>Get the <see cref="T:WinUtilities.Edge"/> of a given <see cref="T:WinUtilities.EdgeType"/></summary>
-        </member>
-        <member name="M:WinUtilities.Area.GetSide(WinUtilities.EdgeType)">
-            <summary>Get the [Left, Right, Top, Bottom] of the area as a double</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord)">
-            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord,System.Double@)">
-            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestEdge(WinUtilities.Coord)">
-            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest center of an edge</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestEdge(WinUtilities.Coord,System.Double@)">
-            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest center of an edge</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestCornerOrEdge(WinUtilities.Coord)">
-            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner or center of an edge</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestCornerOrEdge(WinUtilities.Coord,System.Double@)">
-            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner or center of an edge</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClosestBorder(WinUtilities.Coord)">
-            <summary>Get the closest border to a point. Returns either the left, right, top or bottom border.</summary>
-            <remarks>This method differs from the ClosestEdge since this method calculates the distance using the entire edge instead of just the center point of an edge.</remarks>
-        </member>
-        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.Edge,System.Boolean,System.Boolean)">
-            <summary>Moves the area's edges using dynamic selection.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.EdgeType,System.Double,System.Boolean,System.Boolean)">
-            <summary>Moves the area's edges using dynamic selection. X and Y are the same.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.EdgeType,WinUtilities.Coord,System.Boolean,System.Boolean)">
-            <summary>Moves the area's edges using dynamic selection.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.AddPoint(WinUtilities.Area)">
-            <summary>Add another area's point to this area's point.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.AddPoint(System.Double,System.Double)">
-            <summary>Add to the area's point.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.AddPoint(WinUtilities.Coord)">
-            <summary>Add to the area's point.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetPoint(WinUtilities.Area)">
-            <summary>Set another area's point as this area's point.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetPoint(System.Double,System.Double)">
-            <summary>Set the area's point. Helps with dotting into code.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetPoint(WinUtilities.Coord)">
-            <summary>Set the area's point. Helps with dotting into code.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.AddSize(WinUtilities.Area)">
-            <summary>Add another area's size to this area's size.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.AddSize(System.Double,System.Double)">
-            <summary>Add to the area's size.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.AddSize(WinUtilities.Coord)">
-            <summary>Add to the area's size.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetSize(WinUtilities.Area)">
-            <summary>Set another area's size as this area's size.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetSize(System.Double,System.Double)">
-            <summary>Set the area's size. Helps with dotting into code.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetSize(WinUtilities.Coord)">
-            <summary>Set the area's size. Helps with dotting into code.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.SetRelative(WinUtilities.Area)">
-            <summary>Turns this area relative to the given area</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Contains(WinUtilities.Coord)">
-            <summary>Checks if the given point is within the area.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Contains(System.Double,System.Double)">
-            <summary>Checks if the given point is within the area.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Contains(WinUtilities.Area)">
-            <summary>Returns true if the parent fully contains the given position.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Overlaps(WinUtilities.Area)">
-            <summary>Returns true if the two positions overlap.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Touches(WinUtilities.Area)">
-            <summary>Returns true if the two positions overlap or their edges touch.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Grow(System.Double)">
-            <summary>Grows the area outwards by the specified value. Shrinks if negative.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClampWithin(WinUtilities.Area,System.Boolean)">
-            <summary>Return a new area that has been adjusted to fit within the clamp area</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClampExclude(WinUtilities.Area,System.Boolean)">
-            <summary>Return a new area that has been adjusted to exclude the given area</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClampExclude(WinUtilities.Coord,System.Boolean)">
-            <summary>Return a new area that has been adjusted to exclude the given point</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClampInclude(WinUtilities.Area,System.Boolean)">
-            <summary>Return a new area that has been adjusted to include the given area</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClampInclude(WinUtilities.Coord,System.Boolean)">
-            <summary>Return a new area that has been adjusted to include the given point</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Clamp(WinUtilities.Area,WinUtilities.Area)">
-            <summary>Return a new area whose values have been restricted between the given areas</summary>
-        </member>
-        <member name="M:WinUtilities.Area.ClampLinear(WinUtilities.Area,WinUtilities.Area)">
-            <summary>Return a new area that has been clamped linearly between the given areas</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Mutual(WinUtilities.Area,WinUtilities.Area)">
-            <summary>Takes the mutual area between two areas.</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,System.Double)">
-            <summary>Lerp to target area</summary>
-        </member>
-        <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,WinUtilities.Area,System.Double)">
-            <summary>Lerp between two areas</summary>
-        </member>
-        <member name="T:WinUtilities.Coord">
-            <summary>
-            Has coordinate (point), vector and rectangle (size) properties.
-            A hybrid of those.
-            </summary>
-        </member>
-        <member name="P:WinUtilities.Coord.X">
-            <summary>X value of the coordinate</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.Y">
-            <summary>Y value of the coordinate</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.IntX">
-            <summary>X value of the coordinate as an int</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.IntY">
-            <summary>Y value of the coordinate as an int</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.Zero">
-            <summary>All components are 0</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.IsZero">
-            <summary>True if all components are 0</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.AsValue">
-            <summary>Gives the current Coord as a single integer.</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.Magnitude">
-            <summary>
-            Point's distance from origin. Naming comes from vectors.
-            </summary>
-        </member>
-        <member name="P:WinUtilities.Coord.Normalized">
-            <summary>Gets a copy whose distance to the origin is set to 1</summary>
-        </member>
-        <member name="P:WinUtilities.Coord.SurfaceArea">
-            <summary>Gets the surface area of the area object</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.From(System.Int32)">
-            <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.From(WinUtilities.EdgeType)">
-            <summary>Create a direction Coord from an EdgeType</summary>
-            <remarks>BottomRight would be (1, 1) while TopLeft would be (-1, -1)</remarks>
-        </member>
-        <member name="M:WinUtilities.Coord.Round">
-            <summary>Rounds all components to closest integer.</summary>
-            <returns>A copy of itself.</returns>
-        </member>
-        <member name="M:WinUtilities.Coord.AsPositive">
-            <summary>Return a new coordinate whose values were clamped to the positive range</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.SetRelative(System.Double,System.Double)">
-            <summary>Turns these coordinates relative to the given coordinates</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.SetRelative(WinUtilities.Coord)">
-            <summary>Turns these coordinates relative to the given coordinates</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.SetRelative(WinUtilities.Area)">
-            <summary>Turns these coordinates relative to the given coordinates</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Distance(System.Double,System.Double)">
-            <summary>Distance to the given point.</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Distance(WinUtilities.Coord)">
-            <summary>Distance to the given point.</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.SqDistance(System.Double,System.Double)">
-            <summary>Returns the square distance to the point, so Max(dx, dy).</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.SqDistance(WinUtilities.Coord)">
-            <summary>Returns the square distance to the point, so Max(dx, dy).</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Rotate(System.Double)">
-            <summary>Rotate as a vector.</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Clamp(WinUtilities.Area)">
-            <summary>Clamp this point inside the specified area</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.ClampLinear(WinUtilities.Coord,WinUtilities.Coord)">
-            <summary>Clamp this point to a line between the given points</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,System.Double)">
-            <summary>Lerp to the target coordinate</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,WinUtilities.Coord,System.Double)">
-            <summary>Lerp between two coordinates</summary>
-        </member>
-        <member name="M:WinUtilities.Coord.ProjectToLine(WinUtilities.Coord,WinUtilities.Coord)">
-            <summary>Not implemented yet</summary>
-        </member>
         <member name="T:WinUtilities.CoreAudio.Constants.AUDCLNT_SESSIONFLAGS_XXX">
             <summary>
             Indicate characteristics of an audio session associated with the stream.
@@ -3357,6 +2901,685 @@
             <summary>
             HighPart of the video port identifier.
             </summary>
+        </member>
+        <member name="T:WinUtilities.AudioDeviceState">
+            <summary>Specifies the state of a Windows audio device</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.Active">
+            <summary>The device is active</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.Disabled">
+            <summary>The device is disabled</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.NotPresent">
+            <summary>The audio endpoint device is not present because the audio adapter that connects to the endpoint device has been removed or disabled</summary>
+        </member>
+        <member name="F:WinUtilities.AudioDeviceState.Unplugged">
+            <summary>The device has been unplugged</summary>
+        </member>
+        <member name="T:WinUtilities.AppVolume">
+            <summary>Class for controlling a specific application's volume</summary>
+            <remarks>Note: if created by exe name, new audio sources with the same exe name will not be controlled</remarks>
+        </member>
+        <member name="P:WinUtilities.AppVolume.Volume">
+            <summary>Get or set the volume of the included process/processes</summary>
+        </member>
+        <member name="P:WinUtilities.AppVolume.Mute">
+            <summary>Get or set the mute of the included process/processes</summary>
+        </member>
+        <member name="P:WinUtilities.AppVolume.LowThreshold">
+            <summary>Used by <see cref="M:WinUtilities.AppVolume.AdjustVolume(System.Single)"/>. Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold.</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.New(System.UInt32)">
+            <summary>Get app volume controller by process id</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.New(System.String)">
+            <summary>Get app volume controller by exe name</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.GetVolume">
+            <summary>Get the volume of the included process/processes</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.SetVolume(System.Single)">
+            <summary>Set the volume of the included process/processes</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.AdjustVolume(System.Single)">
+            <summary>Adjust relative volume using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
+            <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.
+            If volume is LowThreshold or lower while decreasing, volume goes straight to 0. When increasing, new volume is at least the LowThreshold.</remarks>
+        </member>
+        <member name="M:WinUtilities.AppVolume.GetMute">
+            <summary>Get the mute of the included process/processes</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.SetMute(System.Boolean)">
+            <summary>Set the mute of the included process/processes</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.SetDeviceDefault">
+            <summary>Move the audio source to the default device</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.SetDevice(System.String)">
+            <summary>Move the audio source to a different device</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.SetDevice(WinUtilities.AudioDevice)">
+            <summary>Move the audio source to a different device</summary>
+        </member>
+        <member name="M:WinUtilities.AppVolume.GetDevice">
+            <summary>Find the device that the audio source is using</summary>
+        </member>
+        <member name="T:WinUtilities.AudioDevice">
+            <summary>Audio device used to set its volume or default device</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.ID">
+            <summary>ID of the audio device</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.Name">
+            <summary>Display name of the audio device</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.Volume">
+            <summary>Control the device's master volume</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.Flow">
+            <summary>Audio data flow direction (Playback/Capture)</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.Role">
+            <summary>Role of the device when fetched</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.DefaultOutput">
+            <summary>Returns the default speakers</summary>
+        </member>
+        <member name="P:WinUtilities.AudioDevice.DefaultInput">
+            <summary>Returns the default microphone</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.#ctor(System.String,System.String,System.Nullable{WinUtilities.CoreAudio.Enumerations.EDataFlow},System.Nullable{WinUtilities.CoreAudio.Enumerations.ERole})">
+            <summary></summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.SetDefault(WinUtilities.CoreAudio.Enumerations.ERole)">
+            <summary>Set device as the default device with a specific role</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.SetDefault">
+            <summary>Set device as the default device (all roles)</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.GetVolume">
+            <summary>Get device's master volume</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.SetVolume(System.Single)">
+            <summary>Set device's master volume</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.FindByID(System.String)">
+            <summary>Find a device by its ID</summary>
+        </member>
+        <member name="M:WinUtilities.AudioDevice.FindByName(System.String)">
+            <summary>Find a device by its name</summary>
+        </member>
+        <member name="T:WinUtilities.WinAudio">
+            <summary>Tools to control audio volume and devices</summary>
+        </member>
+        <member name="P:WinUtilities.WinAudio.MasterVolume">
+            <summary>Get or set current audio device volume</summary>
+        </member>
+        <member name="P:WinUtilities.WinAudio.MasterMute">
+            <summary>Get or set current audio device mute</summary>
+        </member>
+        <member name="E:WinUtilities.WinAudio.DeviceChanged">
+            <summary>Subscribe to default audio device change</summary>
+        </member>
+        <member name="E:WinUtilities.WinAudio.DeviceAdded">
+            <summary>Subscribe to audio device adding</summary>
+        </member>
+        <member name="E:WinUtilities.WinAudio.DeviceRemoved">
+            <summary>Subscribe to audio device removing</summary>
+        </member>
+        <member name="E:WinUtilities.WinAudio.DeviceStateChanged">
+            <summary>Subscribe to audio device state change</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetApp(System.UInt32)">
+            <summary>Get app volume controller by process id</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetApp(System.String)">
+            <summary>Get app volume controller by exe name</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.HasAudioSource(System.UInt32)">
+            <summary>Check if the specified process is playing audio</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.HasAudioSource(System.String)">
+            <summary>Check if any process with a specified exe name is playing audio</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetDevice(System.String)">
+            <summary>Find an audio device by its full or partial name</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetDefaultPlayback">
+            <summary>Get the default playback audio device</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.GetDefaultCapture">
+            <summary>Get the default microphone</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.ListAudioSources">
+            <summary>Retrieve a list of all current audio sources and their related data</summary>
+        </member>
+        <member name="T:WinUtilities.WinAudio.AudioInfo">
+            <summary>Collection of info about an audio source</summary>
+        </member>
+        <member name="P:WinUtilities.WinAudio.AudioInfo.Device">
+            <summary>The device this audio source is playing on</summary>
+        </member>
+        <member name="P:WinUtilities.WinAudio.AudioInfo.Controller">
+            <summary>Audio source controller</summary>
+        </member>
+        <member name="P:WinUtilities.WinAudio.AudioInfo.Exe">
+            <summary>Executable name of this audio source's process</summary>
+        </member>
+        <member name="P:WinUtilities.WinAudio.AudioInfo.Pid">
+            <summary>Process ID of this audio source's process</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.AudioInfo.#ctor(WinUtilities.AudioDevice,WinUtilities.AppVolume,System.UInt32)">
+            <summary></summary>
+        </member>
+        <member name="T:WinUtilities.CoordType">
+            <summary>Specifies the type of window coordinates used</summary>
+        </member>
+        <member name="F:WinUtilities.CoordType.Normal">
+            <summary>Matches the visible area of the window</summary>
+        </member>
+        <member name="F:WinUtilities.CoordType.Raw">
+            <summary>Matches the real area of the window</summary>
+        </member>
+        <member name="F:WinUtilities.CoordType.Client">
+            <summary>Matches the client area of the window</summary>
+        </member>
+        <member name="T:WinUtilities.CoordRelation">
+            <summary>Specifies what the coordinates are relative to</summary>
+        </member>
+        <member name="F:WinUtilities.CoordRelation.Screen">
+            <summary>Position [0,0] is the primary screen's left upper corner</summary>
+        </member>
+        <member name="F:WinUtilities.CoordRelation.Window">
+            <summary>Position [0,0] is the target window's upper left corner</summary>
+        </member>
+        <member name="F:WinUtilities.CoordRelation.Mouse">
+            <summary>Position [0,0] is the current mouse position</summary>
+        </member>
+        <member name="T:WinUtilities.EdgeType">
+            <summary>Specifies which edge of an area to target</summary>
+        </member>
+        <member name="T:WinUtilities.EdgeTypeExtensions">
+            <summary>Extension methods for <see cref="T:WinUtilities.EdgeType"/></summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.Reverse(WinUtilities.EdgeType)">
+            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite edge/corner</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.ReverseHorizontal(WinUtilities.EdgeType)">
+            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite horizontal edge</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.ReverseVertical(WinUtilities.EdgeType)">
+            <summary>Reverse the <see cref="T:WinUtilities.EdgeType"/> to point at the opposite vertical edge</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.Rotate(WinUtilities.EdgeType,System.Boolean)">
+            <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> in either direction</summary>
+            <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.Rotate(WinUtilities.EdgeType,System.Int32)">
+            <summary>Rotate the <see cref="T:WinUtilities.EdgeType"/> certain amount of steps in either direction</summary>
+            <remarks>If the <see cref="T:WinUtilities.EdgeType"/> is a corner, then rotating is done between corners, otherwise rotating is done between non-corners</remarks>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasLeft(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Left flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasRight(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Right flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasTop(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Top flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.HasBottom(WinUtilities.EdgeType)">
+            <summary>Check if the EdgeType includes the Bottom flag</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsNone(WinUtilities.EdgeType)">
+            <summary>Check if the edge is <see cref="F:WinUtilities.EdgeType.None"/></summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsTopOrLeft(WinUtilities.EdgeType)">
+            <summary>Check if the edge is the left or the top edge (not a corner)</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsHorizontal(WinUtilities.EdgeType)">
+            <summary>Check if the edge has horizontal component</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsVertical(WinUtilities.EdgeType)">
+            <summary>Check if the edge has vertical component</summary>
+        </member>
+        <member name="M:WinUtilities.EdgeTypeExtensions.IsCorner(WinUtilities.EdgeType)">
+            <summary>Check if the edge has both vertical and horizontal components</summary>
+        </member>
+        <member name="T:WinUtilities.Edge">
+            <summary>A struct combining a target edge and a point</summary>
+        </member>
+        <member name="P:WinUtilities.Edge.Type">
+            <summary>Edges to target</summary>
+        </member>
+        <member name="P:WinUtilities.Edge.Pos">
+            <summary>Corner position</summary>
+        </member>
+        <member name="M:WinUtilities.Edge.#ctor(WinUtilities.EdgeType,WinUtilities.Coord)">
+            <summary>Create a new <see cref="T:WinUtilities.Edge"/></summary>
+        </member>
+        <member name="M:WinUtilities.Edge.ToString">
+            <summary></summary>
+        </member>
+        <member name="T:WinUtilities.Area">
+            <summary>Specifies a rectangular area in [x, y] coordinates.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Point">
+            <summary>Location of the upper left corner of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Size">
+            <summary>Size of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.X">
+            <summary>Left edge of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Y">
+            <summary>Top edge of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.W">
+            <summary>Width of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.H">
+            <summary>Height of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntX">
+            <summary>Left edge of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntY">
+            <summary>Right edge of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntW">
+            <summary>Width of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IntH">
+            <summary>Height of the area as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IsValid">
+            <summary>Area is not valid if size is negative</summary>
+        </member>
+        <member name="P:WinUtilities.Area.IsZero">
+            <summary>True if all components are 0</summary>
+        </member>
+        <member name="P:WinUtilities.Area.HasNan">
+            <summary>True if any of the values is NaN</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Zero">
+            <summary>All components are 0</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Center">
+            <summary>Get or set the center of the area</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Corners">
+            <summary>Returns a list of the corners' Coords in order of [TopLeft, TopRight, BottomLeft, BottomRight]</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Edges">
+            <summary>Returns a list of the edges' center positions in order of [Left, Right, Top, Bottom]</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Magnitude">
+            <summary>A 4D vector-like magnitude</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopLeft">
+            <summary>Get or set the Top Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopRight">
+            <summary>Get or set the Top Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomLeft">
+            <summary>Get or set the Bottom Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomRight">
+            <summary>Get or set the Bottom Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Left">
+            <summary>Get or set the Left edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Right">
+            <summary>Get or set the Right edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Top">
+            <summary>Get or set the Top edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.Bottom">
+            <summary>Get or set the Bottom edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopLeftR">
+            <summary>Resize from Top Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopRightR">
+            <summary>Resize from Top Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomLeftR">
+            <summary>Resize from Bottom Left corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomRightR">
+            <summary>Resize from Bottom Right corner of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.LeftR">
+            <summary>Resize from Left edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.RightR">
+            <summary>Resize from Right edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopR">
+            <summary>Resize from Top edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomR">
+            <summary>Resize from Bottom edge of the area.</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopLeftEdge">
+            <summary>Get the top left edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopRightEdge">
+            <summary>Get the top right edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomLeftEdge">
+            <summary>Get the bottom left edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomRightEdge">
+            <summary>Get the bottom right edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.LeftEdge">
+            <summary>Get the left center edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.RightEdge">
+            <summary>Get the right center edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.TopEdge">
+            <summary>Get the top center edge object</summary>
+        </member>
+        <member name="P:WinUtilities.Area.BottomEdge">
+            <summary>Get the bottom center edge object</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Slice(System.Double,System.Double,System.Double,System.Double)">
+            <summary>Create a copy while modifying the size using percentages</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Round">
+            <summary>Rounds all components to closest integer</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Validate">
+            <summary>Sets negative size values to 0</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Area)">
+            <summary>Center this area in another area so that both area's center points match</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetCenter(WinUtilities.Coord)">
+            <summary>Center this area to the specified point</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetCenterX(System.Double)">
+            <summary>Center the x axis of this area to the given value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetCenterY(System.Double)">
+            <summary>Center the y axis of this area to the given value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.GetRelativePoint(System.Double,System.Double)">
+            <summary>Gets a point relative to a area's location and size. Formula is roughly [location + size * var].</summary>
+            <param name="x">Between 0 and 1. Giving 0 targets the area's left edge and 1 targets the right edge. Giving 0.5 would target the center.</param>
+            <param name="y">Between 0 and 1. Giving 0 targets the area's top edge and 1 targets the bottom edge. Giving 0.5 would target the center.</param>
+        </member>
+        <member name="M:WinUtilities.Area.GetEdge(WinUtilities.EdgeType)">
+            <summary>Get the <see cref="T:WinUtilities.Edge"/> of a given <see cref="T:WinUtilities.EdgeType"/></summary>
+        </member>
+        <member name="M:WinUtilities.Area.GetSide(WinUtilities.EdgeType)">
+            <summary>Get the [Left, Right, Top, Bottom] of the area as a double</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCorner(WinUtilities.Coord,System.Double@)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestEdge(WinUtilities.Coord)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestEdge(WinUtilities.Coord,System.Double@)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCornerOrEdge(WinUtilities.Coord)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner or center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestCornerOrEdge(WinUtilities.Coord,System.Double@)">
+            <summary>Returns the <see cref="T:WinUtilities.Edge"/> of the closest corner or center of an edge</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestBorder(WinUtilities.Coord)">
+            <summary>Get the closest border to a point. Returns either the left, right, top or bottom border.</summary>
+            <remarks>This method differs from the ClosestEdge since this method calculates the distance using the entire edge instead of just the center point of an edge.</remarks>
+        </member>
+        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.Edge,System.Boolean,System.Boolean)">
+            <summary>Moves the area's edges using dynamic selection.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.EdgeType,System.Double,System.Boolean,System.Boolean)">
+            <summary>Moves the area's edges using dynamic selection. X and Y are the same.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetEdge(WinUtilities.EdgeType,WinUtilities.Coord,System.Boolean,System.Boolean)">
+            <summary>Moves the area's edges using dynamic selection.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddPoint(WinUtilities.Area)">
+            <summary>Add another area's point to this area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddPoint(System.Double,System.Double)">
+            <summary>Add to the area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddPoint(WinUtilities.Coord)">
+            <summary>Add to the area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetPoint(WinUtilities.Area)">
+            <summary>Set another area's point as this area's point.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetPoint(System.Double,System.Double)">
+            <summary>Set the area's point. Helps with dotting into code.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetPoint(WinUtilities.Coord)">
+            <summary>Set the area's point. Helps with dotting into code.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddSize(WinUtilities.Area)">
+            <summary>Add another area's size to this area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddSize(System.Double,System.Double)">
+            <summary>Add to the area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddSize(WinUtilities.Coord)">
+            <summary>Add to the area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetSize(WinUtilities.Area)">
+            <summary>Set another area's size as this area's size.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetSize(System.Double,System.Double)">
+            <summary>Set the area's size. Helps with dotting into code.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetSize(WinUtilities.Coord)">
+            <summary>Set the area's size. Helps with dotting into code.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetX(System.Double)">
+            <summary>Set X value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetY(System.Double)">
+            <summary>Set Y value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetW(System.Double)">
+            <summary>Set W value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetH(System.Double)">
+            <summary>Set H value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddX(System.Double)">
+            <summary>Add to X value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddY(System.Double)">
+            <summary>Add to Y value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddW(System.Double)">
+            <summary>Add to W value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.AddH(System.Double)">
+            <summary>Add to H value</summary>
+        </member>
+        <member name="M:WinUtilities.Area.SetRelative(WinUtilities.Area)">
+            <summary>Turns this area relative to the given area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Contains(WinUtilities.Coord)">
+            <summary>Checks if the given point is within the area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Contains(System.Double,System.Double)">
+            <summary>Checks if the given point is within the area.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Contains(WinUtilities.Area)">
+            <summary>Returns true if the parent fully contains the given position.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Overlaps(WinUtilities.Area)">
+            <summary>Returns true if the two positions overlap.</summary>
+            <remarks>Regarding special case of 0-sized areas (W or H == 0), they count as overlapping if touching the other area (same as contains)</remarks>
+        </member>
+        <member name="M:WinUtilities.Area.Touches(WinUtilities.Area)">
+            <summary>Returns true if the two positions overlap or their edges touch.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Grow(System.Double)">
+            <summary>Grows the area outwards by the specified value. Shrinks if negative.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampWithin(WinUtilities.Area,System.Boolean)">
+            <summary>Return a new area that has been adjusted to fit within the clamp area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampExclude(WinUtilities.Area,System.Boolean)">
+            <summary>Return a new area that has been adjusted to exclude the given area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampExclude(WinUtilities.Coord,System.Boolean)">
+            <summary>Return a new area that has been adjusted to exclude the given point</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampInclude(WinUtilities.Area,System.Boolean)">
+            <summary>Return a new area that has been adjusted to include the given area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampInclude(WinUtilities.Coord,System.Boolean)">
+            <summary>Return a new area that has been adjusted to include the given point</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampValues(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Return a new area whose values have been restricted between the given areas</summary>
+        </member>
+        <member name="M:WinUtilities.Area.ClampLinear(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Return a new area that has been clamped linearly between the given areas</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Map(WinUtilities.Area,WinUtilities.Area,System.Boolean)">
+            <summary>Return a new area that has been mapped from one area to another while maintaining its relative area</summary>
+            <param name="from">Original area</param>
+            <param name="to">Target area</param>
+            <param name="resize">Set if the area is allowed to resize according to the relative difference between the areas</param>
+        </member>
+        <member name="M:WinUtilities.Area.Mutual(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Takes the mutual area between two areas.</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,System.Double)">
+            <summary>Lerp to target area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,WinUtilities.Area,System.Double)">
+            <summary>Lerp between two areas</summary>
+        </member>
+        <member name="T:WinUtilities.Coord">
+            <summary>
+            Has coordinate (point), vector and rectangle (size) properties.
+            A hybrid of those.
+            </summary>
+        </member>
+        <member name="P:WinUtilities.Coord.X">
+            <summary>X value of the coordinate</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Y">
+            <summary>Y value of the coordinate</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IntX">
+            <summary>X value of the coordinate as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IntY">
+            <summary>Y value of the coordinate as an int</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Zero">
+            <summary>All components are 0</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IsZero">
+            <summary>True if all components are 0</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.HasNan">
+            <summary>True if X or Y is NaN</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.AsValue">
+            <summary>Gives the current Coord as a single integer.</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Magnitude">
+            <summary>
+            Point's distance from origin. Naming comes from vectors.
+            </summary>
+        </member>
+        <member name="P:WinUtilities.Coord.Normalized">
+            <summary>Gets a copy whose distance to the origin is set to 1</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.SurfaceArea">
+            <summary>Gets the surface area of the area object</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.From(System.Int32)">
+            <summary>Get coordinate from an int where the first 16 bits are the x value and the last 16 are the y value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.From(WinUtilities.EdgeType)">
+            <summary>Create a direction Coord from an EdgeType</summary>
+            <remarks>BottomRight would be (1, 1) while TopLeft would be (-1, -1)</remarks>
+        </member>
+        <member name="M:WinUtilities.Coord.Round">
+            <summary>Rounds all components to closest integer.</summary>
+            <returns>A copy of itself.</returns>
+        </member>
+        <member name="M:WinUtilities.Coord.AsPositive">
+            <summary>Return a new coordinate whose values were clamped to the positive range</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SetX(System.Double)">
+            <summary>Set X value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SetY(System.Double)">
+            <summary>Set Y value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.AddX(System.Double)">
+            <summary>Add to X value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.AddY(System.Double)">
+            <summary>Add to Y value</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SetRelative(System.Double,System.Double)">
+            <summary>Turns these coordinates relative to the given coordinates</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SetRelative(WinUtilities.Coord)">
+            <summary>Turns these coordinates relative to the given coordinates</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SetRelative(WinUtilities.Area)">
+            <summary>Turns these coordinates relative to the given coordinates</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Distance(System.Double,System.Double)">
+            <summary>Distance to the given point.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Distance(WinUtilities.Coord)">
+            <summary>Distance to the given point.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SqDistance(System.Double,System.Double)">
+            <summary>Returns the square distance to the point, so Max(dx, dy).</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.SqDistance(WinUtilities.Coord)">
+            <summary>Returns the square distance to the point, so Max(dx, dy).</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Rotate(System.Double)">
+            <summary>Rotate as a vector.</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Clamp(WinUtilities.Area)">
+            <summary>Clamp this point inside the specified area</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.ClampLinear(WinUtilities.Coord,WinUtilities.Coord)">
+            <summary>Clamp this point to a line between the given points</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Map(WinUtilities.Area,WinUtilities.Area)">
+            <summary>Map this point from one area to another while maintaining its relative position</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,System.Double)">
+            <summary>Lerp to the target coordinate</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,WinUtilities.Coord,System.Double)">
+            <summary>Lerp between two coordinates</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.ProjectToLine(WinUtilities.Coord,WinUtilities.Coord)">
+            <summary>Not implemented yet</summary>
         </member>
         <member name="T:WinUtilities.WM">
             <summary>Enum of all Window Messages.</summary>
@@ -7429,11 +7652,15 @@
         <member name="M:WinUtilities.Monitor.Previous(System.Int32)">
             <summary>Get the previous monitor that is <paramref name="steps"/> behind from current index while looping around</summary>
         </member>
+        <member name="M:WinUtilities.Monitor.SetWorkArea(WinUtilities.Area)">
+            <summary>Set the work area of a monitor</summary>
+            <remarks>This represents the area to which windows are maximized to. Work area usually excludes the taskbar, but this can change that.</remarks>
+        </member>
         <member name="M:WinUtilities.Monitor.SetPrimary">
-            <summary>Set as the current primary monitor</summary>
+            <summary>[Not implemented] Set as the current primary monitor</summary>
         </member>
         <member name="M:WinUtilities.Monitor.SetOrientation(WinUtilities.Monitor.Orientation)">
-            <summary>Set the orientation of the monitor</summary>
+            <summary>[Not implemented] Set the orientation of the monitor</summary>
         </member>
         <member name="M:WinUtilities.Monitor.HandleFromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
             <summary>Retrieve a handle to a monitor that contains the given point</summary>
@@ -7574,138 +7801,6 @@
         </member>
         <member name="M:WinUtilities.SystemUtils.StopShutdown">
             <summary>Stops Shutdown, Restart or Sleep started from this process</summary>
-        </member>
-        <member name="T:WinUtilities.AudioDeviceState">
-            <summary>Specifies the state of a Windows audio device</summary>
-        </member>
-        <member name="F:WinUtilities.AudioDeviceState.Active">
-            <summary>The device is active</summary>
-        </member>
-        <member name="F:WinUtilities.AudioDeviceState.Disabled">
-            <summary>The device is disabled</summary>
-        </member>
-        <member name="F:WinUtilities.AudioDeviceState.NotPresent">
-            <summary>The audio endpoint device is not present because the audio adapter that connects to the endpoint device has been removed or disabled</summary>
-        </member>
-        <member name="F:WinUtilities.AudioDeviceState.Unplugged">
-            <summary>The device has been unplugged</summary>
-        </member>
-        <member name="T:WinUtilities.AppVolume">
-            <summary>Class for controlling a specific application's volume</summary>
-            <remarks>Note: if created by exe name, new audio sources with the same exe name will not be controlled</remarks>
-        </member>
-        <member name="P:WinUtilities.AppVolume.Volume">
-            <summary>Get or set the volume of the included process/processes</summary>
-        </member>
-        <member name="P:WinUtilities.AppVolume.Mute">
-            <summary>Get or set the mute of the included process/processes</summary>
-        </member>
-        <member name="P:WinUtilities.AppVolume.LowThreshold">
-            <summary>Used by <see cref="M:WinUtilities.AppVolume.AdjustVolume(System.Single)"/>. Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold.</summary>
-        </member>
-        <member name="M:WinUtilities.AppVolume.New(System.UInt32)">
-            <summary>Get app volume controller by process id</summary>
-        </member>
-        <member name="M:WinUtilities.AppVolume.New(System.String)">
-            <summary>Get app volume controller by exe name</summary>
-        </member>
-        <member name="M:WinUtilities.AppVolume.GetVolume">
-            <summary>Get the volume of the included process/processes</summary>
-        </member>
-        <member name="M:WinUtilities.AppVolume.SetVolume(System.Single)">
-            <summary>Set the volume of the included process/processes</summary>
-        </member>
-        <member name="M:WinUtilities.AppVolume.AdjustVolume(System.Single)">
-            <summary>Adjust relative volume using a percentage. 0.1 increases volume by 10% while -0.1 decreases by 10%.</summary>
-            <remarks>Actual formula is [ current volume * (1 + value) ] for positive and [ current volume / (1 - value) ] for negative.
-            If volume is LowThreshold or lower while decreasing, volume goes straight to 0. When increasing, new volume is at least the LowThreshold.</remarks>
-        </member>
-        <member name="M:WinUtilities.AppVolume.GetMute">
-            <summary>Get the mute of the included process/processes</summary>
-        </member>
-        <member name="M:WinUtilities.AppVolume.SetMute(System.Boolean)">
-            <summary>Set the mute of the included process/processes</summary>
-        </member>
-        <member name="T:WinUtilities.AudioDevice">
-            <summary>Audio device used to set its volume or default device</summary>
-        </member>
-        <member name="P:WinUtilities.AudioDevice.ID">
-            <summary>ID of the audio device</summary>
-        </member>
-        <member name="P:WinUtilities.AudioDevice.Name">
-            <summary>Display name of the audio device</summary>
-        </member>
-        <member name="P:WinUtilities.AudioDevice.Volume">
-            <summary>Control the device's master volume</summary>
-        </member>
-        <member name="P:WinUtilities.AudioDevice.Flow">
-            <summary>Audio data flow direction (Playback/Capture)</summary>
-        </member>
-        <member name="P:WinUtilities.AudioDevice.Role">
-            <summary>Role of the device when fetched</summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.#ctor(System.String,System.String,System.Nullable{WinUtilities.CoreAudio.Enumerations.EDataFlow},System.Nullable{WinUtilities.CoreAudio.Enumerations.ERole})">
-            <summary></summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.SetDefault(WinUtilities.CoreAudio.Enumerations.ERole)">
-            <summary>Set device as the default device with a specific role</summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.SetDefault">
-            <summary>Set device as the default device (all roles)</summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.GetVolume">
-            <summary>Get device's master volume</summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.SetVolume(System.Single)">
-            <summary>Set device's master volume</summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.FindByID(System.String)">
-            <summary>Find a device by its ID</summary>
-        </member>
-        <member name="M:WinUtilities.AudioDevice.FindByName(System.String)">
-            <summary>Find a device by its name</summary>
-        </member>
-        <member name="T:WinUtilities.WinAudio">
-            <summary>Tools to control audio volume and devices</summary>
-        </member>
-        <member name="P:WinUtilities.WinAudio.MasterVolume">
-            <summary>Get or set current audio device volume</summary>
-        </member>
-        <member name="P:WinUtilities.WinAudio.MasterMute">
-            <summary>Get or set current audio device mute</summary>
-        </member>
-        <member name="E:WinUtilities.WinAudio.DeviceChanged">
-            <summary>Subscribe to default audio device change</summary>
-        </member>
-        <member name="E:WinUtilities.WinAudio.DeviceAdded">
-            <summary>Subscribe to audio device adding</summary>
-        </member>
-        <member name="E:WinUtilities.WinAudio.DeviceRemoved">
-            <summary>Subscribe to audio device removing</summary>
-        </member>
-        <member name="E:WinUtilities.WinAudio.DeviceStateChanged">
-            <summary>Subscribe to audio device state change</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.GetApp(System.UInt32)">
-            <summary>Get app volume controller by process id</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.GetApp(System.String)">
-            <summary>Get app volume controller by exe name</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.HasAudioSource(System.UInt32)">
-            <summary>Check if the specified process is playing audio</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.HasAudioSource(System.String)">
-            <summary>Check if any process with a specified exe name is playing audio</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.GetDevice(System.String)">
-            <summary>Find an audio device by its full or partial name</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.GetDefaultPlayback">
-            <summary>Get the default playback audio device</summary>
-        </member>
-        <member name="M:WinUtilities.WinAudio.GetDefaultCapture">
-            <summary>Get the default microphone</summary>
         </member>
         <member name="T:WinUtilities.WinMatchType">
             <summary>Specifies how string matching is performed</summary>
@@ -8392,6 +8487,9 @@
         </member>
         <member name="P:WinUtilities.WinGroup.AsList">
             <summary>Get whitelisted matches as a list</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Copy">
+            <summary>Returns a semi-deep copy of the object. The contained whitelist and blacklist are shallow copied.</summary>
         </member>
         <member name="P:WinUtilities.WinGroup.Desktop">
             <summary>Matches the desktop</summary>

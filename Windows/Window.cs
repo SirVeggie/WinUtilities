@@ -1585,6 +1585,7 @@ namespace WinUtilities {
 
         #region operators
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public static implicit operator bool(Window a) => a != null && !a.IsNone;
         public static bool operator ==(Window a, Window b) => (a is null && b is null) || !(a is null) && !(b is null) && a.Hwnd == b.Hwnd;
         public static bool operator !=(Window a, Window b) => !(a == b);
         public override bool Equals(object obj) => obj is Window && this == (Window) obj;
