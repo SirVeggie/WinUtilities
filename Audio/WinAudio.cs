@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using WinUtilities.CoreAudio.Constants;
@@ -25,7 +26,7 @@ namespace WinUtilities {
     /// <remarks>Note: if created by exe name, new audio sources with the same exe name will not be controlled</remarks>
     public class AppVolume : IDisposable {
 
-        private List<ISimpleAudioVolume> audios = new List<ISimpleAudioVolume>();
+        private List<AudioSource> audios = new List<AudioSource>();
 
         /// <summary>Get or set the volume of the included process/processes</summary>
         public float Volume { get => GetVolume(); set => SetVolume(value); }
@@ -35,16 +36,20 @@ namespace WinUtilities {
         public static float LowThreshold { get; set; } = 0.005f;
 
         #region creation
-        private AppVolume() { }
+        internal AppVolume() { }
+        internal AppVolume(ISimpleAudioVolume volume, uint pid) {
+            audios = new List<AudioSource> { new AudioSource(volume, pid) };
+        }
+        internal AppVolume(AudioSource source) {
+            audios = new List<AudioSource> { source };
+        }
 
         /// <summary>Get app volume controller by process id</summary>
         public static AppVolume New(uint pid) {
-            var app = new AppVolume();
             var vol = WinAudio.GetVolumeObject(pid);
             if (vol == null)
                 return null;
-            app.audios = new List<ISimpleAudioVolume> { vol };
-            return app;
+            return new AppVolume(vol);
         }
 
         /// <summary>Get app volume controller by exe name</summary>
@@ -61,8 +66,8 @@ namespace WinUtilities {
         public float GetVolume() {
             float min = 1;
 
-            foreach (var ISAV in audios) {
-                ISAV.GetMasterVolume(out float vol);
+            foreach (var source in audios) {
+                source.Source.GetMasterVolume(out float vol);
                 if (vol < min) {
                     min = vol;
                 }
@@ -74,8 +79,8 @@ namespace WinUtilities {
         /// <summary>Set the volume of the included process/processes</summary>
         public void SetVolume(float volume) {
             volume = volume > 1 ? 1 : volume < 0 ? 0 : volume;
-            foreach (var ISAV in audios) {
-                ISAV.SetMasterVolume(volume, Guid.Empty);
+            foreach (var source in audios) {
+                source.Source.SetMasterVolume(volume, Guid.Empty);
             }
         }
 
@@ -93,8 +98,8 @@ namespace WinUtilities {
 
         /// <summary>Get the mute of the included process/processes</summary>
         public bool GetMute() {
-            foreach (var ISAV in audios) {
-                ISAV.GetMute(out bool mute);
+            foreach (var source in audios) {
+                source.Source.GetMute(out bool mute);
                 if (!mute) {
                     return false;
                 }
@@ -105,9 +110,33 @@ namespace WinUtilities {
 
         /// <summary>Set the mute of the included process/processes</summary>
         public void SetMute(bool state) {
-            foreach (var ISAV in audios) {
-                ISAV.SetMute(state, Guid.Empty);
+            foreach (var source in audios) {
+                source.Source.SetMute(state, Guid.Empty);
             }
+        }
+
+        /// <summary>Move the audio source to the default device</summary>
+        public void SetDeviceDefault() => SetDevice((AudioDevice)null);
+        /// <summary>Move the audio source to a different device</summary>
+        public void SetDevice(string deviceName) => SetDevice(AudioDevice.FindByName(deviceName));
+        /// <summary>Move the audio source to a different device</summary>
+        public void SetDevice(AudioDevice device) {
+            foreach (var source in audios) {
+                WinAudio.SetDefaultEndpoint(device?.ID ?? null, source.Pid, device?.Flow ?? EDataFlow.eRender);
+            }
+        }
+
+        /// <summary>Find the device that the audio source is using</summary>
+        public AudioDevice GetDevice() {
+            var ids = audios.Select(x => WinAudio.GetDefaultEnpoint(x.Pid)).ToList();
+            if (ids.Count == 0)
+                return null;
+            if (ids.Any(x => x != ids[0]))
+                return null;
+            if (string.IsNullOrWhiteSpace(ids[0]))
+                return AudioDevice.DefaultOutput;
+            Console.WriteLine($"Device: '{ids[0]}'");
+            return new AudioDevice(ids[0], null, EDataFlow.eRender);
         }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
@@ -122,8 +151,8 @@ namespace WinUtilities {
                 return;
             _disposed = true;
 
-            foreach (var ISAV in audios) {
-                Marshal.ReleaseComObject(ISAV);
+            foreach (var source in audios) {
+                Marshal.ReleaseComObject(source.Source);
             }
 
             audios = null;
@@ -145,12 +174,19 @@ namespace WinUtilities {
         /// <summary>Role of the device when fetched</summary>
         public ERole? Role { get; }
 
+        /// <summary>Returns the default speakers</summary>
+        public static AudioDevice DefaultOutput => WinAudio.GetDefaultPlayback();
+        /// <summary>Returns the default microphone</summary>
+        public static AudioDevice DefaultInput => WinAudio.GetDefaultCapture();
+
         /// <summary></summary>
         internal AudioDevice(string id, string name = null, EDataFlow? flow = null, ERole? prevRole = null) {
             ID = id;
             Flow = flow;
             Role = prevRole;
 
+            if (name == "")
+                throw new ArgumentException($"Argument '{nameof(name)}' was empty");
             if (name == null) {
                 Name = FindByID(id).Name;
             } else {
@@ -181,7 +217,7 @@ namespace WinUtilities {
             try {
                 device = GetDevice();
                 device.Activate(Guid.Parse(ComIIDs.IAudioEndpointVolumeIID), 7, IntPtr.Zero, out object instPtr);
-                return (float) instPtr;
+                return (float)instPtr;
             } finally {
                 if (device != null)
                     Marshal.ReleaseComObject(device);
@@ -199,7 +235,7 @@ namespace WinUtilities {
             IMMDevice device = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator = (IMMDeviceEnumerator)new WinAudio.MMDeviceEnumerator();
                 enumerator.GetDevice(ID, out device);
                 return device;
             } finally {
@@ -212,7 +248,7 @@ namespace WinUtilities {
             IMMDeviceEnumerator enumerator = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator = (IMMDeviceEnumerator)new WinAudio.MMDeviceEnumerator();
                 enumerator.GetDevice(id, out var device);
                 return device;
             } finally {
@@ -243,7 +279,7 @@ namespace WinUtilities {
             IMMDevice device = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator = (IMMDeviceEnumerator)new WinAudio.MMDeviceEnumerator();
                 enumerator.GetDevice(id, out device);
                 return new AudioDevice(device);
             } finally {
@@ -261,7 +297,7 @@ namespace WinUtilities {
             IMMDeviceCollection collection = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new WinAudio.MMDeviceEnumerator();
+                enumerator = (IMMDeviceEnumerator)new WinAudio.MMDeviceEnumerator();
                 enumerator.EnumAudioEndpoints(EDataFlow.eAll, 1, out collection);
                 collection.GetCount(out uint count);
 
@@ -385,17 +421,16 @@ namespace WinUtilities {
         public static AudioDevice GetDevice(string name) => AudioDevice.FindByName(name);
 
         /// <summary>Get the default playback audio device</summary>
-        public static AudioDevice GetDefaultPlayback() => GetDefaultDevice(true);
+        public static AudioDevice GetDefaultPlayback() => GetDefaultDevice(EDataFlow.eRender);
         /// <summary>Get the default microphone</summary>
-        public static AudioDevice GetDefaultCapture() => GetDefaultDevice(false);
-        private static AudioDevice GetDefaultDevice(bool playback) {
-            EDataFlow flow = playback ? EDataFlow.eRender : EDataFlow.eCapture;
+        public static AudioDevice GetDefaultCapture() => GetDefaultDevice(EDataFlow.eCapture);
+        private static AudioDevice GetDefaultDevice(EDataFlow flow) {
             ERole role = ERole.eConsole;
             IMMDeviceEnumerator enumerator = null;
             IMMDevice device = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new MMDeviceEnumerator();
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
                 enumerator.GetDefaultAudioEndpoint(flow, role, out device);
                 return new AudioDevice(device, flow, role);
             } finally {
@@ -481,11 +516,11 @@ namespace WinUtilities {
             IMMDevice speakers = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new MMDeviceEnumerator();
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
                 enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
 
                 speakers.Activate(typeof(IAudioEndpointVolume).GUID, 0, IntPtr.Zero, out object o);
-                IAudioEndpointVolume master = (IAudioEndpointVolume) o;
+                IAudioEndpointVolume master = (IAudioEndpointVolume)o;
 
                 return master;
             } finally {
@@ -496,18 +531,22 @@ namespace WinUtilities {
             }
         }
 
-        internal static ISimpleAudioVolume GetVolumeObject(uint pid) {
+        internal static AudioSource GetVolumeObject(uint pid) {
             IMMDeviceEnumerator enumerator = null;
             IAudioSessionEnumerator session = null;
             IAudioSessionManager2 manager = null;
             IMMDevice speakers = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new MMDeviceEnumerator();
-                enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+                var id = AudioUtils.GetDefaultEndPoint(pid, EDataFlow.eRender);
+                if (id == "")
+                    enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                else
+                    enumerator.GetDevice(id, out speakers);
 
                 speakers.Activate(typeof(IAudioSessionManager2).GUID, 0, IntPtr.Zero, out object o);
-                manager = (IAudioSessionManager2) o;
+                manager = (IAudioSessionManager2)o;
 
                 manager.GetSessionEnumerator(out session);
                 session.GetCount(out int count);
@@ -519,7 +558,7 @@ namespace WinUtilities {
 
                     try {
                         session.GetSession(i, out IAudioSessionControl temp);
-                        ctl = (IAudioSessionControl2) temp;
+                        ctl = (IAudioSessionControl2)temp;
                         ctl.GetProcessId(out uint cpid);
 
                         if (cpid == pid) {
@@ -533,7 +572,7 @@ namespace WinUtilities {
                     }
                 }
 
-                return volume;
+                return volume == null ? null : new AudioSource(volume, pid);
 
             } finally {
                 if (session != null)
@@ -547,44 +586,57 @@ namespace WinUtilities {
             }
         }
 
-        internal static List<ISimpleAudioVolume> GetVolumeObject(string exe) {
-            var result = new List<ISimpleAudioVolume>();
+        internal static List<AudioSource> GetVolumeObject(string exe) {
+            var result = new List<AudioSource>();
 
             IMMDeviceEnumerator enumerator = null;
+            IMMDeviceCollection collection = null;
             IAudioSessionEnumerator session = null;
             IAudioSessionManager2 manager = null;
             IMMDevice speakers = null;
 
             try {
-                enumerator = (IMMDeviceEnumerator) new MMDeviceEnumerator();
-                enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+                enumerator.EnumAudioEndpoints(EDataFlow.eRender, DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE, out collection);
+                collection.GetCount(out uint count);
 
-                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
-                speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out object o);
-                manager = (IAudioSessionManager2) o;
+                for (uint i = 0; i < count; i++) {
+                    if (collection.Item(i, out speakers) != 0)
+                        continue;
+                    Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                    speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out object o);
+                    manager = (IAudioSessionManager2)o;
 
-                manager.GetSessionEnumerator(out session);
-                session.GetCount(out int count);
+                    manager.GetSessionEnumerator(out session);
+                    session.GetCount(out int count2);
 
-                for (int i = 0; i < count; i++) {
-                    IAudioSessionControl2 ctl = null;
+                    for (int ii = 0; ii < count2; ii++) {
+                        IAudioSessionControl2 ctl = null;
 
-                    try {
-                        session.GetSession(i, out IAudioSessionControl temp);
-                        ctl = (IAudioSessionControl2) temp;
-                        ctl.GetProcessId(out uint cpid);
+                        try {
+                            session.GetSession(ii, out IAudioSessionControl temp);
+                            ctl = (IAudioSessionControl2)temp;
+                            ctl.GetProcessId(out uint cpid);
 
-                        if (WinAPI.GetExeNameFromPid(cpid) == exe) {
-                            result.Add(temp as ISimpleAudioVolume);
-                        } else if (ctl != null) {
-                            Marshal.ReleaseComObject(ctl);
-                        }
+                            if (WinAPI.GetExeNameFromPid(cpid) == exe) {
+                                result.Add(new AudioSource(temp as ISimpleAudioVolume, cpid));
+                            } else if (ctl != null) {
+                                Marshal.ReleaseComObject(ctl);
+                            }
 
-                    } catch {
-                        if (ctl != null) {
-                            Marshal.ReleaseComObject(ctl);
+                        } catch {
+                            if (ctl != null) {
+                                Marshal.ReleaseComObject(ctl);
+                            }
                         }
                     }
+
+                    Marshal.ReleaseComObject(speakers);
+                    speakers = null;
+                    Marshal.ReleaseComObject(manager);
+                    manager = null;
+                    Marshal.ReleaseComObject(session);
+                    session = null;
                 }
 
                 return result;
@@ -598,6 +650,95 @@ namespace WinUtilities {
                     Marshal.ReleaseComObject(speakers);
                 if (enumerator != null)
                     Marshal.ReleaseComObject(enumerator);
+                if (collection != null)
+                    Marshal.ReleaseComObject(collection);
+            }
+        }
+
+        /// <summary>Retrieve a list of all current audio sources and their related data</summary>
+        public static List<AudioInfo> ListAudioSources() {
+            List<AudioInfo> result = new List<AudioInfo>();
+
+            IMMDeviceEnumerator enumerator = null;
+            IMMDeviceCollection collection = null;
+            IAudioSessionEnumerator session = null;
+            IAudioSessionManager2 manager = null;
+            IMMDevice speakers = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+                enumerator.EnumAudioEndpoints(EDataFlow.eRender, DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE, out collection);
+                collection.GetCount(out uint count);
+
+                for (uint i = 0; i < count; i++) {
+                    if (collection.Item(i, out speakers) != 0)
+                        continue;
+                    Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                    speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out object o);
+                    manager = (IAudioSessionManager2)o;
+
+                    manager.GetSessionEnumerator(out session);
+                    session.GetCount(out int count2);
+
+                    for (int ii = 0; ii < count2; ii++) {
+                        IAudioSessionControl2 ctl = null;
+
+                        try {
+                            session.GetSession(ii, out IAudioSessionControl temp);
+                            ctl = (IAudioSessionControl2)temp;
+                            ctl.GetProcessId(out uint pid);
+
+                            AudioDevice device = new AudioDevice(speakers, EDataFlow.eRender);
+                            AppVolume controller = new AppVolume(temp as ISimpleAudioVolume, pid);
+                            result.Add(new AudioInfo(device, controller, pid));
+
+                        } catch {
+                            if (ctl != null) {
+                                Marshal.ReleaseComObject(ctl);
+                            }
+                        }
+                    }
+
+                    Marshal.ReleaseComObject(speakers);
+                    speakers = null;
+                    Marshal.ReleaseComObject(manager);
+                    manager = null;
+                    Marshal.ReleaseComObject(session);
+                    session = null;
+                }
+
+                return result;
+
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (collection != null)
+                    Marshal.ReleaseComObject(collection);
+                if (session != null)
+                    Marshal.ReleaseComObject(session);
+                if (manager != null)
+                    Marshal.ReleaseComObject(manager);
+                if (speakers != null)
+                    Marshal.ReleaseComObject(speakers);
+            }
+        }
+
+        /// <summary>Collection of info about an audio source</summary>
+        public class AudioInfo {
+            /// <summary>The device this audio source is playing on</summary>
+            public AudioDevice Device { get; }
+            /// <summary>Audio source controller</summary>
+            public AppVolume Controller { get; }
+            /// <summary>Executable name of this audio source's process</summary>
+            public string Exe { get; }
+            /// <summary>Process ID of this audio source's process</summary>
+            public uint Pid { get; }
+
+            /// <summary></summary>
+            public AudioInfo(AudioDevice device, AppVolume controller, uint pid) {
+                Exe = WinAPI.GetExeNameFromPid(pid);
+                Controller = controller;
+                Pid = pid;
             }
         }
         #endregion
@@ -607,7 +748,7 @@ namespace WinUtilities {
             IPolicyConfig config = null;
 
             try {
-                config = (IPolicyConfig) new CPolicyConfigVistaClient();
+                config = (IPolicyConfig)new CPolicyConfigVistaClient();
                 foreach (var role in roles) {
                     HRESULT hr = config.SetDefaultEndpoint(deviceId, role);
                     if (hr != HRESULT.S_OK)
@@ -617,6 +758,14 @@ namespace WinUtilities {
                 if (config != null)
                     Marshal.ReleaseComObject(config);
             }
+        }
+
+        internal static void SetDefaultEndpoint(string deviceId, uint processId, EDataFlow flow = EDataFlow.eRender) {
+            AudioUtils.SetDefaultEndpoint(deviceId, processId, flow);
+        }
+
+        internal static string GetDefaultEnpoint(uint processId, EDataFlow flow = EDataFlow.eRender) {
+            return AudioUtils.GetDefaultEndPoint(processId, flow);
         }
         #endregion
 
@@ -641,7 +790,7 @@ namespace WinUtilities {
             if (deviceEnum != null)
                 throw new Exception("Device enumerator was not null when registering device events");
             notifier = new AudioDeviceNotifier();
-            deviceEnum = (IMMDeviceEnumerator) new MMDeviceEnumerator();
+            deviceEnum = (IMMDeviceEnumerator)new MMDeviceEnumerator();
             deviceEnum.RegisterEndpointNotificationCallback(notifier);
         }
 
@@ -704,69 +853,81 @@ namespace WinUtilities {
             HRESULT SetDefaultEndpoint([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.U4)] ERole role);
             HRESULT SetEndpointVisibility([In][MarshalAs(UnmanagedType.LPWStr)] string pszDeviceName, [In][MarshalAs(UnmanagedType.Bool)] bool bVisible);
         }
-
-        [StructLayout(LayoutKind.Explicit, Pack = 1)]
-        internal class WAVEFORMATEXTENSIBLE : WAVEFORMATEX {
-            [FieldOffset(0)]
-            public short wValidBitsPerSample;
-            [FieldOffset(0)]
-            public short wSamplesPerBlock;
-            [FieldOffset(0)]
-            public short wReserved;
-            [FieldOffset(2)]
-            public WaveMask dwChannelMask;
-            [FieldOffset(6)]
-            public Guid SubFormat;
-        }
-
-        [Flags]
-        internal enum WaveMask {
-            None = 0x0,
-            FrontLeft = 0x1,
-            FrontRight = 0x2,
-            FrontCenter = 0x4,
-            LowFrequency = 0x8,
-            BackLeft = 0x10,
-            BackRight = 0x20,
-            FrontLeftOfCenter = 0x40,
-            FrontRightOfCenter = 0x80,
-            BackCenter = 0x100,
-            SideLeft = 0x200,
-            SideRight = 0x400,
-            TopCenter = 0x800,
-            TopFrontLeft = 0x1000,
-            TopFrontCenter = 0x2000,
-            TopFrontRight = 0x4000,
-            TopBackLeft = 0x8000,
-            TopBackCenter = 0x10000,
-            TopBackRight = 0x20000
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 2)]
-        internal class WAVEFORMATEX {
-            public short wFormatTag;
-            public short nChannels;
-            public int nSamplesPerSec;
-            public int nAvgBytesPerSec;
-            public short nBlockAlign;
-            public short wBitsPerSample;
-            public short cbSize;
-        }
-
-        internal enum DeviceShareMode {
-            Shared,
-            Exclusive
-        }
-
-        internal enum HRESULT : int {
-            S_OK = 0,
-            S_FALSE = 1,
-            E_NOINTERFACE = unchecked((int) 0x80004002),
-            E_NOTIMPL = unchecked((int) 0x80004001),
-            E_FAIL = unchecked((int) 0x80004005),
-            E_UNEXPECTED = unchecked((int) 0x8000FFFF)
-        }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
+    }
+
+    internal class AudioSource {
+        internal ISimpleAudioVolume Source { get; }
+        internal uint Pid { get; }
+
+        internal AudioSource(ISimpleAudioVolume source, uint pid) {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            Source = source;
+            Pid = pid;
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
+    internal class WAVEFORMATEXTENSIBLE : WAVEFORMATEX {
+        [FieldOffset(0)]
+        public short wValidBitsPerSample;
+        [FieldOffset(0)]
+        public short wSamplesPerBlock;
+        [FieldOffset(0)]
+        public short wReserved;
+        [FieldOffset(2)]
+        public WaveMask dwChannelMask;
+        [FieldOffset(6)]
+        public Guid SubFormat;
+    }
+
+    [Flags]
+    internal enum WaveMask {
+        None = 0x0,
+        FrontLeft = 0x1,
+        FrontRight = 0x2,
+        FrontCenter = 0x4,
+        LowFrequency = 0x8,
+        BackLeft = 0x10,
+        BackRight = 0x20,
+        FrontLeftOfCenter = 0x40,
+        FrontRightOfCenter = 0x80,
+        BackCenter = 0x100,
+        SideLeft = 0x200,
+        SideRight = 0x400,
+        TopCenter = 0x800,
+        TopFrontLeft = 0x1000,
+        TopFrontCenter = 0x2000,
+        TopFrontRight = 0x4000,
+        TopBackLeft = 0x8000,
+        TopBackCenter = 0x10000,
+        TopBackRight = 0x20000
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 2)]
+    internal class WAVEFORMATEX {
+        public short wFormatTag;
+        public short nChannels;
+        public int nSamplesPerSec;
+        public int nAvgBytesPerSec;
+        public short nBlockAlign;
+        public short wBitsPerSample;
+        public short cbSize;
+    }
+
+    internal enum DeviceShareMode {
+        Shared,
+        Exclusive
+    }
+
+    internal enum HRESULT : int {
+        S_OK = 0,
+        S_FALSE = 1,
+        E_NOINTERFACE = unchecked((int)0x80004002),
+        E_NOTIMPL = unchecked((int)0x80004001),
+        E_FAIL = unchecked((int)0x80004005),
+        E_UNEXPECTED = unchecked((int)0x8000FFFF)
     }
 }
