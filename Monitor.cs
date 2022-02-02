@@ -107,12 +107,19 @@ namespace WinUtilities {
             return FromIndex(index);
         }
 
-        /// <summary>Set as the current primary monitor</summary>
+        /// <summary>Set the work area of a monitor</summary>
+        /// <remarks>This represents the area to which windows are maximized to. Work area usually excludes the taskbar, but this can change that.</remarks>
+        public Monitor SetWorkArea(Area area) {
+            WinAPI.SetWorkArea(area);
+            return this;
+        }
+
+        /// <summary>[Not implemented] Set as the current primary monitor</summary>
         public bool SetPrimary() {
             throw new NotImplementedException();
         }
 
-        /// <summary>Set the orientation of the monitor</summary>
+        /// <summary>[Not implemented] Set the orientation of the monitor</summary>
         public void SetOrientation(Orientation orientation) {
             throw new NotImplementedException();
         }
