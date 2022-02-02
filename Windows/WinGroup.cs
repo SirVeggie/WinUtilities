@@ -54,6 +54,16 @@ namespace WinUtilities {
 
         /// <summary>Get whitelisted matches as a list</summary>
         public WinMatch[] AsList => Whitelist.SelectMany(m => m.AsList).ToArray();
+        /// <summary>Returns a semi-deep copy of the object. The contained whitelist and blacklist are shallow copied.</summary>
+        public WinGroup Copy {
+            get {
+                var group = new WinGroup();
+                group.whitelist = new List<IWinMatch>(whitelist);
+                group.blacklist = new List<IWinMatch>(blacklist);
+                group.IsReverse = IsReverse;
+                return group;
+            }
+        }
         #endregion
 
         #region predefined
@@ -74,7 +84,8 @@ namespace WinUtilities {
             IsReverse = false;
             whitelist = new List<IWinMatch>();
             blacklist = new List<IWinMatch>();
-            whitelist.AddRange(matchlist);
+            if (matchlist != null)
+                whitelist.AddRange(matchlist);
         }
 
         #region methods
@@ -130,7 +141,7 @@ namespace WinUtilities {
                         deleted.Add(i);
                     }
                 } else {
-                    var group = (WinGroup) match;
+                    var group = (WinGroup)match;
                     if (group.Remove(predicate))
                         changed = true;
                     if (group.Size == 0)
