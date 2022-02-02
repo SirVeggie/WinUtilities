@@ -142,6 +142,8 @@ namespace WinUtilities {
         /// <para/>While using 'text' the 'key' part must not contain any spaces. This makes sending long text difficult, but is useful in sending a specific symbol many times, like [§ 10 text].
         /// </remarks>
         public static async void Send(string text, SendMode mode) {
+            if (text == null)
+                return;
             var inputs = ParseDelays(text);
 
             for (int i = 0; i < inputs.Item1.Count; i++) {
@@ -163,6 +165,8 @@ namespace WinUtilities {
 
         /// <summary>Send raw text input</summary>
         public static void SendRaw(string text, SendMode mode) {
+            if (text == null)
+                return;
             if (mode == SendMode.Input) {
                 SendRaw(text);
             } else if (mode == SendMode.Event) {
@@ -558,6 +562,8 @@ namespace WinUtilities {
 
         /// <summary>Parse a string to a list of inputs</summary>
         private static WinAPI.INPUT[] ToInputList(string s) {
+            if (s == null)
+                return new WinAPI.INPUT[0];
             s = Regex.Replace(s, @"\r?\n|\r\n?", "[Enter]");
             char[] chars = s.ToCharArray();
             List<WinAPI.INPUT> res = new List<WinAPI.INPUT>();
