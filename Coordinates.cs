@@ -211,6 +211,8 @@ namespace WinUtilities {
         public bool IsValid => W >= 0 && H >= 0;
         /// <summary>True if all components are 0</summary>
         public bool IsZero => point.IsZero && size.IsZero;
+        /// <summary>True if any of the values is NaN</summary>
+        public bool HasNan => Point.HasNan || Size.HasNan;
 
         /// <summary>All components are 0</summary>
         public static Area Zero => new Area(0, 0, 0, 0);
@@ -674,6 +676,55 @@ namespace WinUtilities {
             return area;
         }
 
+        /// <summary>Set X value</summary>
+        public Area SetX(double value) {
+            Area a = this;
+            a.X = value;
+            return a;
+        }
+        /// <summary>Set Y value</summary>
+        public Area SetY(double value) {
+            Area a = this;
+            a.Y = value;
+            return a;
+        }
+        /// <summary>Set W value</summary>
+        public Area SetW(double value) {
+            Area a = this;
+            a.W = value;
+            return a;
+        }
+        /// <summary>Set H value</summary>
+        public Area SetH(double value) {
+            Area a = this;
+            a.H = value;
+            return a;
+        }
+        /// <summary>Add to X value</summary>
+        public Area AddX(double value) {
+            Area a = this;
+            a.X += value;
+            return a;
+        }
+        /// <summary>Add to Y value</summary>
+        public Area AddY(double value) {
+            Area a = this;
+            a.Y += value;
+            return a;
+        }
+        /// <summary>Add to W value</summary>
+        public Area AddW(double value) {
+            Area a = this;
+            a.W += value;
+            return a;
+        }
+        /// <summary>Add to H value</summary>
+        public Area AddH(double value) {
+            Area a = this;
+            a.H += value;
+            return a;
+        }
+
         /// <summary>Turns this area relative to the given area</summary>
         public Area SetRelative(Area area) => new Area(this).AddPoint(-area.Point);
 
@@ -683,19 +734,20 @@ namespace WinUtilities {
         /// <summary>Checks if the given point is within the area.</summary>
         public bool Contains(double x, double y) {
             return x >= Left && x < Right
-            && y >= Top && y < Bottom;
+                && y >= Top && y < Bottom;
         }
 
         /// <summary>Returns true if the parent fully contains the given position.</summary>
         public bool Contains(Area pos) {
             return pos.Left >= Left && pos.Right <= Right
-            && pos.Top >= Top && pos.Bottom <= Bottom;
+                && pos.Top >= Top && pos.Bottom <= Bottom;
         }
 
         /// <summary>Returns true if the two positions overlap.</summary>
+        /// <remarks>Regarding special case of 0-sized areas (W or H == 0), they count as overlapping if touching the other area (same as contains)</remarks>
         public bool Overlaps(Area pos) {
-            return pos.Left < Right && pos.Right > Left
-            && pos.Top < Bottom && pos.Bottom > Top;
+            return (pos.Left == Left || pos.Right == Right || (pos.Left < Right && pos.Right > Left))
+                && (pos.Top == Top || pos.Bottom == Bottom || (pos.Top < Bottom && pos.Bottom > Top));
         }
 
         /// <summary>Returns true if the two positions overlap or their edges touch.</summary>
@@ -917,7 +969,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Return a new area whose values have been restricted between the given areas</summary>
-        public Area Clamp(Area min, Area max) {
+        public Area ClampValues(Area min, Area max) {
             var x = ClampBidirection(X, min.X, max.X);
             var y = ClampBidirection(Y, min.Y, max.Y);
             var w = ClampBidirection(W, min.W, max.W);
@@ -934,6 +986,46 @@ namespace WinUtilities {
         /// <summary>Return a new area that has been clamped linearly between the given areas</summary>
         public Area ClampLinear(Area start, Area end) {
             throw new NotImplementedException();
+        }
+
+        /// <summary>Return a new area that has been mapped from one area to another while maintaining its relative area</summary>
+        /// <param name="from">Original area</param>
+        /// <param name="to">Target area</param>
+        /// <param name="resize">Set if the area is allowed to resize according to the relative difference between the areas</param>
+        public Area Map(Area from, Area to, bool resize = false) {
+            Area copy = this;
+
+            if (resize) {
+                copy.Point = Point.Map(from, to);
+                copy.W *= to.W / from.W;
+                copy.H *= to.H / from.H;
+            } else {
+                Area from2 = from.AddSize(-Size).AddPoint(Size/2);
+                Area to2 = to.AddSize(-Size).AddPoint(Size/2);
+
+                if (from2.W < 0)
+                    from2 = from2.SetW(0).SetX(from.Center.X);
+                if (from2.H < 0)
+                    from2 = from2.SetH(0).SetY(from.Center.Y);
+                if (to2.W < 0)
+                    to2 = to2.SetW(0).SetX(to.Center.X);
+                if (to2.H < 0)
+                    to2 = to2.SetH(0).SetY(to.Center.Y);
+
+                Coord center = Center;
+                if (center.X >= from2.Left && center.X <= from2.Right) {
+                    from = from.SetX(from2.X).SetW(from2.W);
+                    to = to.SetX(to2.X).SetW(to2.W);
+                }
+                if (center.Y >= from2.Top && center.Y <= from2.Bottom) {
+                    from = from.SetY(from2.Y).SetH(from2.H);
+                    to = to.SetY(to2.Y).SetH(to2.H);
+                }
+
+                copy = copy.SetCenter(Center.Map(from, to));
+            }
+
+            return copy;
         }
 
         /// <summary>Takes the mutual area between two areas.</summary>
@@ -1015,6 +1107,8 @@ namespace WinUtilities {
         public static Coord Zero => new Coord(0, 0);
         /// <summary>True if all components are 0</summary>
         public bool IsZero => X == 0 && Y == 0;
+        /// <summary>True if X or Y is NaN</summary>
+        public bool HasNan => double.IsNaN(X) || double.IsNaN(Y);
 
         /// <summary>Gives the current Coord as a single integer.</summary>
         public int AsValue => (IntY << 16) | (IntX & 0xFFFF);
@@ -1087,6 +1181,31 @@ namespace WinUtilities {
             return coord;
         }
 
+        /// <summary>Set X value</summary>
+        public Coord SetX(double value) {
+            Coord c = this;
+            c.X = value;
+            return c;
+        }
+        /// <summary>Set Y value</summary>
+        public Coord SetY(double value) {
+            Coord c = this;
+            c.Y = value;
+            return c;
+        }
+        /// <summary>Add to X value</summary>
+        public Coord AddX(double value) {
+            Coord c = this;
+            c.X += value;
+            return c;
+        }
+        /// <summary>Add to Y value</summary>
+        public Coord AddY(double value) {
+            Coord c = this;
+            c.Y += value;
+            return c;
+        }
+
         /// <summary>Turns these coordinates relative to the given coordinates</summary>
         public Coord SetRelative(double x, double y) => SetRelative(new Coord(x, y));
 
@@ -1140,6 +1259,20 @@ namespace WinUtilities {
             } else {
                 return proj;
             }
+        }
+
+        /// <summary>Map this point from one area to another while maintaining its relative position</summary>
+        public Coord Map(Area from, Area to) {
+            if (!from.IsValid || !to.IsValid)
+                throw new ArgumentException($"argument {(!from.IsValid ? nameof(from) : nameof(to))} was not valid (has negative size)");
+            if ((from.W == 0 || from.H == 0) && !from.AddSize(1, 1).Contains(this))
+                throw new ArgumentException($"Area {nameof(from)}'s size is 0 and does not contain the map point");
+            Coord copy = this;
+            copy.X = from.W != 0 && to.W != 0 ? ToRange(X, from.Left, from.Right, to.Left, to.Right) : to.Center.X;
+            copy.Y = from.H != 0 && to.H != 0 ? ToRange(Y, from.Top, from.Bottom, to.Top, to.Bottom) : to.Center.Y;
+            return copy;
+
+            double ToRange(double value, double low, double high, double newLow, double newHigh) => newLow + (newHigh - newLow) * ((value - low) / (high - low));
         }
 
         /// <summary>Lerp to the target coordinate</summary>
