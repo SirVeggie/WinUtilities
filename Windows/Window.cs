@@ -1572,7 +1572,7 @@ namespace WinUtilities {
         public static void AddKnownTopLevel(Window window) {
             if (!window || window.IsTopLevel)
                 return;
-            var match = new WinMatch(hwnd: window.Hwnd, className: window.Class, exe: window.Exe);
+            var match = new WinMatch(hwnd: window.Hwnd, className: window.Class, exe: window.Exe, type: WinMatchType.Full);
             if (!TopLevelWhitelist.ContainsKey(window))
                 TopLevelWhitelist.Add(window, match);
             else

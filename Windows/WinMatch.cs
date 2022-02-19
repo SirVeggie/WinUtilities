@@ -34,7 +34,7 @@ namespace WinUtilities {
             get => _title;
             set {
                 _title = value;
-                rTitle = new Regex(value ?? "", rOptions);
+                rTitle = CreateRegex(value, Type);
             }
         }
 
@@ -44,7 +44,7 @@ namespace WinUtilities {
             get => _class;
             set {
                 _class = value;
-                rClass = new Regex(value ?? "", rOptions);
+                rClass = CreateRegex(value, Type);
             }
         }
 
@@ -54,7 +54,7 @@ namespace WinUtilities {
             get => _exe;
             set {
                 _exe = value;
-                rExe = new Regex(value ?? "", rOptions);
+                rExe = CreateRegex(value, Type);
             }
         }
 
@@ -64,7 +64,7 @@ namespace WinUtilities {
             get => _exePath;
             set {
                 _exePath = value;
-                rExePath = new Regex(value ?? "", rOptions);
+                rExePath = CreateRegex(value, Type);
             }
         }
 
@@ -93,7 +93,7 @@ namespace WinUtilities {
 
         /// <summary>Specifies how the strings are matched</summary>
         [DataMember]
-        public WinMatchType Type { get; set; }
+        public WinMatchType Type { get; }
         #endregion
 
         /// <summary>Create a new match condition</summary>
@@ -109,10 +109,14 @@ namespace WinUtilities {
             IsReverse = false;
             Type = type;
 
-            rTitle = new Regex(title ?? "", rOptions);
-            rClass = new Regex(className ?? "", rOptions);
-            rExe = new Regex(exe ?? "", rOptions);
-            rExePath = new Regex(exePath ?? "", rOptions);
+            rTitle = CreateRegex(title, type);
+            rClass = CreateRegex(className, type);
+            rExe = CreateRegex(exe, type);
+            rExePath = CreateRegex(exePath, type);
+        }
+
+        private static Regex CreateRegex(string pattern, WinMatchType type) {
+            return type == WinMatchType.RegEx ? new Regex(pattern ?? "", rOptions) : null;
         }
 
         #region methods
