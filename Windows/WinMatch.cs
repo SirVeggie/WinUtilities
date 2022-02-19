@@ -109,10 +109,10 @@ namespace WinUtilities {
             IsReverse = false;
             Type = type;
 
-            rTitle = new Regex(title ?? "", rOptions);
-            rClass = new Regex(className ?? "", rOptions);
-            rExe = new Regex(exe ?? "", rOptions);
-            rExePath = new Regex(exePath ?? "", rOptions);
+            rTitle = new Regex(Regex.Escape(title ?? ""), rOptions);
+            rClass = new Regex(Regex.Escape(className ?? ""), rOptions);
+            rExe = new Regex(Regex.Escape(exe ?? ""), rOptions);
+            rExePath = new Regex(Regex.Escape(exePath ?? ""), rOptions);
         }
 
         #region methods

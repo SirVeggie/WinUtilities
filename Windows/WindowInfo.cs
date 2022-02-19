@@ -183,7 +183,7 @@ namespace WinUtilities {
             get {
                 if (!isalwaysontopChecked) {
                     isalwaysontopChecked = true;
-                    isalwaysontop = Window.IsAlwaysOnTop;
+                    isalwaysontop = Window.IsTopmost;
                 }
                 return isalwaysontop;
             }

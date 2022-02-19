@@ -7942,8 +7942,11 @@
         <member name="P:WinUtilities.Window.IsOnCurrentDesktop">
             <summary>Check if the window resides on the current virtual desktop</summary>
         </member>
-        <member name="P:WinUtilities.Window.IsAlwaysOnTop">
+        <member name="P:WinUtilities.Window.IsTopmost">
             <summary>Check if this is a top level window</summary>
+        </member>
+        <member name="P:WinUtilities.Window.IsAlwaysOnTop">
+            <summary>Alternative to <see cref="P:WinUtilities.Window.IsTopmost"/>. Check if this is a top level window</summary>
         </member>
         <member name="P:WinUtilities.Window.IsClickThrough">
             <summary>Check if clicks go through the window</summary>
@@ -8008,6 +8011,9 @@
         <member name="P:WinUtilities.Window.BorderlessSettings">
             <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
         </member>
+        <member name="P:WinUtilities.Window.TopLevelWhitelist">
+            <summary>A list of matches for known top level windows that are not matched by the IsTopLevel heuristic</summary>
+        </member>
         <member name="P:WinUtilities.Window.CachedWindows">
             <summary>Contains the cached windows from the last time the windows were enumerated</summary>
         </member>
@@ -8055,6 +8061,9 @@
         </member>
         <member name="E:WinUtilities.Window.OnMove">
             <summary>This event triggers every time the Move function is called</summary>
+        </member>
+        <member name="M:WinUtilities.Window.#ctor(System.String)">
+            <summary>Create a Window object using its string representation, like "Window:123456"</summary>
         </member>
         <member name="M:WinUtilities.Window.OffsetMove(WinUtilities.Area,WinUtilities.Area)">
             <summary>Move a window by using an offset</summary>
@@ -8117,19 +8126,19 @@
             <summary>Enable/disable the window. Disabled windows cannot be interacted with.</summary>
         </member>
         <member name="M:WinUtilities.Window.Kill">
-            <summary>Kill the process associated with the window.</summary>
+            <summary>Kill the process associated with the window</summary>
         </member>
         <member name="M:WinUtilities.Window.Close">
             <summary>Send a request to close to the window</summary>
         </member>
         <member name="M:WinUtilities.Window.Minimize">
-            <summary>Minimize the window.</summary>
+            <summary>Minimize the window</summary>
         </member>
         <member name="M:WinUtilities.Window.Maximize">
-            <summary>Maximize the window.</summary>
+            <summary>Maximize the window</summary>
         </member>
         <member name="M:WinUtilities.Window.Restore">
-            <summary>Restore the window from a minimized or a maximized state to normal.</summary>
+            <summary>Restore the window from a minimized or a maximized state to normal</summary>
         </member>
         <member name="M:WinUtilities.Window.SetVisible(System.Boolean)">
             <summary>Set window visibility. False hides the window from the user completely. It's more complex than simple transparency.</summary>
@@ -8144,31 +8153,34 @@
             <summary>Send a message the window's message pump. Waits for a reply from the window.</summary>
         </member>
         <member name="M:WinUtilities.Window.SetStyle(WinUtilities.WS,System.Boolean)">
-            <summary>Set individual Window Styles on and off.</summary>
+            <summary>Set individual Window Styles on and off</summary>
         </member>
         <member name="M:WinUtilities.Window.SetExStyle(WinUtilities.WS_EX,System.Boolean)">
-            <summary>Set individual Window Ex Styles on and off.</summary>
+            <summary>Set individual Window Ex Styles on and off</summary>
         </member>
         <member name="M:WinUtilities.Window.MoveTop">
-            <summary>Brings the window to the top of visibility.</summary>
+            <summary>Brings the window to the top of visibility</summary>
         </member>
         <member name="M:WinUtilities.Window.MoveBottom">
-            <summary>Drop the window to the bottom of visibility.</summary>
+            <summary>Drop the window to the bottom of visibility</summary>
         </member>
         <member name="M:WinUtilities.Window.MoveUnder(WinUtilities.Window)">
-            <summary>Move this window under the specified window in visibility.</summary>
+            <summary>Move this window under the specified window in visibility</summary>
         </member>
         <member name="M:WinUtilities.Window.SetAlwaysOnTop(System.Boolean)">
-            <summary>Make a window always stay visible.</summary>
+            <summary>Alternative to <see cref="M:WinUtilities.Window.SetTopmost(System.Boolean)"/>. Make a window always stay visible.</summary>
+        </member>
+        <member name="M:WinUtilities.Window.SetTopmost(System.Boolean)">
+            <summary>Make a window always stay visible</summary>
         </member>
         <member name="M:WinUtilities.Window.SetClickThrough(System.Boolean)">
-            <summary>Make clicks phase through the window to the windows below.</summary>
+            <summary>Make clicks phase through the window to the windows below</summary>
         </member>
         <member name="M:WinUtilities.Window.SetOpacity(System.Double)">
-            <summary>Set the degree of see-through of the window in percentages.</summary>
+            <summary>Set the degree of see-through of the window in percentages</summary>
         </member>
         <member name="M:WinUtilities.Window.SetTranscolor(System.Drawing.Color)">
-            <summary>Set the color of the window that is rendered as fully transparent.</summary>
+            <summary>Set the color of the window that is rendered as fully transparent</summary>
         </member>
         <member name="M:WinUtilities.Window.DisableTransparency">
             <summary>Fully disable transparency. Might improve performance after window transparency has been tweaked.</summary>
@@ -8424,6 +8436,9 @@
             <param name="timeout">Time until the wait fails</param>
             <param name="ignoreCurrent">If true, only new windows will be considered</param>
             <param name="checkDelay">Set how often the active window is checked for the target window</param>
+        </member>
+        <member name="M:WinUtilities.Window.AddKnownTopLevel(WinUtilities.Window)">
+            <summary>Add a window to a list of known top level windows (ignored if already seen as TopLevel)</summary>
         </member>
         <member name="M:WinUtilities.Window.IsNullOrNone(WinUtilities.Window)">
             <summary>Check if given window is null or <see cref="P:WinUtilities.Window.None"/></summary>

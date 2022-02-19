@@ -157,38 +157,44 @@ namespace WinUtilities {
 
         #region state
         /// <summary>Check if the window is not hidden</summary>
-        public bool IsVisible => WinAPI.IsWindowVisible(Hwnd);
+        public bool IsVisible => !IsNone && WinAPI.IsWindowVisible(Hwnd);
         /// <summary>Check if the window is interactable</summary>
-        public bool IsEnabled => WinAPI.IsWindowEnabled(Hwnd);
+        public bool IsEnabled => !IsNone && WinAPI.IsWindowEnabled(Hwnd);
         /// <summary>Check if the window is the foreground window</summary>
-        public bool IsActive => HwndActive(Hwnd);
+        public bool IsActive => !IsNone && HwndActive(Hwnd);
         /// <summary>Check if a window with this handle still exists</summary>
-        public bool Exists => HwndExists(Hwnd);
+        public bool Exists => !IsNone && HwndExists(Hwnd);
         /// <summary>Check if the window resides on the current virtual desktop</summary>
-        public bool IsOnCurrentDesktop => SimpleDesktop.IsOnCurrent(this);
+        public bool IsOnCurrentDesktop => !IsNone && SimpleDesktop.IsOnCurrent(this);
         /// <summary>Check if this is a top level window</summary>
-        public bool IsAlwaysOnTop => HasExStyle(WS_EX.TOPMOST);
+        public bool IsTopmost => IsAlwaysOnTop;
+        /// <summary>Alternative to <see cref="IsTopmost"/>. Check if this is a top level window</summary>
+        public bool IsAlwaysOnTop => !IsNone && HasExStyle(WS_EX.TOPMOST);
         /// <summary>Check if clicks go through the window</summary>
-        public bool IsClickThrough => HasExStyle(WS_EX.TRANSPARENT | WS_EX.LAYERED);
+        public bool IsClickThrough => !IsNone && HasExStyle(WS_EX.TRANSPARENT | WS_EX.LAYERED);
         /// <summary>Check if this is a child window of some other window</summary>
-        public bool IsChild => HasStyle(WS.CHILD);
+        public bool IsChild => !IsNone && HasStyle(WS.CHILD);
         /// <summary>Check if the window is maximized</summary>
-        public bool IsMaximized => WinAPI.IsZoomed(Hwnd);
+        public bool IsMaximized => !IsNone && WinAPI.IsZoomed(Hwnd);
         /// <summary>Check if the window is minimized</summary>
-        public bool IsMinimized => WinAPI.IsIconic(Hwnd);
+        public bool IsMinimized => !IsNone && WinAPI.IsIconic(Hwnd);
         /// <summary>Check if the window is fullscreen</summary>
-        public bool IsFullscreen => !HasStyle(WS.CAPTION) && !HasStyle(WS.BORDER) && Area == Monitor.Area;
+        public bool IsFullscreen => !IsNone && !HasStyle(WS.CAPTION) && !HasStyle(WS.BORDER) && Area == Monitor.Area;
         /// <summary>Check if the window is set to borderless mode</summary>
-        public bool IsBorderless => !HasStyle(WS.BORDER) && HasRegion;
+        public bool IsBorderless => !IsNone && !HasStyle(WS.BORDER) && HasRegion;
         /// <summary>Some opacity value less than 1 has been set for this window (from this process)</summary>
-        public bool IsTransparent => (opacity != null && opacity != 1) || (FetchCache(Hwnd)?.opacity != null && FetchCache(Hwnd).opacity != 1);
+        public bool IsTransparent => !IsNone && (opacity != null && opacity != 1) || (FetchCache(Hwnd)?.opacity != null && FetchCache(Hwnd).opacity != 1);
         /// <summary>Transcolor has been set for this window (from this process)</summary>
-        public bool HasTranscolor => transcolor != null || FetchCache(Hwnd)?.transcolor != null;
+        public bool HasTranscolor => !IsNone && transcolor != null || FetchCache(Hwnd)?.transcolor != null;
         /// <summary>Check if the window is a proper visible foreground window</summary>
         public bool IsTopLevel {
             get {
+                if (IsNone)
+                    return false;
                 if (!HasStyle(WS.VISIBLE))
                     return false;
+                if (TopLevelWhitelist.ContainsKey(this) && TopLevelWhitelist[this].Match(this))
+                    return true;
                 var ex = ExStyle;
                 if (ex.HasFlag(WS_EX.APPWINDOW))
                     return true;
@@ -232,6 +238,9 @@ namespace WinUtilities {
         #region static
         /// <summary>A list of borderless settings that direct window behaviour when setting to borderless mode</summary>
         public static List<BorderlessInfo> BorderlessSettings { get; set; } = new List<BorderlessInfo>();
+
+        /// <summary>A list of matches for known top level windows that are not matched by the IsTopLevel heuristic</summary>
+        internal static Dictionary<Window, WinMatch> TopLevelWhitelist { get; set; } = new Dictionary<Window, WinMatch>();
 
         /// <summary>Contains the cached windows from the last time the windows were enumerated</summary>
         public static Dictionary<IntPtr, Window> CachedWindows { get; private set; } = new Dictionary<IntPtr, Window>();
@@ -282,6 +291,12 @@ namespace WinUtilities {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         private Window() { }
         public Window(IntPtr hwnd) => Hwnd = hwnd;
+        /// <summary>Create a Window object using its string representation, like "Window:123456"</summary>
+        public Window(string s) {
+            if (!s.StartsWith("Window:"))
+                throw new ArgumentException("Given string is not a window identifier");
+            Hwnd = new IntPtr(int.Parse(s.Split(':')[1]));
+        }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
 
@@ -563,10 +578,10 @@ namespace WinUtilities {
                 return this;
             if (!IsActive)
                 return this;
-            var next = Find(w => w.IsTopLevel && !w.IsAlwaysOnTop && w.IsOnCurrentDesktop && w != this);
+            var next = Find(w => w.IsTopLevel && !w.IsTopmost && w.IsOnCurrentDesktop && w != this);
 
-            if (IsAlwaysOnTop)
-                MoveUnder(GetWindows(w => w.IsTopLevel).Last(w => w.IsAlwaysOnTop) ?? None);
+            if (IsTopmost)
+                MoveUnder(GetWindows(w => w.IsTopLevel).Last(w => w.IsTopmost) ?? None);
             else
                 MoveBottom();
 
@@ -583,7 +598,7 @@ namespace WinUtilities {
             WinAPI.EnableWindow(Hwnd, state);
             return this;
         }
-        /// <summary>Kill the process associated with the window.</summary>
+        /// <summary>Kill the process associated with the window</summary>
         public Window Kill() {
             if (IsNone)
                 return this;
@@ -597,7 +612,7 @@ namespace WinUtilities {
             Ancestor.PostMessage(WM.CLOSE, 0, 0);
             return this;
         }
-        /// <summary>Minimize the window.</summary>
+        /// <summary>Minimize the window</summary>
         public Window Minimize() {
             if (IsNone)
                 return this;
@@ -608,7 +623,7 @@ namespace WinUtilities {
                 Deactivate();
             return this;
         }
-        /// <summary>Maximize the window.</summary>
+        /// <summary>Maximize the window</summary>
         public Window Maximize() {
             if (IsNone)
                 return this;
@@ -617,7 +632,7 @@ namespace WinUtilities {
             WinAPI.ShowWindow(Hwnd, WinAPI.SW.MAXIMIZE);
             return this;
         }
-        /// <summary>Restore the window from a minimized or a maximized state to normal.</summary>
+        /// <summary>Restore the window from a minimized or a maximized state to normal</summary>
         public Window Restore() {
             if (IsNone)
                 return this;
@@ -644,7 +659,7 @@ namespace WinUtilities {
         public bool PostMessage(WM msg, int wParam, int lParam) => WinAPI.PostMessage(Hwnd, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
         /// <summary>Send a message the window's message pump. Waits for a reply from the window.</summary>
         public IntPtr SendMessage(WM msg, int wParam, int lParam) => WinAPI.SendMessage(Hwnd, (uint) msg, (IntPtr) wParam, (IntPtr) lParam);
-        /// <summary>Set individual Window Styles on and off.</summary>
+        /// <summary>Set individual Window Styles on and off</summary>
         public Window SetStyle(WS style, bool state) {
             if (IsNone)
                 return this;
@@ -653,7 +668,7 @@ namespace WinUtilities {
             WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.FrameChanged);
             return this;
         }
-        /// <summary>Set individual Window Ex Styles on and off.</summary>
+        /// <summary>Set individual Window Ex Styles on and off</summary>
         public Window SetExStyle(WS_EX style, bool state) {
             if (IsNone)
                 return this;
@@ -663,21 +678,21 @@ namespace WinUtilities {
             return this;
         }
 
-        /// <summary>Brings the window to the top of visibility.</summary>
+        /// <summary>Brings the window to the top of visibility</summary>
         public Window MoveTop() {
             if (IsNone)
                 return this;
             WinAPI.SetWindowPos(Hwnd, (IntPtr) WinAPI.HWND_Z.TOP, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
-        /// <summary>Drop the window to the bottom of visibility.</summary>
+        /// <summary>Drop the window to the bottom of visibility</summary>
         public Window MoveBottom() {
             if (IsNone)
                 return this;
             WinAPI.SetWindowPos(Hwnd, (IntPtr) WinAPI.HWND_Z.BOTTOM, 0, 0, 0, 0, WinAPI.WindowPosFlags.NoMove | WinAPI.WindowPosFlags.NoSize | WinAPI.WindowPosFlags.NoActivate);
             return this;
         }
-        /// <summary>Move this window under the specified window in visibility.</summary>
+        /// <summary>Move this window under the specified window in visibility</summary>
         public Window MoveUnder(Window win) {
             if (IsNone)
                 return this;
@@ -685,8 +700,10 @@ namespace WinUtilities {
             return this;
         }
 
-        /// <summary>Make a window always stay visible.</summary>
-        public Window SetAlwaysOnTop(bool state) {
+        /// <summary>Alternative to <see cref="SetTopmost(bool)"/>. Make a window always stay visible.</summary>
+        public Window SetAlwaysOnTop(bool state) => SetTopmost(state);
+        /// <summary>Make a window always stay visible</summary>
+        public Window SetTopmost(bool state) {
             if (IsNone)
                 return this;
             IntPtr msg = state ? (IntPtr) WinAPI.HWND_Z.TOPMOST : (IntPtr) WinAPI.HWND_Z.NOTOPMOST;
@@ -694,7 +711,7 @@ namespace WinUtilities {
             return this;
         }
 
-        /// <summary>Make clicks phase through the window to the windows below.</summary>
+        /// <summary>Make clicks phase through the window to the windows below</summary>
         public Window SetClickThrough(bool state) {
             if (IsNone)
                 return this;
@@ -705,7 +722,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Set the degree of see-through of the window in percentages.</summary>
+        /// <summary>Set the degree of see-through of the window in percentages</summary>
         public Window SetOpacity(double percentage) {
             if (IsNone)
                 return this;
@@ -726,7 +743,7 @@ namespace WinUtilities {
             return this;
         }
 
-        /// <summary>Set the color of the window that is rendered as fully transparent.</summary>
+        /// <summary>Set the color of the window that is rendered as fully transparent</summary>
         public Window SetTranscolor(Color color) {
             if (IsNone)
                 return this;
@@ -1551,6 +1568,16 @@ namespace WinUtilities {
         #endregion
 
         #region other
+        /// <summary>Add a window to a list of known top level windows (ignored if already seen as TopLevel)</summary>
+        public static void AddKnownTopLevel(Window window) {
+            if (!window || window.IsTopLevel)
+                return;
+            var match = new WinMatch(hwnd: window.Hwnd, className: window.Class, exe: window.Exe);
+            if (!TopLevelWhitelist.ContainsKey(window))
+                TopLevelWhitelist.Add(window, match);
+            else
+                TopLevelWhitelist[window] = match;
+        }
         /// <summary>Check if given window is null or <see cref="None"/></summary>
         public static bool IsNullOrNone(Window window) => window == null || window.IsNone;
         /// <summary>Removes all entries from the list of cached windows</summary>
@@ -1585,7 +1612,7 @@ namespace WinUtilities {
 
         #region operators
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        public static implicit operator bool(Window a) => a != null && !a.IsNone;
+        public static implicit operator bool(Window a) => a != null && a.Exists;
         public static bool operator ==(Window a, Window b) => (a is null && b is null) || !(a is null) && !(b is null) && a.Hwnd == b.Hwnd;
         public static bool operator !=(Window a, Window b) => !(a == b);
         public override bool Equals(object obj) => obj is Window && this == (Window) obj;
