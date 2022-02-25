@@ -7749,7 +7749,7 @@
             <param name="area">Set null to free the cursor</param>
         </member>
         <member name="M:WinUtilities.Mouse.Hide(System.Boolean)">
-            <summary>Hide the mouse cursor in the current window</summary>
+            <summary>Turn the mouse cursor invisible</summary>
         </member>
         <member name="T:WinUtilities.CursorTypes">
             <summary>Helper class for controlling the look of the cursor</summary>

@@ -93,7 +93,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Hide the mouse cursor in the current window</summary>
+        /// <summary>Turn the mouse cursor invisible</summary>
         public static void Hide(bool state) {
             if (!state) {
                 if (IsHidden)
