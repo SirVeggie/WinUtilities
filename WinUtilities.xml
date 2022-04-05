@@ -7943,10 +7943,10 @@
             <summary>Check if the window resides on the current virtual desktop</summary>
         </member>
         <member name="P:WinUtilities.Window.IsTopmost">
-            <summary>Check if this is a top level window</summary>
+            <summary>Check if this window is always visible in front of other windows</summary>
         </member>
         <member name="P:WinUtilities.Window.IsAlwaysOnTop">
-            <summary>Alternative to <see cref="P:WinUtilities.Window.IsTopmost"/>. Check if this is a top level window</summary>
+            <summary>Alternative to <see cref="P:WinUtilities.Window.IsTopmost"/>. Check if this window is always visible in front of other windows</summary>
         </member>
         <member name="P:WinUtilities.Window.IsClickThrough">
             <summary>Check if clicks go through the window</summary>

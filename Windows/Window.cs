@@ -166,9 +166,9 @@ namespace WinUtilities {
         public bool Exists => !IsNone && HwndExists(Hwnd);
         /// <summary>Check if the window resides on the current virtual desktop</summary>
         public bool IsOnCurrentDesktop => !IsNone && SimpleDesktop.IsOnCurrent(this);
-        /// <summary>Check if this is a top level window</summary>
+        /// <summary>Check if this window is always visible in front of other windows</summary>
         public bool IsTopmost => IsAlwaysOnTop;
-        /// <summary>Alternative to <see cref="IsTopmost"/>. Check if this is a top level window</summary>
+        /// <summary>Alternative to <see cref="IsTopmost"/>. Check if this window is always visible in front of other windows</summary>
         public bool IsAlwaysOnTop => !IsNone && HasExStyle(WS_EX.TOPMOST);
         /// <summary>Check if clicks go through the window</summary>
         public bool IsClickThrough => !IsNone && HasExStyle(WS_EX.TRANSPARENT | WS_EX.LAYERED);
