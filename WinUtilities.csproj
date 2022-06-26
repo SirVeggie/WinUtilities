@@ -27,7 +27,7 @@ The project is also still under development so later versions can contain breaki
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>S:\- Library -\Projects\WinUtilities\WinUtilities.xml</DocumentationFile>
+    <DocumentationFile>WinUtilities.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
