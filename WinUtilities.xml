@@ -7403,7 +7403,7 @@
         </member>
         <member name="M:WinUtilities.Input.GetToggleState(WinUtilities.Key)">
             <summary>Check toggle state of CapsLock/NumLock/ScrollLock</summary>
-            <exception cref="T:System.ArgumentException">Thrown when key given is not a toggle key</exception>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:WinUtilities.Input.Paste">
             <summary>Send Ctrl + V to the current window</summary>
