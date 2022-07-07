@@ -129,7 +129,7 @@ namespace WinUtilities {
         /// <exception cref="ArgumentException"></exception>
         public static bool GetToggleState(Key key) {
             if (key != Key.Numlock && key != Key.CapsLock && key != Key.ScrollLock)
-                throw new ArgumentException("Given key was not a toggleable key");
+                throw new ArgumentException("Given key is not a toggleable key");
             return (WinAPI.GetKeyState(key.AsVirtualKey()) & 0x0001) != 0;
         }
 
