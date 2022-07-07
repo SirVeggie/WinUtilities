@@ -7401,6 +7401,10 @@
         <member name="M:WinUtilities.Input.GetKeyState(WinUtilities.Key)">
             <summary>Get the logical state of a key. Does not differentiate between extended and non-extended keys</summary>
         </member>
+        <member name="M:WinUtilities.Input.GetToggleState(WinUtilities.Key)">
+            <summary>Check toggle state of CapsLock/NumLock/ScrollLock</summary>
+            <exception cref="T:System.ArgumentException">Thrown when key given is not a toggle key</exception>
+        </member>
         <member name="M:WinUtilities.Input.Paste">
             <summary>Send Ctrl + V to the current window</summary>
         </member>

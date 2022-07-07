@@ -20,7 +20,7 @@ namespace WinUtilities {
     /// <summary>Class for sending native windows input</summary>
     public static class Input {
 
-        private static readonly uint pid = (uint) Process.GetCurrentProcess().Id;
+        private static readonly uint pid = (uint)Process.GetCurrentProcess().Id;
 
         /// <summary>The text character for parsing special input when sending text. Default is '['.</summary>
         public static char ParseOpen { get; } = '[';
@@ -28,7 +28,7 @@ namespace WinUtilities {
         public static char ParseClose { get; } = ']';
 
         private const int keydownflag = 0x00000001;
-        private const int keyupflag = unchecked((int) 0xC0000001);
+        private const int keyupflag = unchecked((int)0xC0000001);
 
         /// <summary>Set to true to force the SCANCODE flag</summary>
         public static bool ForceScan { get; set; } = false;
@@ -125,6 +125,13 @@ namespace WinUtilities {
         #region user methods
         /// <summary>Get the logical state of a key. Does not differentiate between extended and non-extended keys</summary>
         public static bool GetKeyState(Key key) => WinAPI.GetAsyncKeyState(key.AsVirtualKey()) < 0;
+        /// <summary>Check toggle state of CapsLock/NumLock/ScrollLock</summary>
+        /// <exception cref="ArgumentException"></exception>
+        public static bool GetToggleState(Key key) {
+            if (key != Key.Numlock && key != Key.CapsLock && key != Key.ScrollLock)
+                throw new ArgumentException("");
+            return (WinAPI.GetKeyState(key.AsVirtualKey()) & 0x0001) != 0;
+        }
 
         /// <summary>Send Ctrl + V to the current window</summary>
         public static void Paste() => Send("[^][v]");
@@ -295,7 +302,7 @@ namespace WinUtilities {
         private static bool SendInput(params WinAPI.INPUT[] inputs) {
             if (inputs.Length < 1)
                 return true;
-            return WinAPI.SendInput((uint) inputs.Length, inputs, WinAPI.INPUT.Size) != 0;
+            return WinAPI.SendInput((uint)inputs.Length, inputs, WinAPI.INPUT.Size) != 0;
         }
 
         /// <summary>Send input with the event API</summary>
@@ -327,15 +334,15 @@ namespace WinUtilities {
         }
 
         private static void SendControlKeyboard(Window window, WinAPI.KEYBDINPUT input) {
-            int scan = (int) input.sc | (input.flags.HasFlag(WinAPI.KEYEVENTF.EXTENDEDKEY) ? 1 << 24 : 0);
+            int scan = (int)input.sc | (input.flags.HasFlag(WinAPI.KEYEVENTF.EXTENDEDKEY) ? 1 << 24 : 0);
 
             if (input.flags.HasFlag(WinAPI.KEYEVENTF.UNICODE)) {
                 if (!input.flags.HasFlag(WinAPI.KEYEVENTF.KEYUP))
-                    window.PostMessage(WM.CHAR, (int) input.sc, 0);
+                    window.PostMessage(WM.CHAR, (int)input.sc, 0);
             } else if (!input.flags.HasFlag(WinAPI.KEYEVENTF.KEYUP))
-                window.PostMessage(WM.KEYDOWN, (int) input.vk, scan | keydownflag);
+                window.PostMessage(WM.KEYDOWN, (int)input.vk, scan | keydownflag);
             else
-                window.PostMessage(WM.KEYUP, (int) input.vk, scan | keyupflag);
+                window.PostMessage(WM.KEYUP, (int)input.vk, scan | keyupflag);
         }
 
         private static void SendControlMouse(Window window, WinAPI.MOUSEINPUT input) {
@@ -515,7 +522,7 @@ namespace WinUtilities {
 
         /// <summary>Get an input object from a character</summary>
         private static WinAPI.INPUT[] GetCharInput(char c) {
-            ScanCode scan = (ScanCode) c;
+            ScanCode scan = (ScanCode)c;
             var flags = WinAPI.KEYEVENTF.UNICODE;
             if (scan.IsExtended()) flags |= WinAPI.KEYEVENTF.EXTENDEDKEY;
 
@@ -702,7 +709,7 @@ namespace WinUtilities {
                 }
 
                 KeyString = Regex.Match(data[0], "(?<=^[!+^#]*)[^!+^#]*$").Value;
-                Key = Unicode ? null : (Key?) GetKey(KeyString);
+                Key = Unicode ? null : (Key?)GetKey(KeyString);
                 string modString = Regex.Match(data[0], "^[!+^#]").Value;
                 Modifiers = modString.Select(c => ShortModifiers[c]).ToList();
             }
@@ -727,19 +734,19 @@ namespace WinUtilities {
 
                 if (State != null) {
                     if (Unicode) {
-                        Inputs.AddRange(KeyString.Select(c => GetCharInput(c)[(bool) State ? 0 : 1]));
+                        Inputs.AddRange(KeyString.Select(c => GetCharInput(c)[(bool)State ? 0 : 1]));
                     } else {
-                        Inputs.Add(GetKeyboardInput((Key) Key, (bool) State));
+                        Inputs.Add(GetKeyboardInput((Key)Key, (bool)State));
                     }
                 } else {
                     for (int i = 0; i < Count; i++) {
                         if (Unicode)
                             Inputs.AddRange(KeyString.SelectMany(c => GetCharInput(c)));
-                        if (((Key) Key).IsStateless()) {
-                            Inputs.Add(GetInput((Key) Key, true));
+                        if (((Key)Key).IsStateless()) {
+                            Inputs.Add(GetInput((Key)Key, true));
                         } else {
-                            Inputs.Add(GetInput((Key) Key, true));
-                            Inputs.Add(GetInput((Key) Key, false));
+                            Inputs.Add(GetInput((Key)Key, true));
+                            Inputs.Add(GetInput((Key)Key, false));
                         }
                     }
                 }
