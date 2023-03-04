@@ -179,5 +179,8 @@ namespace WinUtilities {
 
         /// <summary>Get a match object that matches the given window</summary>
         public static explicit operator WinMatch(Window window) => new WinMatch(window.Hwnd);
+
+        /// <summary>Create a combined match that matches either match</summary>
+        public static WinGroup operator |(WinMatch m1, WinMatch m2) => new WinGroup(m1, m2);
     }
 }

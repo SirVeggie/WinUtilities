@@ -167,5 +167,13 @@ namespace WinUtilities {
         /// <returns>True if all found windows were enumerated</returns>
         public async Task<bool> ForAll(Func<Window, Task<bool>> action, WinFindMode mode = WinFindMode.TopLevel) => await MatchActions.ForAll(this, action, mode);
         #endregion
+
+
+        /// <summary>Create a combined match that matches either match</summary>
+        public static WinGroup operator |(WinMatch m1, WinGroup m2) => new WinGroup(m1, m2);
+        /// <summary>Create a combined match that matches either match</summary>
+        public static WinGroup operator |(WinGroup m1, WinMatch m2) => new WinGroup(m1, m2);
+        /// <summary>Create a combined match that matches either match</summary>
+        public static WinGroup operator |(WinGroup m1, WinGroup m2) => new WinGroup(m1, m2);
     }
 }
