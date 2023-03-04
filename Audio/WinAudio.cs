@@ -224,7 +224,7 @@ namespace WinUtilities {
             }
         }
 
-        /// <summary>Set device's master volume</summary>
+        /// <summary>Set device's master volume (Not Implemented)</summary>
         public void SetVolume(float level) {
             throw new NotImplementedException();
         }
@@ -539,12 +539,14 @@ namespace WinUtilities {
 
             try {
                 enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
-                var id = AudioUtils.GetDefaultEndPoint(pid, EDataFlow.eRender);
-                if (id == "")
+                string id = AudioUtils.GetDefaultEndPoint(pid, EDataFlow.eRender);
+                if (string.IsNullOrEmpty(id))
                     enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
                 else
                     enumerator.GetDevice(id, out speakers);
 
+                if (speakers == null)
+                    return null;
                 speakers.Activate(typeof(IAudioSessionManager2).GUID, 0, IntPtr.Zero, out object o);
                 manager = (IAudioSessionManager2)o;
 
