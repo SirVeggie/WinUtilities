@@ -80,6 +80,9 @@ namespace WinUtilities {
         #endregion
 
         #region flags
+        /// <summary>Get flag bits of the key only</summary>
+        public static Key GetFlagBits(this Key key) => key & Key.M_FlagMask;
+
         /// <summary>Check if key has any of the flags given</summary>
         public static bool HasAny(this Key key, Key flags) => (key & flags) != 0;
         /// <summary>Check if key has all of the flags given</summary>
@@ -176,6 +179,11 @@ namespace WinUtilities {
             }
 
             throw new Exception("This virtual key is not defined in the Key enum.");
+        }
+
+        /// <summary>Returns the generic version of the modifier key, or <see cref="Key.None"/> if invalid</summary>
+        public static Key AsGenericModifier(this Key modifier) {
+            return modifier.IsModifier() ? modifier.GetFlagBits() : Key.None;
         }
         #endregion
 
