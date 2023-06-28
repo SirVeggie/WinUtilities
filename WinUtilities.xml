@@ -3472,6 +3472,24 @@
         <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,WinUtilities.Area,System.Double)">
             <summary>Lerp between two areas</summary>
         </member>
+        <member name="M:WinUtilities.Area.MirrorX(WinUtilities.Coord)">
+            <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given point on the X axis</summary>
+        </member>
+        <member name="M:WinUtilities.Area.MirrorX(System.Double)">
+            <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given value on the X axis</summary>
+        </member>
+        <member name="M:WinUtilities.Area.MirrorY(WinUtilities.Coord)">
+            <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given point on the Y axis</summary>
+        </member>
+        <member name="M:WinUtilities.Area.MirrorY(System.Double)">
+            <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given value on the Y axis</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Mirror(WinUtilities.Coord)">
+            <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given point on the X and Y axes</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Mirror(System.Double,System.Double)">
+            <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given values on the X and Y axes</summary>
+        </member>
         <member name="T:WinUtilities.Coord">
             <summary>
             Has coordinate (point), vector and rectangle (size) properties.
@@ -3493,8 +3511,14 @@
         <member name="P:WinUtilities.Coord.Zero">
             <summary>All components are 0</summary>
         </member>
+        <member name="P:WinUtilities.Coord.Max">
+            <summary>All components are <see cref="F:System.Double.MaxValue"/></summary>
+        </member>
         <member name="P:WinUtilities.Coord.IsZero">
             <summary>True if all components are 0</summary>
+        </member>
+        <member name="P:WinUtilities.Coord.IsMax">
+            <summary>True if all components are <see cref="F:System.Double.MaxValue"/></summary>
         </member>
         <member name="P:WinUtilities.Coord.HasNan">
             <summary>True if X or Y is NaN</summary>
@@ -3563,6 +3587,13 @@
         <member name="M:WinUtilities.Coord.Rotate(System.Double)">
             <summary>Rotate as a vector.</summary>
         </member>
+        <member name="M:WinUtilities.Coord.Angle(WinUtilities.Coord)">
+            <summary>Calculate angle between this and another vector</summary>
+            <returns>Angle as degrees</returns>
+        </member>
+        <member name="M:WinUtilities.Coord.Dot(WinUtilities.Coord)">
+            <summary>Calculate dot product between this and another vector</summary>
+        </member>
         <member name="M:WinUtilities.Coord.Clamp(WinUtilities.Area)">
             <summary>Clamp this point inside the specified area</summary>
         </member>
@@ -3578,8 +3609,44 @@
         <member name="M:WinUtilities.Coord.Lerp(WinUtilities.Coord,WinUtilities.Coord,System.Double)">
             <summary>Lerp between two coordinates</summary>
         </member>
+        <member name="M:WinUtilities.Coord.SpatialRemap(WinUtilities.Coord,WinUtilities.Coord,WinUtilities.Coord,WinUtilities.Coord,System.Boolean)">
+            <summary>Remap the point in 2D space by specifying two lines/vectors as guides</summary>
+        </member>
         <member name="M:WinUtilities.Coord.ProjectToLine(WinUtilities.Coord,WinUtilities.Coord)">
-            <summary>Not implemented yet</summary>
+            <summary>Project a point to the closest possible position on a line</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.ProjectToLine(WinUtilities.Coord,WinUtilities.Coord,WinUtilities.ProjectionMode)">
+            <summary>Project a point to a line</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.MirrorX(WinUtilities.Coord)">
+            <summary>Return a new coord that is mirrored on the given point on the X axis</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.MirrorX(System.Double)">
+            <summary>Return a new coord that is mirrored on the given value on the X axis</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.MirrorY(WinUtilities.Coord)">
+            <summary>Return a new coord that is mirrored on the given point on the Y axis</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.MirrorY(System.Double)">
+            <summary>Return a new coord that is mirrored on the given value on the Y axis</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Mirror(WinUtilities.Coord)">
+            <summary>Return a new coord that is mirrored on the given point on the X and Y axes</summary>
+        </member>
+        <member name="M:WinUtilities.Coord.Mirror(System.Double,System.Double)">
+            <summary>Return a new coord that is mirrored on the given values on the X and Y axes</summary>
+        </member>
+        <member name="T:WinUtilities.ProjectionMode">
+            <summary>Projection mode. Used by <see cref="M:WinUtilities.Coord.ProjectToLine(WinUtilities.Coord,WinUtilities.Coord,WinUtilities.ProjectionMode)"/></summary>
+        </member>
+        <member name="F:WinUtilities.ProjectionMode.closest">
+            <summary>Project to the closest point</summary>
+        </member>
+        <member name="F:WinUtilities.ProjectionMode.vertical">
+            <summary>Project to the closest point above or below</summary>
+        </member>
+        <member name="F:WinUtilities.ProjectionMode.horizontal">
+            <summary>Project to the closest point left or right</summary>
         </member>
         <member name="T:WinUtilities.WM">
             <summary>Enum of all Window Messages.</summary>
@@ -7589,6 +7656,28 @@
         </member>
         <member name="T:WinUtilities.Input.InputParseObject">
             <summary>Object used to parse special text input</summary>
+        </member>
+        <member name="M:WinUtilities.Matht.CyclicalClampInclusive(System.Int32,System.Int32,System.Int32)">
+            <summary></summary>
+            <param name="max">Max is inclusive.</param>
+        </member>
+        <member name="M:WinUtilities.Matht.CyclicalClampInclusive(System.Double,System.Double,System.Double)">
+            <summary></summary>
+            <param name="max">Max is inclusive.</param>
+        </member>
+        <member name="M:WinUtilities.Matht.ToRange(System.Double,System.Double,System.Double,System.Double,System.Double)">
+            <summary>Project <paramref name="value"/> from range [<paramref name="low"/>, <paramref name="high"/>] to a new range [<paramref name="newLow"/>, <paramref name="newHigh"/>]</summary>
+        </member>
+        <member name="M:WinUtilities.Matht.UnitRange(System.Double,System.Double,System.Double,System.Boolean)">
+            <summary>Project <paramref name="value"/> from range [<paramref name="low"/>, <paramref name="high"/>] to a new range [0, 1] or vice versa if <paramref name="reverse"/></summary>
+        </member>
+        <member name="M:WinUtilities.Matht.Radians(System.Double)">
+            <summary>Converts degrees to radians.</summary>
+            <param name="d">Angle in degrees</param>
+        </member>
+        <member name="M:WinUtilities.Matht.Degrees(System.Double)">
+            <summary>Converts radians to degrees.</summary>
+            <param name="r">Angle in radians</param>
         </member>
         <member name="T:WinUtilities.Monitor">
             <summary>Class for the retrieving of info and the control of monitors</summary>

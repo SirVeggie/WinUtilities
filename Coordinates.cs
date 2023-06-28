@@ -1000,8 +1000,8 @@ namespace WinUtilities {
                 copy.W *= to.W / from.W;
                 copy.H *= to.H / from.H;
             } else {
-                Area from2 = from.AddSize(-Size).AddPoint(Size/2);
-                Area to2 = to.AddSize(-Size).AddPoint(Size/2);
+                Area from2 = from.AddSize(-Size).AddPoint(Size / 2);
+                Area to2 = to.AddSize(-Size).AddPoint(Size / 2);
 
                 if (from2.W < 0)
                     from2 = from2.SetW(0).SetX(from.Center.X);
@@ -1042,6 +1042,29 @@ namespace WinUtilities {
         public Area Lerp(Area target, double t) => Lerp(this, target, t);
         /// <summary>Lerp between two areas</summary>
         public static Area Lerp(Area from, Area to, double t) => new Area(from.Point.Lerp(to.Point, t), from.Size.Lerp(to.Size, t));
+
+        /// <summary>Return a new <see cref="Area"/> that is mirrored on the given point on the X axis</summary>
+        public Area MirrorX(Coord point) => MirrorX(point.X);
+        /// <summary>Return a new <see cref="Area"/> that is mirrored on the given value on the X axis</summary>
+        public Area MirrorX(double x) {
+            double mirrored = Center.MirrorX(x).X;
+            return SetCenterX(mirrored);
+        }
+
+        /// <summary>Return a new <see cref="Area"/> that is mirrored on the given point on the Y axis</summary>
+        public Area MirrorY(Coord point) => MirrorY(point.Y);
+        /// <summary>Return a new <see cref="Area"/> that is mirrored on the given value on the Y axis</summary>
+        public Area MirrorY(double y) {
+            double mirrored = Center.MirrorY(y).Y;
+            return SetCenterY(mirrored);
+        }
+
+        /// <summary>Return a new <see cref="Area"/> that is mirrored on the given point on the X and Y axes</summary>
+        public Area Mirror(Coord point) => Mirror(point.X, point.Y);
+        /// <summary>Return a new <see cref="Area"/> that is mirrored on the given values on the X and Y axes</summary>
+        public Area Mirror(double x, double y) {
+            return MirrorX(x).MirrorY(y);
+        }
         #endregion
 
         #region operators
@@ -1049,17 +1072,17 @@ namespace WinUtilities {
         public static implicit operator Area(WinAPI.RECT r) => new Area(r.X, r.Y, r.Width, r.Height);
         public static implicit operator WinAPI.RECT(Area a) {
             a = a.Round();
-            return new WinAPI.RECT((int) a.Left, (int) a.Top, (int) a.Right, (int) a.Bottom);
+            return new WinAPI.RECT((int)a.Left, (int)a.Top, (int)a.Right, (int)a.Bottom);
         }
 
         public static implicit operator Area(Rectangle r) => new Area(r.X, r.Y, r.Width, r.Height);
         public static implicit operator Rectangle(Area a) {
             a = a.Round();
-            return new Rectangle((int) a.X, (int) a.Y, (int) a.W, (int) a.H);
+            return new Rectangle((int)a.X, (int)a.Y, (int)a.W, (int)a.H);
         }
 
-        public static implicit operator Point(Area a) => new Point((int) a.X, (int) a.Y);
-        public static implicit operator Size(Area a) => new Size((int) a.W, (int) a.H);
+        public static implicit operator Point(Area a) => new Point((int)a.X, (int)a.Y);
+        public static implicit operator Size(Area a) => new Size((int)a.W, (int)a.H);
 
         public static bool operator ==(Area a, Area b) => a.Point == b.Point && a.Size == b.Size;
         public static bool operator !=(Area a, Area b) => !(a == b);
@@ -1071,7 +1094,7 @@ namespace WinUtilities {
         public static Area operator *(Area a, double b) => new Area(a.X * b, a.Y * b, a.W * b, a.H * b);
         public static Area operator *(double a, Area b) => new Area(b.X * a, b.Y * a, b.W * a, b.H * a);
         public static Area operator /(Area a, double b) => new Area(a.X / b, a.Y / b, a.W / b, a.H / b);
-        public override bool Equals(object obj) => obj is Area && this == (Area) obj;
+        public override bool Equals(object obj) => obj is Area && this == (Area)obj;
         public override string ToString() => "{" + X + ", " + Y + ", " + W + ", " + H + "}";
         public override int GetHashCode() {
             int hashCode = 1392910933;
@@ -1099,14 +1122,18 @@ namespace WinUtilities {
 
         #region properties
         /// <summary>X value of the coordinate as an int</summary>
-        public int IntX => (int) Math.Round(X);
+        public int IntX => (int)Math.Round(X);
         /// <summary>Y value of the coordinate as an int</summary>
-        public int IntY => (int) Math.Round(Y);
+        public int IntY => (int)Math.Round(Y);
 
         /// <summary>All components are 0</summary>
         public static Coord Zero => new Coord(0, 0);
+        /// <summary>All components are <see cref="double.MaxValue"/></summary>
+        public static Coord Max => new Coord(double.MaxValue, double.MaxValue);
         /// <summary>True if all components are 0</summary>
         public bool IsZero => X == 0 && Y == 0;
+        /// <summary>True if all components are <see cref="double.MaxValue"/></summary>
+        public bool IsMax => X == double.MaxValue && Y == double.MaxValue;
         /// <summary>True if X or Y is NaN</summary>
         public bool HasNan => double.IsNaN(X) || double.IsNaN(Y);
 
@@ -1239,6 +1266,17 @@ namespace WinUtilities {
             return new Coord(x, y);
         }
 
+        /// <summary>Calculate angle between this and another vector</summary>
+        /// <returns>Angle as degrees</returns>
+        public double Angle(Coord vector) {
+            return Matht.Degrees(Math.Acos(Dot(vector) / (Magnitude * vector.Magnitude)));
+        }
+
+        /// <summary>Calculate dot product between this and another vector</summary>
+        public double Dot(Coord vector) {
+            return X * vector.X + Y * vector.Y;
+        }
+
         /// <summary>Clamp this point inside the specified area</summary>
         public Coord Clamp(Area clamp) {
             var x = Math.Min(Math.Max(clamp.X, X), clamp.X + clamp.W);
@@ -1248,17 +1286,13 @@ namespace WinUtilities {
 
         /// <summary>Clamp this point to a line between the given points</summary>
         public Coord ClampLinear(Coord point1, Coord point2) {
-            throw new NotImplementedException();
-
-            var proj = ProjectToLine(point1, point2);
-
-            if (proj.X < Math.Min(point1.X, point2.X)) {
-
-            } else if (proj.X > Math.Max(point1.X, point2.X)) {
-
-            } else {
-                return proj;
-            }
+            Coord proj = ProjectToLine(point1, point2);
+            Coord remap = SpatialRemap(point1, point2, new Coord(0, 0), new Coord(0, 1));
+            if (remap.X < point1.X)
+                return point1;
+            if (remap.X > point2.X)
+                return point2;
+            return proj;
         }
 
         /// <summary>Map this point from one area to another while maintaining its relative position</summary>
@@ -1281,9 +1315,65 @@ namespace WinUtilities {
         /// <summary>Lerp between two coordinates</summary>
         public static Coord Lerp(Coord a, Coord b, double t) => new Coord(a.X * (1 - t) + b.X * t, a.Y * (1 - t) + b.Y * t);
 
-        /// <summary>Not implemented yet</summary>
-        public Coord ProjectToLine(Coord point1, Coord point2) {
-            throw new NotImplementedException();
+        /// <summary>Remap the point in 2D space by specifying two lines/vectors as guides</summary>
+        public Coord SpatialRemap(Coord A, Coord B, Coord C, Coord D, bool mirror = false) {
+            Coord offsetAB = A;
+            Coord offsetCD = C;
+            Coord AB = B - offsetAB;
+            Coord CD = D - offsetCD;
+            double scale = CD.Magnitude / AB.Magnitude;
+
+            Coord result = (this - offsetAB).Rotate(AB.Angle(CD)) * scale + offsetCD;
+            if (mirror) {
+                Coord proj = result.ProjectToLine(C, D);
+                result = proj + (proj - result);
+            }
+            return result;
+        }
+
+        /// <summary>Project a point to the closest possible position on a line</summary>
+        public Coord ProjectToLine(Coord point1, Coord point2) => ProjectToLine(point1, point2, ProjectionMode.closest);
+        /// <summary>Project a point to a line</summary>
+        public Coord ProjectToLine(Coord point1, Coord point2, ProjectionMode mode) {
+            if (mode == ProjectionMode.vertical) {
+                double newX = Matht.Clamp(X, point1.X, point2.X);
+                double newY = Matht.ToRange(X, point1.X, point2.X, point1.Y, point2.Y);
+                return new Coord(newX, newY);
+
+            } else if (mode == ProjectionMode.horizontal) {
+                double newY = Matht.Clamp(Y, point1.Y, point2.Y);
+                double newX = Matht.ToRange(Y, point1.Y, point2.Y, point1.X, point2.X);
+                return new Coord(newX, newY);
+
+            } else {
+                Coord orth = point2 - point1;
+                orth = new Coord(orth.Y, -orth.X);
+                orth = this + orth;
+                return Matht.LineIntersection(point1, point2, this, orth);
+            }
+        }
+
+        /// <summary>Return a new coord that is mirrored on the given point on the X axis</summary>
+        public Coord MirrorX(Coord point) => MirrorX(point.X);
+        /// <summary>Return a new coord that is mirrored on the given value on the X axis</summary>
+        public Coord MirrorX(double x) {
+            double mirrored = x + (x - X);
+            return new Coord(mirrored, Y);
+        }
+
+        /// <summary>Return a new coord that is mirrored on the given point on the Y axis</summary>
+        public Coord MirrorY(Coord point) => MirrorY(point.Y);
+        /// <summary>Return a new coord that is mirrored on the given value on the Y axis</summary>
+        public Coord MirrorY(double y) {
+            double mirrored = y + (y - Y);
+            return new Coord(X, mirrored);
+        }
+
+        /// <summary>Return a new coord that is mirrored on the given point on the X and Y axes</summary>
+        public Coord Mirror(Coord point) => Mirror(point.X, point.Y);
+        /// <summary>Return a new coord that is mirrored on the given values on the X and Y axes</summary>
+        public Coord Mirror(double x, double y) {
+            return MirrorX(x).MirrorY(y);
         }
         #endregion
 
@@ -1306,7 +1396,7 @@ namespace WinUtilities {
         public static Coord operator *(double a, Coord b) => new Coord(ValidateNaN(b.X * a), ValidateNaN(b.Y * a));
         public static Coord operator /(Coord a, double b) => new Coord(ValidateNaN(a.X / b), ValidateNaN(a.Y / b));
         public static Coord operator -(Coord a) => new Coord(ValidateNaN(-a.X), ValidateNaN(-a.Y));
-        public override bool Equals(object obj) => obj is Coord && this == (Coord) obj;
+        public override bool Equals(object obj) => obj is Coord && this == (Coord)obj;
         public override string ToString() => "(" + X + ", " + Y + ")";
         public override int GetHashCode() {
             int hashCode = 1861411795;
@@ -1322,5 +1412,15 @@ namespace WinUtilities {
         }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
+    }
+
+    /// <summary>Projection mode. Used by <see cref="Coord.ProjectToLine(Coord, Coord, ProjectionMode)"/></summary>
+    public enum ProjectionMode {
+        /// <summary>Project to the closest point</summary>
+        closest,
+        /// <summary>Project to the closest point above or below</summary>
+        vertical,
+        /// <summary>Project to the closest point left or right</summary>
+        horizontal
     }
 }
