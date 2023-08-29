@@ -2992,6 +2992,9 @@
         <member name="M:WinUtilities.AudioDevice.#ctor(System.String,System.String,System.Nullable{WinUtilities.CoreAudio.Enumerations.EDataFlow},System.Nullable{WinUtilities.CoreAudio.Enumerations.ERole})">
             <summary></summary>
         </member>
+        <member name="M:WinUtilities.AudioDevice.Exists">
+            <summary>Checks if this audio device still exists</summary>
+        </member>
         <member name="M:WinUtilities.AudioDevice.SetDefault(WinUtilities.CoreAudio.Enumerations.ERole)">
             <summary>Set device as the default device with a specific role</summary>
         </member>

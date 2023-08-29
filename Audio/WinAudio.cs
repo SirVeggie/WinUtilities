@@ -203,11 +203,24 @@ namespace WinUtilities {
             Role = role;
         }
 
+        /// <summary>Checks if this audio device still exists</summary>
+        public bool Exists() {
+            return FindByID(ID) != null;
+        }
+
         /// <summary>Set device as the default device with a specific role</summary>
-        public void SetDefault(ERole role) => WinAudio.SetDefaultEndpoint(ID, role);
+        public bool SetDefault(ERole role) {
+            if (!Exists())
+                return false;
+            WinAudio.SetDefaultEndpoint(ID, role);
+            return true;
+        }
         /// <summary>Set device as the default device (all roles)</summary>
-        public void SetDefault() {
+        public bool SetDefault() {
+            if (!Exists())
+                return false;
             WinAudio.SetDefaultEndpoint(ID, ERole.eConsole, ERole.eCommunications);
+            return true;
         }
 
         /// <summary>Get device's master volume</summary>
@@ -281,6 +294,8 @@ namespace WinUtilities {
             try {
                 enumerator = (IMMDeviceEnumerator)new WinAudio.MMDeviceEnumerator();
                 enumerator.GetDevice(id, out device);
+                if (device == null)
+                    return null;
                 return new AudioDevice(device);
             } finally {
                 if (enumerator != null)
