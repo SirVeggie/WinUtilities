@@ -54,3 +54,8 @@ The list is not exhaustive.
 - SystemUtils.cs
   - Go to lock screen
   - Toggle internet on/off (Might or might not work depending on your network device)
+
+- WinAudio
+  - Control windows master volume
+  - Control windows default audio devices
+  - Control volume of individual applications
