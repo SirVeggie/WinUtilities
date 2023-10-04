@@ -3005,7 +3005,8 @@
             <summary>Get device's master volume</summary>
         </member>
         <member name="M:WinUtilities.AudioDevice.SetVolume(System.Single)">
-            <summary>Set device's master volume (Not Implemented)</summary>
+            <summary>Set device's master volume</summary>
+            <returns>True if successful</returns>
         </member>
         <member name="M:WinUtilities.AudioDevice.FindByID(System.String)">
             <summary>Find a device by its ID</summary>

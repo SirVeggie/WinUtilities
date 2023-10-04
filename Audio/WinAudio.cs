@@ -226,20 +226,44 @@ namespace WinUtilities {
         /// <summary>Get device's master volume</summary>
         public float GetVolume() {
             IMMDevice device = null;
+            IAudioEndpointVolume vol = null;
 
             try {
                 device = GetDevice();
-                device.Activate(Guid.Parse(ComIIDs.IAudioEndpointVolumeIID), 7, IntPtr.Zero, out object instPtr);
-                return (float)instPtr;
+                device.Activate(Guid.Parse(ComIIDs.IAudioEndpointVolumeIID), 0, IntPtr.Zero, out object o);
+                vol = (IAudioEndpointVolume)o;
+                if (vol == null) throw new Exception("Failed to get IAudioEndpointVolume object");
+                vol.GetMasterVolumeLevelScalar(out float level);
+                return level;
+
             } finally {
                 if (device != null)
                     Marshal.ReleaseComObject(device);
             }
         }
 
-        /// <summary>Set device's master volume (Not Implemented)</summary>
-        public void SetVolume(float level) {
-            throw new NotImplementedException();
+        /// <summary>Set device's master volume</summary>
+        /// <returns>True if successful</returns>
+        public bool SetVolume(float level) {
+            IMMDevice device = null;
+            IAudioEndpointVolume vol = null;
+
+            try {
+                device = GetDevice();
+                device.Activate(Guid.Parse(ComIIDs.IAudioEndpointVolumeIID), 0, IntPtr.Zero, out object o);
+                vol = (IAudioEndpointVolume)o;
+                if (vol == null) return false;
+                return vol.SetMasterVolumeLevelScalar(level, Guid.Empty) == 0;
+
+            } catch {
+                return false;
+
+            } finally {
+                if (device != null)
+                    Marshal.ReleaseComObject(device);
+                if (vol != null)
+                    Marshal.ReleaseComObject(vol);
+            }
         }
 
         #region helpers
