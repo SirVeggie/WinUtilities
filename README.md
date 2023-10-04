@@ -59,3 +59,4 @@ The list is not exhaustive.
   - Control windows master volume
   - Control windows default audio devices
   - Control volume of individual applications
+  - Control current audio device of individual applications
