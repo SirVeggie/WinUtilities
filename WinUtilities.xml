@@ -3059,6 +3059,15 @@
         <member name="M:WinUtilities.WinAudio.ListAudioSources">
             <summary>Retrieve a list of all current audio sources and their related data</summary>
         </member>
+        <member name="M:WinUtilities.WinAudio.ListPlaybackAudioDevices">
+            <summary>Retrieve a list of all current playback audio devices</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.ListCaptureAudioDevices">
+            <summary>Retrieve a list of all current capture audio devices</summary>
+        </member>
+        <member name="M:WinUtilities.WinAudio.ListAudioDevices(WinUtilities.CoreAudio.Enumerations.EDataFlow)">
+            <summary>Retrieve a list of all current audio devices</summary>
+        </member>
         <member name="T:WinUtilities.WinAudio.AudioInfo">
             <summary>Collection of info about an audio source</summary>
         </member>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Xml.Linq;
 using WinUtilities.CoreAudio.Constants;
 using WinUtilities.CoreAudio.Enumerations;
 using WinUtilities.CoreAudio.Externals;
@@ -205,7 +206,11 @@ namespace WinUtilities {
 
         /// <summary>Checks if this audio device still exists</summary>
         public bool Exists() {
-            return FindByID(ID) != null;
+            try {
+                return FindByID(ID) != null;
+            } catch {
+                return false;
+            }
         }
 
         /// <summary>Set device as the default device with a specific role</summary>
@@ -761,6 +766,46 @@ namespace WinUtilities {
                     Marshal.ReleaseComObject(manager);
                 if (speakers != null)
                     Marshal.ReleaseComObject(speakers);
+            }
+        }
+
+        /// <summary>Retrieve a list of all current playback audio devices</summary>
+        public static List<AudioDevice> ListPlaybackAudioDevices() {
+            return ListAudioDevices(EDataFlow.eRender);
+        }
+
+        /// <summary>Retrieve a list of all current capture audio devices</summary>
+        public static List<AudioDevice> ListCaptureAudioDevices() {
+            return ListAudioDevices(EDataFlow.eCapture);
+        }
+
+        /// <summary>Retrieve a list of all current audio devices</summary>
+        private static List<AudioDevice> ListAudioDevices(EDataFlow eDataFlow) {
+            IMMDeviceEnumerator enumerator = null;
+            IMMDeviceCollection collection = null;
+
+            try {
+                List<AudioDevice> result = new List<AudioDevice>();
+
+                IMMDevice device = null;
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+                enumerator.EnumAudioEndpoints(eDataFlow, 1, out collection);
+                collection.GetCount(out uint count);
+
+                for (uint i = 0; i < count; i++) {
+                    if (collection.Item(i, out device) == 0 && device != null) {
+                        device.GetId(out string id);
+                        result.Add(new AudioDevice(id, AudioDevice.GetName(device), eDataFlow));
+                        Marshal.ReleaseComObject(device);
+                    }
+                }
+
+                return result;
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (collection != null)
+                    Marshal.ReleaseComObject(collection);
             }
         }
 
