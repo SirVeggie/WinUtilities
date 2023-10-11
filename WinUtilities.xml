@@ -3232,6 +3232,23 @@
         <member name="P:WinUtilities.Area.Magnitude">
             <summary>A 4D vector-like magnitude</summary>
         </member>
+        <member name="P:WinUtilities.Area.Surface">
+            <summary>Surface area of the <see cref="T:WinUtilities.Area"/></summary>
+        </member>
+        <member name="P:WinUtilities.Area.Diameter">
+            <summary>Diameter of the <see cref="T:WinUtilities.Area"/></summary>
+        </member>
+        <member name="P:WinUtilities.Area.IsLandscape">
+            <summary>Area is in landscape form</summary>
+            <remarks>Square areas are not counted</remarks>
+        </member>
+        <member name="P:WinUtilities.Area.IsPortrait">
+            <summary>Area is in portrait form</summary>
+            <remarks>Square areas are not counted</remarks>
+        </member>
+        <member name="P:WinUtilities.Area.IsSquare">
+            <summary>Area is a square</summary>
+        </member>
         <member name="P:WinUtilities.Area.TopLeft">
             <summary>Get or set the Top Left corner of the area.</summary>
         </member>

@@ -259,6 +259,23 @@ namespace WinUtilities {
             }
         }
 
+        /// <summary>Surface area of the <see cref="Area"/></summary>
+        public double Surface => W * H;
+
+        /// <summary>Diameter of the <see cref="Area"/></summary>
+        public double Diameter => W + W + H + H;
+
+        /// <summary>Area is in landscape form</summary>
+        /// <remarks>Square areas are not counted</remarks>
+        public bool IsLandscape => Math.Abs(W) > Math.Abs(H);
+
+        /// <summary>Area is in portrait form</summary>
+        /// <remarks>Square areas are not counted</remarks>
+        public bool IsPortrait => Math.Abs(W) < Math.Abs(H);
+
+        /// <summary>Area is a square</summary>
+        public bool IsSquare => Math.Abs(W) == Math.Abs(H);
+
         #region corners and sides
         /// <summary>Get or set the Top Left corner of the area.</summary>
         public Coord TopLeft {
