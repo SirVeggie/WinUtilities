@@ -7983,6 +7983,79 @@
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
+        <member name="T:WinUtilities.WinAndGroup">
+            <summary>A match object where all conditions must match</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.Whitelist">
+            <summary>List of conditions to match</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.Blacklist">
+            <summary>List of conditions that prevent a whitelist match</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.Size">
+            <summary>Number of conditions in the whitelist</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.IsReverse">
+            <summary>Reverse the result of the match</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.AsReverse">
+            <summary>Get a reversed match</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.AsList">
+            <summary>Get whitelisted matches as a list</summary>
+        </member>
+        <member name="P:WinUtilities.WinAndGroup.Copy">
+            <summary>Returns a semi-deep copy of the object. The contained whitelist and blacklist are shallow copied.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.#ctor(WinUtilities.IWinMatch[])">
+            <summary>A combination of window descriptions that must all match.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.Add(WinUtilities.IWinMatch[])">
+            <summary>Add window descriptions to the Whitelist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.Add(WinUtilities.Window[])">
+            <summary>Add windows to the Whitelist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.AddBlacklist(WinUtilities.IWinMatch[])">
+            <summary>Add window descriptions to the Blacklist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.AddBlacklist(WinUtilities.Window[])">
+            <summary>Add windows to the Blacklist.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.Match(WinUtilities.Window)">
+            <summary>Check if a window matches this description group.</summary>
+            <remarks>The Match is true if the window matches the Whitelist but not the Blacklist.</remarks>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.Match(WinUtilities.WindowInfo)">
+            <summary>Check if a window matches this description group.</summary>
+            <remarks>The Match is true if the info matches the Whitelist but not the Blacklist.</remarks>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.IsActive">
+            <summary>A window from this group is the active window</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.Remove(System.Func{WinUtilities.WinMatch,System.Boolean})">
+            <summary>Remove all matching items from the group's whitelist. Returns true if any items were deleted.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.RemoveBlacklist(System.Func{WinUtilities.WinMatch,System.Boolean})">
+            <summary>Remove all matching items from the group's blacklist. Returns true if any items were deleted.</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.ForAll(System.Action{WinUtilities.Window},WinUtilities.WinFindMode)">
+            <summary>Perform an action on all matching windows</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.ForAll(System.Func{WinUtilities.Window,System.Boolean},WinUtilities.WinFindMode)">
+            <summary>Perform an action on all matching windows. Return false to stop enumerating windows.</summary>
+            <returns>True if all found windows were enumerated</returns>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.ForAll(System.Func{WinUtilities.Window,System.Threading.Tasks.Task{System.Boolean}},WinUtilities.WinFindMode)">
+            <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
+            <returns>True if all found windows were enumerated</returns>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.op_BitwiseOr(WinUtilities.WinAndGroup,WinUtilities.IWinMatch)">
+            <summary>Create a combined match that matches either match</summary>
+        </member>
+        <member name="M:WinUtilities.WinAndGroup.op_BitwiseAnd(WinUtilities.WinAndGroup,WinUtilities.IWinMatch)">
+            <summary>Create a combined match that must match both matches</summary>
+        </member>
         <member name="T:WinUtilities.BorderlessInfo">
             <summary>An object that specifies additional borderless settings for all matching windows</summary>
         </member>
@@ -8612,7 +8685,7 @@
             <summary>An info object used for caching window information. Dynamically retrieves missing window info when requested. When info is requested once, it is cached forever.</summary>
         </member>
         <member name="T:WinUtilities.WinGroup">
-            <summary>A match object that can have multiple match conditions</summary>
+            <summary>A match object where one or more conditions must match</summary>
         </member>
         <member name="P:WinUtilities.WinGroup.Whitelist">
             <summary>List of conditions to match</summary>
@@ -8646,6 +8719,9 @@
         </member>
         <member name="P:WinUtilities.WinGroup.Folder">
             <summary>Matches file explorer windows aka folders</summary>
+        </member>
+        <member name="P:WinUtilities.WinGroup.Terminal">
+            <summary>Matches terminals (command line, powershell, windows terminal)</summary>
         </member>
         <member name="M:WinUtilities.WinGroup.#ctor(WinUtilities.IWinMatch[])">
             <summary>A group of window descriptions that can match a variety of windows.</summary>
@@ -8690,14 +8766,11 @@
             <summary>Perform an async action on all matching windows one at a time. Return false to stop enumerating windows.</summary>
             <returns>True if all found windows were enumerated</returns>
         </member>
-        <member name="M:WinUtilities.WinGroup.op_BitwiseOr(WinUtilities.WinMatch,WinUtilities.WinGroup)">
+        <member name="M:WinUtilities.WinGroup.op_BitwiseOr(WinUtilities.WinGroup,WinUtilities.IWinMatch)">
             <summary>Create a combined match that matches either match</summary>
         </member>
-        <member name="M:WinUtilities.WinGroup.op_BitwiseOr(WinUtilities.WinGroup,WinUtilities.WinMatch)">
-            <summary>Create a combined match that matches either match</summary>
-        </member>
-        <member name="M:WinUtilities.WinGroup.op_BitwiseOr(WinUtilities.WinGroup,WinUtilities.WinGroup)">
-            <summary>Create a combined match that matches either match</summary>
+        <member name="M:WinUtilities.WinGroup.op_BitwiseAnd(WinUtilities.WinGroup,WinUtilities.IWinMatch)">
+            <summary>Create a combined match that must match both matches</summary>
         </member>
         <member name="T:WinUtilities.WinMatch">
             <summary>A condition that matches some windows</summary>
@@ -8779,8 +8852,11 @@
         <member name="M:WinUtilities.WinMatch.op_Explicit(WinUtilities.Window)~WinUtilities.WinMatch">
             <summary>Get a match object that matches the given window</summary>
         </member>
-        <member name="M:WinUtilities.WinMatch.op_BitwiseOr(WinUtilities.WinMatch,WinUtilities.WinMatch)">
+        <member name="M:WinUtilities.WinMatch.op_BitwiseOr(WinUtilities.WinMatch,WinUtilities.IWinMatch)">
             <summary>Create a combined match that matches either match</summary>
+        </member>
+        <member name="M:WinUtilities.WinMatch.op_BitwiseAnd(WinUtilities.WinMatch,WinUtilities.IWinMatch)">
+            <summary>Create a combined match that must match both matches</summary>
         </member>
     </members>
 </doc>

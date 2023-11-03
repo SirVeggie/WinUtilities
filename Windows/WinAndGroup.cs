@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace WinUtilities {
 
-    /// <summary>A match object where one or more conditions must match</summary>
+    /// <summary>A match object where all conditions must match</summary>
     [DataContract]
-    public class WinGroup : IWinMatch {
+    public class WinAndGroup : IWinMatch {
 
         [DataMember]
         private List<IWinMatch> whitelist;
@@ -46,7 +46,7 @@ namespace WinUtilities {
         /// <summary>Get a reversed match</summary>
         public IWinMatch AsReverse {
             get {
-                WinGroup match = Copy;
+                WinAndGroup match = Copy;
                 match.IsReverse ^= true;
                 return match;
             }
@@ -55,9 +55,9 @@ namespace WinUtilities {
         /// <summary>Get whitelisted matches as a list</summary>
         public WinMatch[] AsList => Whitelist.SelectMany(m => m.AsList).ToArray();
         /// <summary>Returns a semi-deep copy of the object. The contained whitelist and blacklist are shallow copied.</summary>
-        public WinGroup Copy {
+        public WinAndGroup Copy {
             get {
-                var group = new WinGroup();
+                var group = new WinAndGroup();
                 group.whitelist = new List<IWinMatch>(whitelist);
                 group.blacklist = new List<IWinMatch>(blacklist);
                 group.IsReverse = IsReverse;
@@ -66,23 +66,8 @@ namespace WinUtilities {
         }
         #endregion
 
-        #region predefined
-        /// <summary>Matches the desktop</summary>
-        public static WinGroup Desktop { get; } = new WinGroup(
-            new WinMatch(className: "WorkerW", type: WinMatchType.Full),
-            new WinMatch(className: "Progman", type: WinMatchType.Full));
-        /// <summary>Matches the taskbar</summary>
-        public static WinMatch Taskbar { get; } = new WinMatch(className: "Shell_TrayWnd");
-        /// <summary>Matches Steam games installed in a normal install folder</summary>
-        public static WinMatch SteamGame { get; } = new WinMatch(exePath: "steamapps");
-        /// <summary>Matches file explorer windows aka folders</summary>
-        public static WinMatch Folder { get; } = new WinMatch(className: "CabinetWClass", exe: "explorer");
-        /// <summary>Matches terminals (command line, powershell, windows terminal)</summary>
-        public static WinMatch Terminal { get; } = new WinMatch(exe: "^(wt|WindowsTerminal|cmd|powershell)$");
-        #endregion
-
-        /// <summary>A group of window descriptions that can match a variety of windows.</summary>
-        public WinGroup(params IWinMatch[] matchlist) {
+        /// <summary>A combination of window descriptions that must all match.</summary>
+        public WinAndGroup(params IWinMatch[] matchlist) {
             IsReverse = false;
             whitelist = new List<IWinMatch>();
             blacklist = new List<IWinMatch>();
@@ -115,13 +100,15 @@ namespace WinUtilities {
         public bool IsActive() => Window.Active.Match(this);
 
         private bool MatchList(List<IWinMatch> list, WindowInfo info) {
+            if (list.Count == 0)
+                return false;
             for (int i = 0; i < list.Count; i++) {
-                if (list[i].Match(info)) {
-                    return true;
+                if (!list[i].Match(info)) {
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>Remove all matching items from the group's whitelist. Returns true if any items were deleted.</summary>
@@ -170,10 +157,9 @@ namespace WinUtilities {
         public async Task<bool> ForAll(Func<Window, Task<bool>> action, WinFindMode mode = WinFindMode.TopLevel) => await MatchActions.ForAll(this, action, mode);
         #endregion
 
-
         /// <summary>Create a combined match that matches either match</summary>
-        public static WinGroup operator |(WinGroup m1, IWinMatch m2) => new WinGroup(m1, m2);
+        public static WinGroup operator |(WinAndGroup m1, IWinMatch m2) => new WinGroup(m1, m2);
         /// <summary>Create a combined match that must match both matches</summary>
-        public static WinAndGroup operator &(WinGroup m1, IWinMatch m2) => new WinAndGroup(m1, m2);
+        public static WinAndGroup operator &(WinAndGroup m1, IWinMatch m2) => new WinAndGroup(m1, m2);
     }
 }

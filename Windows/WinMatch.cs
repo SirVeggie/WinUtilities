@@ -164,15 +164,15 @@ namespace WinUtilities {
         /// <summary>Check if the window process id matches</summary>
         public bool MatchPID(uint pid) => IsReverse ^ (PID == 0 || PID == pid);
 
-        private bool MatchSingle(string window, string match, Regex regex) {
+        private bool MatchSingle(string value, string match, Regex regex) {
             if (match == null) {
                 return true;
             } else if (Type == WinMatchType.RegEx) {
-                return regex.IsMatch(window);
+                return regex.IsMatch(value);
             } else if (Type == WinMatchType.Full) {
-                return match == window;
+                return match == value;
             } else {
-                return window.Contains(match);
+                return value.Contains(match);
             }
         }
         #endregion
@@ -181,6 +181,8 @@ namespace WinUtilities {
         public static explicit operator WinMatch(Window window) => new WinMatch(window.Hwnd);
 
         /// <summary>Create a combined match that matches either match</summary>
-        public static WinGroup operator |(WinMatch m1, WinMatch m2) => new WinGroup(m1, m2);
+        public static WinGroup operator |(WinMatch m1, IWinMatch m2) => new WinGroup(m1, m2);
+        /// <summary>Create a combined match that must match both matches</summary>
+        public static WinAndGroup operator &(WinMatch m1, IWinMatch m2) => new WinAndGroup(m1, m2);
     }
 }
