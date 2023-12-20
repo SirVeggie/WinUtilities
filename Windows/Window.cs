@@ -303,8 +303,10 @@ namespace WinUtilities {
         #region instance
 
         #region positions
-        private Area GetArea() => CalculateRealArea();
+        private Area GetArea() => !this ? Area.Zero : CalculateRealArea();
         private Area GetArea(CoordType type) {
+            if (!this)
+                return Area.Zero;
             if (type == CoordType.Normal)
                 return GetArea();
             if (type == CoordType.Client)
