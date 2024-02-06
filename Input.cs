@@ -233,6 +233,14 @@ namespace WinUtilities {
             await Task.Delay(delay);
             SendInput(keys.Select(k => GetInput(k, false)).ToArray());
         }
+        /// <summary>Send a series of lenghtened key presses. Tries to emulate typing using key presses. Sends real keys instead of unicode.</summary>
+        public static async Task SendGameText(int delay, string text) {
+            Key[] keys = StringToKeys(text);
+            foreach (Key key in keys) {
+                await SendEventGame(delay, key);
+                await Task.Delay(delay);
+            }
+        }
         #endregion
 
         #region send event
@@ -269,6 +277,14 @@ namespace WinUtilities {
             await Task.Delay(delay);
             SendInput(keys.Select(k => GetInput(k, false)).ToArray());
         }
+        /// <summary>Send a series of lenghtened key presses. Tries to emulate typing using key presses. Sends real keys instead of unicode.</summary>
+        public static async Task SendEventGameText(int delay, string text) {
+            Key[] keys = StringToKeys(text);
+            foreach (Key key in keys) {
+                await SendEventGame(delay, key);
+                await Task.Delay(delay);
+            }
+        }
         #endregion
 
         #region send control
@@ -295,6 +311,29 @@ namespace WinUtilities {
         public static void SendControlRaw(Window window, string text) => SendControlText(window, text.ToArray());
         #endregion
 
+        #endregion
+
+        #region public helpers
+        /// <summary>Map a key name to a <see cref="Key"/></summary>
+        public static Key StringToKey(string keyName) {
+            keyName = Regex.Replace(keyName, "Control", "Ctrl", RegexOptions.IgnoreCase);
+            keyName = Regex.Replace(keyName, @"^\d$", "D" + keyName);
+            keyName = keyName.Replace(" ", "Space");
+
+            if (Enum.TryParse(keyName, true, out Key key))
+                return key;
+            throw new Exception($"Key named {keyName} not found");
+        }
+
+        /// <summary>Map a character to a <see cref="Key"/></summary>
+        public static Key CharToKey(char c) {
+            return StringToKey(c.ToString());
+        }
+
+        /// <summary>Map a string into a series of <see cref="Key"/>s</summary>
+        public static Key[] StringToKeys(string s) {
+            return s.Select(c => CharToKey(c)).ToArray();
+        }
         #endregion
 
         #region helper
@@ -639,7 +678,7 @@ namespace WinUtilities {
                     res.AddRange(GetCharInput(ParseClose));
                     i++;
 
-                    // Normal characters
+                    // Normal unicode characters
                 } else {
 
                     // Input character has leading modifiers
@@ -709,18 +748,9 @@ namespace WinUtilities {
                 }
 
                 KeyString = Regex.Match(data[0], "(?<=^[!+^#]*)[^!+^#]*$").Value;
-                Key = Unicode ? null : (Key?)GetKey(KeyString);
+                Key = Unicode ? null : (Key?)StringToKey(KeyString);
                 string modString = Regex.Match(data[0], "^[!+^#]").Value;
                 Modifiers = modString.Select(c => ShortModifiers[c]).ToList();
-            }
-
-            private static Key GetKey(string keyString) {
-                keyString = Regex.Replace(keyString, "Control", "Ctrl", RegexOptions.IgnoreCase);
-                keyString = Regex.Replace(keyString, @"^\d$", "D" + keyString);
-
-                if (Enum.TryParse(keyString, true, out Key key))
-                    return key;
-                throw new Exception($"Key named {keyString} not found");
             }
 
             public List<WinAPI.INPUT> Parse() {

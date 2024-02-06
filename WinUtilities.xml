@@ -7573,6 +7573,9 @@
             <param name="delay">The amount of time before the up event is sent</param>
             <param name="keys">The keys to send as input</param>
         </member>
+        <member name="M:WinUtilities.Input.SendGameText(System.Int32,System.String)">
+            <summary>Send a series of lenghtened key presses. Tries to emulate typing using key presses. Sends real keys instead of unicode.</summary>
+        </member>
         <member name="M:WinUtilities.Input.SendEvent(System.String)">
             <summary>Send text in Event mode.</summary>
             <remarks>
@@ -7608,6 +7611,9 @@
             <param name="delay">The amount of time before the up event is sent</param>
             <param name="keys">The keys to send as input</param>
         </member>
+        <member name="M:WinUtilities.Input.SendEventGameText(System.Int32,System.String)">
+            <summary>Send a series of lenghtened key presses. Tries to emulate typing using key presses. Sends real keys instead of unicode.</summary>
+        </member>
         <member name="M:WinUtilities.Input.SendControl(WinUtilities.Window,System.String)">
             <summary>Send text in Control mode.</summary>
             <remarks>
@@ -7634,6 +7640,15 @@
         </member>
         <member name="M:WinUtilities.Input.SendControlRaw(WinUtilities.Window,System.String)">
             <summary>Send raw text in Control mode. This string is not parsed in any way before sending.</summary>
+        </member>
+        <member name="M:WinUtilities.Input.StringToKey(System.String)">
+            <summary>Map a key name to a <see cref="T:WinUtilities.Key"/></summary>
+        </member>
+        <member name="M:WinUtilities.Input.CharToKey(System.Char)">
+            <summary>Map a character to a <see cref="T:WinUtilities.Key"/></summary>
+        </member>
+        <member name="M:WinUtilities.Input.StringToKeys(System.String)">
+            <summary>Map a string into a series of <see cref="T:WinUtilities.Key"/>s</summary>
         </member>
         <member name="M:WinUtilities.Input.SendInput(WinUtilities.WinAPI.INPUT[])">
             <summary>Send input with the SendInput API</summary>
