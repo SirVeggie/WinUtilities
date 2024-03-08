@@ -89,7 +89,7 @@ namespace WinUtilities {
         public static bool HasAll(this Key key, Key flags) => (key & flags) == flags;
 
         /// <summary>Check if the Key value is a key instead of a flag etc.</summary>
-        public static bool IsKey(this Key key) => key.HasAny(Key.M_KeyMask) && key != Key.M_KeyMask && !key.IsNone() && !key.IsMouseMove();
+        public static bool IsKey(this Key key) => key.HasAny(Key.M_KeyMask) && key != Key.M_KeyMask && !key.IsNone() && !key.IsMouseMove() && (key & Key.M_FlagMask) != Key.F_Custom;
         /// <summary>Check if the Key value is a flag</summary>
         public static bool IsFlag(this Key key) => (key & ~Key.M_FlagMask) == 0 && key != Key.M_FlagMask;
         /// <summary>Check if the Key value is a mask</summary>
@@ -520,7 +520,6 @@ namespace WinUtilities {
 
         /// <summary>This represents a key that does not exist</summary>
         None = 1 | F_Custom,
-
         /// <summary>This represents a key that was not recognized</summary>
         Unknown = 2 | F_Custom,
 
@@ -534,7 +533,14 @@ namespace WinUtilities {
         WheelDown = 6 | F_Scroll | F_Mouse | F_Custom | F_Stateless,
 
         /// <summary>Mouse movement</summary>
-        MouseMove = 7 | F_Mouse | F_Custom | F_Stateless
+        MouseMove = 7 | F_Mouse | F_Custom | F_Stateless,
+
+        /// <summary>Represents any mouse or keyboard key</summary>
+        Any = 8 | F_Custom,
+        /// <summary>Represents any keyboard key</summary>
+        AnyKeyboard = 9 | F_Custom,
+        /// <summary>Represents any mouse key</summary>
+        AnyMouse = 10 | F_Custom,
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     #endregion

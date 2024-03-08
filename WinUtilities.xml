@@ -7456,6 +7456,15 @@
         <member name="F:WinUtilities.Key.MouseMove">
             <summary>Mouse movement</summary>
         </member>
+        <member name="F:WinUtilities.Key.Any">
+            <summary>Represents any mouse or keyboard key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.AnyKeyboard">
+            <summary>Represents any keyboard key</summary>
+        </member>
+        <member name="F:WinUtilities.Key.AnyMouse">
+            <summary>Represents any mouse key</summary>
+        </member>
         <member name="T:WinUtilities.Explorer">
             <summary>Class for accessing a file explorer window's content</summary>
         </member>
