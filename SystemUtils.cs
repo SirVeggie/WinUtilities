@@ -58,5 +58,11 @@ namespace WinUtilities {
                 p.StartInfo.WorkingDirectory = directory;
             p.Start();
         }
+
+        /// <summary>Get the window that is currently using the clipboard</summary>
+        public static Window GetClipboardOwner() => new Window(WinAPI.GetOpenClipboardWindow());
+
+        /// <summary>Close the clipboard</summary>
+        public static void CloseClipboard() => WinAPI.CloseClipboard();
     }
 }

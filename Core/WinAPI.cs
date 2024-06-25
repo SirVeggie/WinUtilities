@@ -365,6 +365,12 @@ namespace WinUtilities {
 
         [DllImport("user32.dll")]
         public static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs, int cbSize);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetOpenClipboardWindow();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr CloseClipboard();
         #endregion
 
         #region macros
