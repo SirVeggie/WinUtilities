@@ -325,6 +325,12 @@ namespace WinUtilities {
                 enumerator.GetDevice(id, out device);
                 if (device == null)
                     return null;
+                // The device is valid even if its state is not active,
+                // but since non-active devices are generally useless in this library, we don't return them.
+                if (device.GetState(out uint state) != 0)
+                    return null;
+                if (state != 1)
+                    return null;
                 return new AudioDevice(device);
             } finally {
                 if (enumerator != null)
@@ -359,6 +365,40 @@ namespace WinUtilities {
                 }
 
                 return null;
+            } finally {
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (device != null)
+                    Marshal.ReleaseComObject(device);
+                if (collection != null)
+                    Marshal.ReleaseComObject(collection);
+            }
+        }
+
+        /// <summary>Find all device names</summary>
+        public static List<string> FindAllNames(EDataFlow flow) {
+            List<string> list = new List<string>();
+            IMMDeviceEnumerator enumerator = null;
+            IMMDevice device = null;
+            IMMDeviceCollection collection = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator)new WinAudio.MMDeviceEnumerator();
+                enumerator.EnumAudioEndpoints(flow, 1, out collection);
+                collection.GetCount(out uint count);
+
+                for (uint i = 0; i < count; i++) {
+                    if (collection.Item(i, out device) == 0) {
+                        string temp = GetName(device);
+                        if (!string.IsNullOrEmpty(temp)) {
+                            list.Add(temp);
+                        }
+                        Marshal.ReleaseComObject(device);
+                        device = null;
+                    }
+                }
+
+                return list;
             } finally {
                 if (enumerator != null)
                     Marshal.ReleaseComObject(enumerator);

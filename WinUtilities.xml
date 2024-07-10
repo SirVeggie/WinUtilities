@@ -3014,6 +3014,9 @@
         <member name="M:WinUtilities.AudioDevice.FindByName(System.String)">
             <summary>Find a device by its name</summary>
         </member>
+        <member name="M:WinUtilities.AudioDevice.FindAllNames(WinUtilities.CoreAudio.Enumerations.EDataFlow)">
+            <summary>Find all device names</summary>
+        </member>
         <member name="T:WinUtilities.WinAudio">
             <summary>Tools to control audio volume and devices</summary>
         </member>
