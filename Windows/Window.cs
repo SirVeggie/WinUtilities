@@ -583,7 +583,7 @@ namespace WinUtilities {
             var next = Find(w => w.IsTopLevel && !w.IsTopmost && w.IsOnCurrentDesktop && w != this);
 
             if (IsTopmost)
-                MoveUnder(GetWindows(w => w.IsTopLevel).Last(w => w.IsTopmost) ?? None);
+                MoveUnder(GetWindows(w => w.IsTopLevel).LastOrDefault(w => w.IsTopmost) ?? None);
             else
                 MoveBottom();
 
