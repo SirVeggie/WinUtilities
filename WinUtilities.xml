@@ -2930,10 +2930,10 @@
         <member name="P:WinUtilities.AppVolume.LowThreshold">
             <summary>Used by <see cref="M:WinUtilities.AppVolume.AdjustVolume(System.Single)"/>. Threshold under which lessening volume goes straight to 0 and increasing volume goes to at least the threshold.</summary>
         </member>
-        <member name="M:WinUtilities.AppVolume.New(System.UInt32)">
+        <member name="M:WinUtilities.AppVolume.New(System.UInt32[])">
             <summary>Get app volume controller by process id</summary>
         </member>
-        <member name="M:WinUtilities.AppVolume.New(System.String)">
+        <member name="M:WinUtilities.AppVolume.New(System.String[])">
             <summary>Get app volume controller by exe name</summary>
         </member>
         <member name="M:WinUtilities.AppVolume.GetVolume">
@@ -3038,10 +3038,10 @@
         <member name="E:WinUtilities.WinAudio.DeviceStateChanged">
             <summary>Subscribe to audio device state change</summary>
         </member>
-        <member name="M:WinUtilities.WinAudio.GetApp(System.UInt32)">
+        <member name="M:WinUtilities.WinAudio.GetApp(System.UInt32[])">
             <summary>Get app volume controller by process id</summary>
         </member>
-        <member name="M:WinUtilities.WinAudio.GetApp(System.String)">
+        <member name="M:WinUtilities.WinAudio.GetApp(System.String[])">
             <summary>Get app volume controller by exe name</summary>
         </member>
         <member name="M:WinUtilities.WinAudio.HasAudioSource(System.UInt32)">

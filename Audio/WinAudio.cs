@@ -44,9 +44,12 @@ namespace WinUtilities {
         internal AppVolume(AudioSource source) {
             audios = new List<AudioSource> { source };
         }
+        internal AppVolume(List<AudioSource> source) {
+            audios = new List<AudioSource>(source);
+        }
 
         /// <summary>Get app volume controller by process id</summary>
-        public static AppVolume New(uint pid) {
+        public static AppVolume New(params uint[] pid) {
             var vol = WinAudio.GetVolumeObject(pid);
             if (vol == null)
                 return null;
@@ -54,7 +57,7 @@ namespace WinUtilities {
         }
 
         /// <summary>Get app volume controller by exe name</summary>
-        public static AppVolume New(string exe) {
+        public static AppVolume New(params string[] exe) {
             var app = new AppVolume();
             app.audios = WinAudio.GetVolumeObject(exe);
             if (app.audios.Count == 0)
@@ -492,9 +495,9 @@ namespace WinUtilities {
         #endregion
 
         /// <summary>Get app volume controller by process id</summary>
-        public static AppVolume GetApp(uint pid) => AppVolume.New(pid);
+        public static AppVolume GetApp(params uint[] pid) => AppVolume.New(pid);
         /// <summary>Get app volume controller by exe name</summary>
-        public static AppVolume GetApp(string exe) => AppVolume.New(exe);
+        public static AppVolume GetApp(params string[] exe) => AppVolume.New(exe);
 
         /// <summary>Check if the specified process is playing audio</summary>
         public static bool HasAudioSource(uint pid) => GetVolumeObject(pid) != null ? true : false;
@@ -615,64 +618,7 @@ namespace WinUtilities {
             }
         }
 
-        internal static AudioSource GetVolumeObject(uint pid) {
-            IMMDeviceEnumerator enumerator = null;
-            IAudioSessionEnumerator session = null;
-            IAudioSessionManager2 manager = null;
-            IMMDevice speakers = null;
-
-            try {
-                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
-                string id = AudioUtils.GetDefaultEndPoint(pid, EDataFlow.eRender);
-                if (string.IsNullOrEmpty(id))
-                    enumerator.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia, out speakers);
-                else
-                    enumerator.GetDevice(id, out speakers);
-
-                if (speakers == null)
-                    return null;
-                speakers.Activate(typeof(IAudioSessionManager2).GUID, 0, IntPtr.Zero, out object o);
-                manager = (IAudioSessionManager2)o;
-
-                manager.GetSessionEnumerator(out session);
-                session.GetCount(out int count);
-
-                ISimpleAudioVolume volume = null;
-
-                for (int i = 0; i < count; i++) {
-                    IAudioSessionControl2 ctl = null;
-
-                    try {
-                        session.GetSession(i, out IAudioSessionControl temp);
-                        ctl = (IAudioSessionControl2)temp;
-                        ctl.GetProcessId(out uint cpid);
-
-                        if (cpid == pid) {
-                            volume = temp as ISimpleAudioVolume;
-                            break;
-                        }
-
-                    } catch {
-                        if (ctl != null)
-                            Marshal.ReleaseComObject(ctl);
-                    }
-                }
-
-                return volume == null ? null : new AudioSource(volume, pid);
-
-            } finally {
-                if (session != null)
-                    Marshal.ReleaseComObject(session);
-                if (manager != null)
-                    Marshal.ReleaseComObject(manager);
-                if (speakers != null)
-                    Marshal.ReleaseComObject(speakers);
-                if (enumerator != null)
-                    Marshal.ReleaseComObject(enumerator);
-            }
-        }
-
-        internal static List<AudioSource> GetVolumeObject(string exe) {
+        internal static List<AudioSource> GetVolumeObject(params uint[] pid) {
             var result = new List<AudioSource>();
 
             IMMDeviceEnumerator enumerator = null;
@@ -704,7 +650,76 @@ namespace WinUtilities {
                             ctl = (IAudioSessionControl2)temp;
                             ctl.GetProcessId(out uint cpid);
 
-                            if (WinAPI.GetExeNameFromPid(cpid) == exe) {
+                            if (pid.Contains(cpid)) {
+                                result.Add(new AudioSource(temp as ISimpleAudioVolume, cpid));
+                            } else if (ctl != null) {
+                                Marshal.ReleaseComObject(ctl);
+                            }
+
+                        } catch {
+                            if (ctl != null) {
+                                Marshal.ReleaseComObject(ctl);
+                            }
+                        }
+                    }
+
+                    Marshal.ReleaseComObject(speakers);
+                    speakers = null;
+                    Marshal.ReleaseComObject(manager);
+                    manager = null;
+                    Marshal.ReleaseComObject(session);
+                    session = null;
+                }
+
+                return result;
+
+            } finally {
+                if (session != null)
+                    Marshal.ReleaseComObject(session);
+                if (manager != null)
+                    Marshal.ReleaseComObject(manager);
+                if (speakers != null)
+                    Marshal.ReleaseComObject(speakers);
+                if (enumerator != null)
+                    Marshal.ReleaseComObject(enumerator);
+                if (collection != null)
+                    Marshal.ReleaseComObject(collection);
+            }
+        }
+
+        internal static List<AudioSource> GetVolumeObject(params string[] exe) {
+            var result = new List<AudioSource>();
+
+            IMMDeviceEnumerator enumerator = null;
+            IMMDeviceCollection collection = null;
+            IAudioSessionEnumerator session = null;
+            IAudioSessionManager2 manager = null;
+            IMMDevice speakers = null;
+
+            try {
+                enumerator = (IMMDeviceEnumerator)new MMDeviceEnumerator();
+                enumerator.EnumAudioEndpoints(EDataFlow.eRender, DEVICE_STATE_XXX.DEVICE_STATE_ACTIVE, out collection);
+                collection.GetCount(out uint count);
+
+                for (uint i = 0; i < count; i++) {
+                    if (collection.Item(i, out speakers) != 0)
+                        continue;
+                    Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                    speakers.Activate(IID_IAudioSessionManager2, 0, IntPtr.Zero, out object o);
+                    manager = (IAudioSessionManager2)o;
+
+                    manager.GetSessionEnumerator(out session);
+                    session.GetCount(out int count2);
+
+                    for (int ii = 0; ii < count2; ii++) {
+                        IAudioSessionControl2 ctl = null;
+
+                        try {
+                            session.GetSession(ii, out IAudioSessionControl temp);
+                            ctl = (IAudioSessionControl2)temp;
+                            ctl.GetProcessId(out uint cpid);
+
+                            if (exe.Contains(WinAPI.GetExeNameFromPid(cpid))) {
                                 result.Add(new AudioSource(temp as ISimpleAudioVolume, cpid));
                             } else if (ctl != null) {
                                 Marshal.ReleaseComObject(ctl);
