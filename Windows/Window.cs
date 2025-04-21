@@ -77,8 +77,10 @@ namespace WinUtilities {
         private double? opacity;
         private Color? transcolor;
 
-        private static int borderWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXSIZEFRAME) + WinAPI.GetBorderPadding();
-        private static int borderVisibleWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXBORDER);
+        /// <summary>Total size of window borders including visible and non-visible parts in pixels</summary>
+        public static readonly int borderWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXSIZEFRAME) + WinAPI.GetBorderPadding();
+        /// <summary>Size of visible window borders in pixels</summary>
+        public static readonly int borderVisibleWidth = WinAPI.GetSystemMetrics(WinAPI.SM.CXBORDER);
 
         #region properties
 
@@ -285,6 +287,8 @@ namespace WinUtilities {
         #region events
         /// <summary>This event triggers every time the Move function is called</summary>
         public static event Action<Window, Area, CoordType> OnMove;
+        /// <summary>This event triggers before the Move function is called, and can be used to modify the target area</summary>
+        public static event Func<Window, Area, CoordType, Area> BeforeMove;
         #endregion
 
         #region constructors
@@ -846,10 +850,10 @@ namespace WinUtilities {
         /// <summary>Move the window to the new coordinates.</summary>
         /// <param name="area">The target area of the window.</param>
         /// <param name="type">Set what the coordinates are relative to.</param>
-        //public Window Move(Area area, CoordType type = CoordType.Normal) => Move(area, type, null);
         public Window Move(Area area, CoordType type = CoordType.Normal) {
             if (IsNone)
                 return this;
+            area = BeforeMove?.Invoke(this, area, type) ?? area;
             if (type == CoordType.Normal) {
                 SetArea(area);
             } else if (type == CoordType.Client) {
@@ -860,7 +864,14 @@ namespace WinUtilities {
 
             if (OnMove != null)
                 Task.Run(() => OnMove.Invoke(this, area, type));
+            return this;
+        }
 
+        /// <summary>Move the window to the new coordinates.</summary>
+        /// <param name="x">Left edge of the window.</param>
+        /// <param name="y">Top edge of the window.</param>
+        public Window MoveOnly(int x, int y) {
+            WinAPI.SetWindowPos(Hwnd, IntPtr.Zero, x, y, 0, 0, WinAPI.WindowPosFlags.NoZOrder | WinAPI.WindowPosFlags.NoActivate | WinAPI.WindowPosFlags.NoSize);
             return this;
         }
 

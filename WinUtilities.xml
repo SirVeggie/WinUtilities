@@ -7812,6 +7812,10 @@
             <summary>Set the work area of a monitor</summary>
             <remarks>This represents the area to which windows are maximized to. Work area usually excludes the taskbar, but this can change that.</remarks>
         </member>
+        <member name="M:WinUtilities.Monitor.Exists">
+            <summary>Checks if a monitor by this handle still exists</summary>
+            <returns>True if monitor exists</returns>
+        </member>
         <member name="M:WinUtilities.Monitor.SetPrimary">
             <summary>[Not implemented] Set as the current primary monitor</summary>
         </member>
@@ -8141,6 +8145,12 @@
         <member name="P:WinUtilities.Window.Hwnd">
             <summary>The handle of the window</summary>
         </member>
+        <member name="F:WinUtilities.Window.borderWidth">
+            <summary>Total size of window borders including visible and non-visible parts in pixels</summary>
+        </member>
+        <member name="F:WinUtilities.Window.borderVisibleWidth">
+            <summary>Size of visible window borders in pixels</summary>
+        </member>
         <member name="P:WinUtilities.Window.Title">
             <summary>The title of the window</summary>
         </member>
@@ -8297,6 +8307,9 @@
         <member name="E:WinUtilities.Window.OnMove">
             <summary>This event triggers every time the Move function is called</summary>
         </member>
+        <member name="E:WinUtilities.Window.BeforeMove">
+            <summary>This event triggers before the Move function is called, and can be used to modify the target area</summary>
+        </member>
         <member name="M:WinUtilities.Window.#ctor(System.String)">
             <summary>Create a Window object using its string representation, like "Window:123456"</summary>
         </member>
@@ -8450,6 +8463,11 @@
             <summary>Move the window to the new coordinates.</summary>
             <param name="area">The target area of the window.</param>
             <param name="type">Set what the coordinates are relative to.</param>
+        </member>
+        <member name="M:WinUtilities.Window.MoveOnly(System.Int32,System.Int32)">
+            <summary>Move the window to the new coordinates.</summary>
+            <param name="x">Left edge of the window.</param>
+            <param name="y">Top edge of the window.</param>
         </member>
         <member name="M:WinUtilities.Window.Center(System.Boolean)">
             <summary>Center the window to the specified monitor</summary>

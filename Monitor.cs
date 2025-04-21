@@ -114,6 +114,12 @@ namespace WinUtilities {
             return this;
         }
 
+        /// <summary>Checks if a monitor by this handle still exists</summary>
+        /// <returns>True if monitor exists</returns>
+        public bool Exists() {
+            return GetMonitor(Handle) != null;
+        }
+
         /// <summary>[Not implemented] Set as the current primary monitor</summary>
         public bool SetPrimary() {
             throw new NotImplementedException();
