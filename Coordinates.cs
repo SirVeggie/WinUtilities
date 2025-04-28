@@ -1045,7 +1045,7 @@ namespace WinUtilities {
             return copy;
         }
 
-        /// <summary>Takes the mutual area between two areas.</summary>
+        /// <summary>Takes the mutual area between two areas. Hint: use IsValid for area validation.</summary>
         public static Area Mutual(Area a, Area b) {
             Area res = default;
             res.Left = Math.Max(a.Left, b.Left);

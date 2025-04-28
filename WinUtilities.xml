@@ -3497,7 +3497,7 @@
             <param name="resize">Set if the area is allowed to resize according to the relative difference between the areas</param>
         </member>
         <member name="M:WinUtilities.Area.Mutual(WinUtilities.Area,WinUtilities.Area)">
-            <summary>Takes the mutual area between two areas.</summary>
+            <summary>Takes the mutual area between two areas. Hint: use IsValid for area validation.</summary>
         </member>
         <member name="M:WinUtilities.Area.Lerp(WinUtilities.Area,System.Double)">
             <summary>Lerp to target area</summary>
