@@ -3523,6 +3523,12 @@
         <member name="M:WinUtilities.Area.Mirror(System.Double,System.Double)">
             <summary>Return a new <see cref="T:WinUtilities.Area"/> that is mirrored on the given values on the X and Y axes</summary>
         </member>
+        <member name="M:WinUtilities.Area.Fit(WinUtilities.Area)">
+            <summary>Resizes and centers the current <see cref="T:WinUtilities.Area"/> to perfectly fit within the target area</summary>
+        </member>
+        <member name="M:WinUtilities.Area.Fill(WinUtilities.Area)">
+            <summary>Resizes and centers the current <see cref="T:WinUtilities.Area"/> to fill the target area</summary>
+        </member>
         <member name="T:WinUtilities.Coord">
             <summary>
             Has coordinate (point), vector and rectangle (size) properties.
@@ -7799,6 +7805,12 @@
         <member name="M:WinUtilities.Monitor.GetImage(WinUtilities.Area)">
             <summary>Retrieve an image from the current screen</summary>
         </member>
+        <member name="M:WinUtilities.Monitor.SetWallpapers(System.Boolean,System.String[])">
+            <summary>Set Windows wallpaper for each monitor separately</summary>
+            <param name="fill">if true, images are cropped to fill the entire monitor, otherwise black bars are shown if the aspect ratio doesn't match</param>
+            <param name="filePaths">list of image paths</param>
+            <returns>True if successful</returns>
+        </member>
         <member name="M:WinUtilities.Monitor.GetIndex">
             <summary>Find out the current index of this monitor</summary>
         </member>
@@ -8218,7 +8230,7 @@
             <summary>Transcolor has been set for this window (from this process)</summary>
         </member>
         <member name="P:WinUtilities.Window.IsTopLevel">
-            <summary>Check if the window is a proper visible foreground window</summary>
+            <summary>Check if the window is a proper visible foreground window. Uses a custom heuristic that can sometimes be wrong.</summary>
         </member>
         <member name="P:WinUtilities.Window.Style">
             <summary>Full combination of the associated Window Styles</summary>

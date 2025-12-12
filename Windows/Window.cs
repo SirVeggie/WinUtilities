@@ -188,7 +188,7 @@ namespace WinUtilities {
         public bool IsTransparent => !IsNone && (opacity != null && opacity != 1) || (FetchCache(Hwnd)?.opacity != null && FetchCache(Hwnd).opacity != 1);
         /// <summary>Transcolor has been set for this window (from this process)</summary>
         public bool HasTranscolor => !IsNone && transcolor != null || FetchCache(Hwnd)?.transcolor != null;
-        /// <summary>Check if the window is a proper visible foreground window</summary>
+        /// <summary>Check if the window is a proper visible foreground window. Uses a custom heuristic that can sometimes be wrong.</summary>
         public bool IsTopLevel {
             get {
                 if (IsNone)

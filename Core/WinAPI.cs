@@ -1,5 +1,8 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -371,15 +374,18 @@ namespace WinUtilities {
 
         [DllImport("user32.dll")]
         public static extern IntPtr CloseClipboard();
+
+        [DllImport("user32.dll")]
+        public static extern int SystemParametersInfo(uint action, uint uParam, string vParam, uint winIni);
         #endregion
 
         #region macros
         /// <summary>Macro that maps a scan code to a virtual key by <see cref="KeyMapFlags.ScanCode_to_VirtualKeyEx"/></summary>
-        public static VKey MapVirtualKey(ScanCode sc) => (VKey) MapVirtualKey((uint) sc, KeyMapFlags.ScanCode_to_VirtualKeyEx);
+        public static VKey MapVirtualKey(ScanCode sc) => (VKey)MapVirtualKey((uint)sc, KeyMapFlags.ScanCode_to_VirtualKeyEx);
         /// <summary>Macro that maps a virtual key to a scan code by <see cref="KeyMapFlags.VirtualKey_to_ScanCode"/></summary>
-        public static ScanCode MapVirtualKey(VKey vk) => (ScanCode) MapVirtualKey((uint) vk, KeyMapFlags.VirtualKey_to_ScanCode);
+        public static ScanCode MapVirtualKey(VKey vk) => (ScanCode)MapVirtualKey((uint)vk, KeyMapFlags.VirtualKey_to_ScanCode);
         /// <summary>Macro that maps a scan code to a char by <see cref="KeyMapFlags.ScanCode_to_Char"/></summary>
-        public static char MapVirtualKeyChar(ScanCode sc) => (char) MapVirtualKey((uint) sc, KeyMapFlags.ScanCode_to_Char);
+        public static char MapVirtualKeyChar(ScanCode sc) => (char)MapVirtualKey((uint)sc, KeyMapFlags.ScanCode_to_Char);
 
         /// <summary>Tries to retrieve Region data. Getting all rects doesn't work.</summary>
         public static RGNDATA? GetRegionDataManaged(IntPtr hRgn) {
@@ -399,7 +405,7 @@ namespace WinUtilities {
             return Marshal.PtrToStructure<RGNDATA>(pointer);
         }
 
-        public static IntPtr SendMessage<T>(IntPtr handle, WM message, IntPtr wParam, ref T lParam) => SendMessage(handle, (uint) message, wParam, ref lParam);
+        public static IntPtr SendMessage<T>(IntPtr handle, WM message, IntPtr wParam, ref T lParam) => SendMessage(handle, (uint)message, wParam, ref lParam);
         public static IntPtr SendMessage<T>(IntPtr handle, uint message, IntPtr wParam, ref T lParam) {
             IntPtr res;
             var size = Marshal.SizeOf(lParam);
@@ -476,30 +482,30 @@ namespace WinUtilities {
 
         public static bool SetForegroundLockTimeout(int timeout) {
             throw new NotImplementedException();
-            return SystemParametersInfo(SPI.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (uint) timeout, SPIF.None);
+            return SystemParametersInfo(SPI.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, (uint)timeout, SPIF.None);
         }
 
         public static int GetForegroundLockTimeout() {
             throw new NotImplementedException();
             if (SystemParametersInfo(SPI.SPI_SETFOREGROUNDLOCKTIMEOUT, 0, out uint time, SPIF.None))
-                return (int) time;
+                return (int)time;
             return -1;
         }
 
         /// <summary>Value 0 causes flashing to last forever. Value 7 (default) is the maximum. Requires Windows reboot to take effect.</summary>
         public static bool SetFlashCount(int count) {
-            return SystemParametersInfo(SPI.SPI_SETFOREGROUNDFLASHCOUNT, 0, (uint) count, SPIF.SPIF_SENDCHANGE | SPIF.SPIF_UPDATEINIFILE);
+            return SystemParametersInfo(SPI.SPI_SETFOREGROUNDFLASHCOUNT, 0, (uint)count, SPIF.SPIF_SENDCHANGE | SPIF.SPIF_UPDATEINIFILE);
         }
 
         public static int GetFlashCount() {
             if (SystemParametersInfo(SPI.SPI_GETFOREGROUNDFLASHCOUNT, 0, out uint count, SPIF.None))
-                return (int) count;
+                return (int)count;
             return -1;
         }
 
         public static int GetBorderPadding() {
             using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop\WindowMetrics", true)) {
-                var value = int.Parse((string) key.GetValue("PaddedBorderWidth"));
+                var value = int.Parse((string)key.GetValue("PaddedBorderWidth"));
                 return value / -15;
             }
         }
@@ -512,6 +518,38 @@ namespace WinUtilities {
             if (!SystemParametersInfo(SPI.SPI_GETNONCLIENTMETRICS, size, ref metrics, SPIF.None))
                 Console.WriteLine(Marshal.GetLastWin32Error());
             return metrics.iBorderWidth;
+        }
+
+        public static bool SetWallpaper(Image image, WallpaperStyle style) {
+            bool success = false;
+            try {
+                string temp = Path.Combine(Path.GetTempPath(), "wallpaper.bmp");
+                image.Save(temp, ImageFormat.Bmp);
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+                int tile = style == WallpaperStyle.Tile ? 1 : 0;
+                int wstyle = 0;
+
+                switch (style) {
+                    case WallpaperStyle.Stretch:
+                        wstyle = 2;
+                        break;
+                    case WallpaperStyle.Fill:
+                        wstyle = 10;
+                        break;
+                    case WallpaperStyle.Fit:
+                        wstyle = 6;
+                        break;
+                    default:
+                        wstyle = 0;
+                        break;
+                }
+
+                SystemParametersInfo(SPI.SPI_SETDESKWALLPAPER, 0, temp, SPIF.SPIF_UPDATEINIFILE | SPIF.SPIF_SENDCHANGE);
+                success = true;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
+            }
+            return success;
         }
         #endregion
 
@@ -2722,6 +2760,14 @@ namespace WinUtilities {
             /// </summary>
             SPI_SETFONTSMOOTHINGORIENTATION = 0x2013,
         }
+
+        public enum WallpaperStyle {
+            Center,
+            Tile,
+            Stretch,
+            Fit,
+            Fill,
+        }
         #endregion
 
         #region structs
@@ -2933,14 +2979,14 @@ namespace WinUtilities {
 
             public override bool Equals(object obj) {
                 if (obj is RECT)
-                    return Equals((RECT) obj);
+                    return Equals((RECT)obj);
                 else if (obj is System.Drawing.Rectangle)
-                    return Equals(new RECT((System.Drawing.Rectangle) obj));
+                    return Equals(new RECT((System.Drawing.Rectangle)obj));
                 return false;
             }
 
             public override int GetHashCode() {
-                return ((System.Drawing.Rectangle) this).GetHashCode();
+                return ((System.Drawing.Rectangle)this).GetHashCode();
             }
 
             public override string ToString() {
@@ -2989,16 +3035,16 @@ namespace WinUtilities {
             public uint ColorDWORD;
 
             public COLORREF(System.Drawing.Color color) {
-                ColorDWORD = (uint) color.R + (((uint) color.G) << 8) + (((uint) color.B) << 16);
+                ColorDWORD = (uint)color.R + (((uint)color.G) << 8) + (((uint)color.B) << 16);
             }
 
             public System.Drawing.Color GetColor() {
-                return System.Drawing.Color.FromArgb((int) (0x000000FFU & ColorDWORD),
-               (int) (0x0000FF00U & ColorDWORD) >> 8, (int) (0x00FF0000U & ColorDWORD) >> 16);
+                return System.Drawing.Color.FromArgb((int)(0x000000FFU & ColorDWORD),
+               (int)(0x0000FF00U & ColorDWORD) >> 8, (int)(0x00FF0000U & ColorDWORD) >> 16);
             }
 
             public void SetColor(System.Drawing.Color color) {
-                ColorDWORD = (uint) color.R + (((uint) color.G) << 8) + (((uint) color.B) << 16);
+                ColorDWORD = (uint)color.R + (((uint)color.G) << 8) + (((uint)color.B) << 16);
             }
         }
 

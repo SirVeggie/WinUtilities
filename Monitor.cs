@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
@@ -76,6 +78,52 @@ namespace WinUtilities {
             g.CopyFromScreen(area, Point.Empty, area);
             g.Dispose();
             return img;
+        }
+        #endregion
+
+        #region special features
+        /// <summary>Set Windows wallpaper for each monitor separately</summary>
+        /// <param name="fill">if true, images are cropped to fill the entire monitor, otherwise black bars are shown if the aspect ratio doesn't match</param>
+        /// <param name="filePaths">list of image paths</param>
+        /// <returns>True if successful</returns>
+        public static bool SetWallpapers(bool fill, params string[] filePaths) {
+            Area screen = Screen;
+            Bitmap wallpaper = new Bitmap(screen.IntW, screen.IntH);
+            List<Area> monitors = GetMonitors().Select(x => x.Area).ToList();
+
+            if (filePaths.Length != monitors.Count) {
+                throw new ArgumentException("Number of images did not match the number of monitors");
+            }
+
+            int wOffset = 0;
+            int hOffset = 0;
+            foreach (Area monitor in monitors) {
+                wOffset = Math.Min(wOffset, monitor.IntX);
+                hOffset = Math.Min(hOffset, monitor.IntY);
+            }
+
+            if (wOffset + hOffset != 0) {
+                monitors = monitors.Select(x => x.AddX(-wOffset).AddY(-hOffset)).ToList();
+            }
+
+            using (Graphics g = Graphics.FromImage(wallpaper)) {
+                for (int i = 0; i < filePaths.Length; i++) {
+                    Area m = monitors[i];
+                    Image img = Image.FromFile(filePaths[i]);
+                    Area target = new Area(0, 0, img.Width, img.Height);
+                    Area source = target;
+                    target = fill ? target.Fill(m) : target.Fit(m);
+                    if (fill) {
+                        source = m.Fit(source);
+                        target = m;
+                    }
+                    g.DrawImage(img, target, source, GraphicsUnit.Pixel);
+                    //g.DrawImage(img, target.IntX, target.IntY, target.IntW, target.IntH);
+                    img.Dispose();
+                }
+            }
+
+            return WinAPI.SetWallpaper(wallpaper, WinAPI.WallpaperStyle.Tile);
         }
         #endregion
 
@@ -210,7 +258,7 @@ namespace WinUtilities {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static bool operator ==(Monitor a, Monitor b) => (a is null && b is null) || !(a is null) && !(b is null) && a.Handle == b.Handle;
         public static bool operator !=(Monitor a, Monitor b) => !(a == b);
-        public override bool Equals(object obj) => obj is Monitor && this == (Monitor) obj;
+        public override bool Equals(object obj) => obj is Monitor && this == (Monitor)obj;
         public override int GetHashCode() => 1786700523 + Handle.GetHashCode();
         public override string ToString() => "[Monitor: " + Name + " | Primary: " + IsPrimary + " | Handle: " + Handle + " | Full area: " + Area + " | Work area: " + WorkArea + "]";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

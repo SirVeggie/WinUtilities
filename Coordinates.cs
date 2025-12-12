@@ -1082,6 +1082,27 @@ namespace WinUtilities {
         public Area Mirror(double x, double y) {
             return MirrorX(x).MirrorY(y);
         }
+
+        public Area Scale(double factor) {
+            Area a = this;
+            a.W *= factor;
+            a.H *= factor;
+            return a;
+        }
+
+        /// <summary>Resizes and centers the current <see cref="Area"/> to perfectly fit within the target area</summary>
+        public Area Fit(Area target) {
+            double wRatio = target.W / W;
+            double hRatio = target.H / H;
+            return Scale(Math.Min(wRatio, hRatio)).SetCenter(target);
+        }
+
+        /// <summary>Resizes and centers the current <see cref="Area"/> to fill the target area</summary>
+        public Area Fill(Area target) {
+            double wRatio = target.W / W;
+            double hRatio = target.H / H;
+            return Scale(Math.Max(wRatio, hRatio)).SetCenter(target);
+        }
         #endregion
 
         #region operators
