@@ -32,6 +32,8 @@ namespace WinUtilities {
         public bool IsPortrait => Area.W < Area.H;
         /// <summary>Get the monitor's area as an image</summary>
         public Image Image => GetImage(Area);
+        /// <summary>Get the scaling factor set by the user in the display settings</summary>
+        public int Scale => GetMonitorScale(Handle);
 
         /// <summary>Retrieve the current primary monitor</summary>
         public static Monitor Primary => FromPoint(0, 0, MonitorDefault.Primary);
@@ -239,6 +241,11 @@ namespace WinUtilities {
             var w = WinAPI.GetSystemMetrics(WinAPI.SM.CXVIRTUALSCREEN);
             var h = WinAPI.GetSystemMetrics(WinAPI.SM.CYVIRTUALSCREEN);
             return new Area(x, y, w, h);
+        }
+
+        private static int GetMonitorScale(IntPtr Handle) {
+            WinAPI.GetDpiForMonitor(Handle, WinAPI.MonitorDpiType.Effective_DPI, out uint x, out uint y);
+            return (int)(x * 100 / 96);
         }
         #endregion
 

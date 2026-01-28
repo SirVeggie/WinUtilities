@@ -7766,6 +7766,9 @@
         <member name="P:WinUtilities.Monitor.Image">
             <summary>Get the monitor's area as an image</summary>
         </member>
+        <member name="P:WinUtilities.Monitor.Scale">
+            <summary>Get the scaling factor set by the user in the display settings</summary>
+        </member>
         <member name="P:WinUtilities.Monitor.Primary">
             <summary>Retrieve the current primary monitor</summary>
         </member>

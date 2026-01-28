@@ -114,6 +114,9 @@ namespace WinUtilities {
         public static extern IntPtr GetDesktopWindow();
 
         [DllImport("user32.dll")]
+        public static extern IntPtr GetDC(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
         public static extern IntPtr GetWindowDC(IntPtr hwnd);
 
         [DllImport("user32.dll")]
@@ -358,6 +361,21 @@ namespace WinUtilities {
 
         [DllImport("user32.dll")]
         public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefault dwFlags);
+
+        [DllImport("shcore.dll")]
+        public static extern int GetScaleFactorForMonitor(IntPtr hMonitor, out uint pScale);
+
+        [DllImport("shcore.dll")]
+        public static extern int GetDpiForMonitor(IntPtr hmonitor, MonitorDpiType dpiType, out uint dpiX, out uint dpiY);
+
+        [DllImport("shcore.dll")]
+        public static extern uint GetProcessDpiAwareness(IntPtr hprocess, out ProcessDpiAwareness value);
+
+        [DllImport("shcore.dll")]
+        public static extern int SetProcessDpiAwareness(ProcessDpiAwareness value);
+
+        [DllImport("gdi32.dll")]
+        public static extern int GetDeviceCaps(IntPtr hdc, DeviceCap index);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern DisplayReturn ChangeDisplaySettingsEx(string lpszDeviceName, ref DEVMODE lpDevMode, IntPtr hwnd, DisplayFlags dwflags, IntPtr lParam);
@@ -2767,6 +2785,23 @@ namespace WinUtilities {
             Stretch,
             Fit,
             Fill,
+        }
+
+        public enum MonitorDpiType {
+            Effective_DPI = 0,
+            Angular_DPI = 1,
+            Raw_DPI = 2
+        }
+
+        public enum ProcessDpiAwareness {
+            DPI_Unaware = 0,
+            System_DPI_Aware = 1,
+            Per_Monitor_DPI_Aware = 2
+        }
+
+        public enum DeviceCap {
+            LOGPIXELSX = 88,
+            LOGPIXELSY = 90
         }
         #endregion
 
