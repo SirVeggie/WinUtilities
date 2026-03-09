@@ -5,7 +5,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using static WinUtilities.WinAPI;
 
 namespace WinUtilities {
     /// <summary>Class for the retrieving of info and the control of monitors</summary>
@@ -41,7 +40,7 @@ namespace WinUtilities {
         /// <summary>Get the total screen area</summary>
         public static Area Screen => GetScreenArea();
         /// <summary>The amount of current monitors</summary>
-        public static int Count => GetSystemMetrics(SM.CMONITORS);
+        public static int Count => WinAPI.GetSystemMetrics(WinAPI.SM.CMONITORS);
         /// <summary>Get the entire screen as an image</summary>
         public static Image ScreenImage => GetImage(Screen);
         #endregion
@@ -126,7 +125,7 @@ namespace WinUtilities {
                 }
             }
 
-            return SetWallpaper(wallpaper, WallpaperStyle.Tile);
+            return WinAPI.SetWallpaper(wallpaper, WinAPI.WallpaperStyle.Tile);
         }
         #endregion
 
@@ -161,7 +160,7 @@ namespace WinUtilities {
         /// <summary>Set the work area of a monitor</summary>
         /// <remarks>This represents the area to which windows are maximized to. Work area usually excludes the taskbar, but this can change that.</remarks>
         public Monitor SetWorkArea(Area area) {
-            SetWorkArea(area);
+            WinAPI.SetWorkArea(area);
             return this;
         }
 
@@ -185,13 +184,13 @@ namespace WinUtilities {
         /// <summary>Retrieve a handle to a monitor that contains the given point</summary>
         public static IntPtr HandleFromPoint(int x, int y, MonitorDefault def = MonitorDefault.Nearest) => HandleFromPoint(new Coord(x, y), def);
         /// <summary>Retrieve a handle to a monitor that contains the given point</summary>
-        public static IntPtr HandleFromPoint(Coord point, MonitorDefault def = MonitorDefault.Nearest) => MonitorFromPoint(point, def);
+        public static IntPtr HandleFromPoint(Coord point, MonitorDefault def = MonitorDefault.Nearest) => WinAPI.MonitorFromPoint(point, def);
         /// <summary>Retrieve a handle to a monitor that contains the given window</summary>
-        public static IntPtr HandleFromWindow(Window win = null, MonitorDefault def = MonitorDefault.Nearest) => MonitorFromWindow((win ?? Window.Active).Hwnd, def);
+        public static IntPtr HandleFromWindow(Window win = null, MonitorDefault def = MonitorDefault.Nearest) => WinAPI.MonitorFromWindow((win ?? Window.Active).Hwnd, def);
         /// <summary>Retrieve a handle to a monitor that best fits the given area</summary>
         public static IntPtr HandleFromArea(Area area, MonitorDefault def = MonitorDefault.Nearest) {
-            RECT rect = area;
-            return MonitorFromRect(ref rect, def);
+            WinAPI.RECT rect = area;
+            return WinAPI.MonitorFromRect(ref rect, def);
         }
         /// <summary>Retrieve a handle to a monitor with an index</summary>
         public static IntPtr HandleFromIndex(int index) {
@@ -207,10 +206,10 @@ namespace WinUtilities {
                 return null;
             }
 
-            MONITORINFOEX res = new MONITORINFOEX();
+            WinAPI.MONITORINFOEX res = new WinAPI.MONITORINFOEX();
             res.Size = Marshal.SizeOf(res);
 
-            if (GetMonitorInfo(hMonitor, ref res)) {
+            if (WinAPI.GetMonitorInfo(hMonitor, ref res)) {
                 return new Monitor(res.DeviceName, res.Flags == 1, hMonitor, res.Monitor, res.WorkArea);
             } else {
                 return null;
@@ -221,11 +220,11 @@ namespace WinUtilities {
         public static List<Monitor> GetMonitors() {
             List<Monitor> list = new List<Monitor>();
 
-            if (EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, Collector, IntPtr.Zero))
+            if (WinAPI.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, Collector, IntPtr.Zero))
                 return list;
             return null;
 
-            bool Collector(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData) {
+            bool Collector(IntPtr hMonitor, IntPtr hdcMonitor, ref WinAPI.RECT lprcMonitor, IntPtr dwData) {
                 Monitor monitor = GetMonitor(hMonitor);
 
                 if (monitor != null) {
@@ -237,15 +236,15 @@ namespace WinUtilities {
         }
 
         private static Area GetScreenArea() {
-            var x = GetSystemMetrics(SM.XVIRTUALSCREEN);
-            var y = GetSystemMetrics(SM.YVIRTUALSCREEN);
-            var w = GetSystemMetrics(SM.CXVIRTUALSCREEN);
-            var h = GetSystemMetrics(SM.CYVIRTUALSCREEN);
+            var x = WinAPI.GetSystemMetrics(WinAPI.SM.XVIRTUALSCREEN);
+            var y = WinAPI.GetSystemMetrics(WinAPI.SM.YVIRTUALSCREEN);
+            var w = WinAPI.GetSystemMetrics(WinAPI.SM.CXVIRTUALSCREEN);
+            var h = WinAPI.GetSystemMetrics(WinAPI.SM.CYVIRTUALSCREEN);
             return new Area(x, y, w, h);
         }
 
         private static int GetMonitorScale(IntPtr Handle) {
-            GetDpiForMonitor(Handle, MonitorDpiType.Effective_DPI, out uint x, out uint y);
+            WinAPI.GetDpiForMonitor(Handle, WinAPI.MonitorDpiType.Effective_DPI, out uint x, out uint y);
             return (int)(x * 100 / 96);
         }
         #endregion
