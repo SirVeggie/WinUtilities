@@ -172,7 +172,11 @@ namespace WinUtilities {
 
         /// <summary>[Not implemented] Set as the current primary monitor</summary>
         public bool SetPrimary() {
-            throw new NotImplementedException();
+            if (IsPrimary) {
+                Console.WriteLine("Monitor already primary");
+                return false;
+            }
+            return SetPrimaryMonitor((uint)GetIndex());
         }
 
         /// <summary>[Not implemented] Set the orientation of the monitor</summary>
@@ -233,6 +237,91 @@ namespace WinUtilities {
 
                 return true;
             }
+        }
+
+        private static bool SetPrimaryMonitor(uint primaryId) {
+            // Source - https://stackoverflow.com/a/23044185
+            // Posted by ADBailey
+            // Retrieved 2026-03-09, License - CC BY-SA 3.0
+            var device = new WinAPI.DISPLAY_DEVICE();
+            var deviceMode = new WinAPI.DEVMODE();
+            device.cb = Marshal.SizeOf(device);
+
+            WinAPI.EnumDisplayDevices(null, primaryId, ref device, 0);
+            WinAPI.EnumDisplaySettings(device.DeviceName, -1, ref deviceMode);
+            var offsetx = deviceMode.dmPosition.x;
+            var offsety = deviceMode.dmPosition.y;
+            deviceMode.dmPosition.x = 0;
+            deviceMode.dmPosition.y = 0;
+
+            WinAPI.DisplayReturn ret = WinAPI.ChangeDisplaySettingsEx(
+                device.DeviceName,
+                ref deviceMode,
+                (IntPtr)null,
+                WinAPI.DisplaySettingsFlags.CDS_SET_PRIMARY | WinAPI.DisplaySettingsFlags.CDS_UPDATEREGISTRY | WinAPI.DisplaySettingsFlags.CDS_NORESET,
+                IntPtr.Zero);
+
+            if (ret != WinAPI.DisplayReturn.Successful) {
+                Console.WriteLine($"Failed to set initial monitor settings with reason '{ret}'");
+                return false;
+            }
+
+            device = new WinAPI.DISPLAY_DEVICE();
+            device.cb = Marshal.SizeOf(device);
+
+            // Update remaining devices
+            for (uint otherid = 0; WinAPI.EnumDisplayDevices(null, otherid, ref device, 0); otherid++) {
+                if (device.StateFlags.HasFlag(WinAPI.DisplayDeviceStateFlags.AttachedToDesktop) && otherid != primaryId) {
+                    device.cb = Marshal.SizeOf(device);
+                    var otherDeviceMode = new WinAPI.DEVMODE();
+
+                    WinAPI.EnumDisplaySettings(device.DeviceName, -1, ref otherDeviceMode);
+
+                    otherDeviceMode.dmPosition.x -= offsetx;
+                    otherDeviceMode.dmPosition.y -= offsety;
+
+                    WinAPI.ChangeDisplaySettingsEx(
+                        device.DeviceName,
+                        ref otherDeviceMode,
+                        (IntPtr)null,
+                        WinAPI.DisplaySettingsFlags.CDS_UPDATEREGISTRY | WinAPI.DisplaySettingsFlags.CDS_NORESET,
+                        IntPtr.Zero);
+
+                }
+
+                device.cb = Marshal.SizeOf(device);
+            }
+
+            // Apply settings
+            ret = WinAPI.ChangeDisplaySettingsEx(null, IntPtr.Zero, (IntPtr)null, WinAPI.DisplaySettingsFlags.CDS_NONE, (IntPtr)null);
+            if (ret != WinAPI.DisplayReturn.Successful) {
+                Console.WriteLine($"Failed to set monitor settings with reason '{ret}'");
+                return false;
+            } else {
+                Console.WriteLine("Succesfully set monitor settings");
+                return true;
+            }
+        }
+
+        /// <summary>Fetch a human readable list of connected displays</summary>
+        public static List<string> EnumDisplayNames() {
+            List<string> names = new List<string>();
+
+            WinAPI.DISPLAY_DEVICE device = new WinAPI.DISPLAY_DEVICE();
+            device.cb = Marshal.SizeOf(device);
+
+            for (uint otherid = 0; WinAPI.EnumDisplayDevices(null, otherid, ref device, 0); otherid++) {
+                if (device.StateFlags.HasFlag(WinAPI.DisplayDeviceStateFlags.AttachedToDesktop)) {
+                    device.cb = Marshal.SizeOf(device);
+                    var otherDeviceMode = new WinAPI.DEVMODE();
+
+                    WinAPI.EnumDisplaySettings(device.DeviceName, -1, ref otherDeviceMode);
+
+                    names.Add($"[{otherid}] {device.DeviceName} | {device.DeviceString}");
+                }
+            }
+
+            return names;
         }
 
         private static Area GetScreenArea() {

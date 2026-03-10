@@ -341,6 +341,18 @@ namespace WinUtilities {
         [DllImport("user32.dll")]
         public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, EnumMonitorsDelegate lpfnEnum, IntPtr dwData);
 
+        [DllImport("user32.dll")]
+        public static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
+
+        [DllImport("user32.dll")]
+        public static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+
+        [DllImport("user32.dll")]
+        public static extern DisplayReturn ChangeDisplaySettingsEx(string lpszDeviceName, ref DEVMODE lpDevMode, IntPtr hwnd, DisplaySettingsFlags dwflags, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern DisplayReturn ChangeDisplaySettingsEx(string lpszDeviceName, IntPtr lpDevMode, IntPtr hwnd, DisplaySettingsFlags dwflags, IntPtr lParam);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool EnumWindows(EnumWindowsDelegate enumCallback, IntPtr lParam);
 
@@ -376,9 +388,6 @@ namespace WinUtilities {
 
         [DllImport("gdi32.dll")]
         public static extern int GetDeviceCaps(IntPtr hdc, DeviceCap index);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern DisplayReturn ChangeDisplaySettingsEx(string lpszDeviceName, ref DEVMODE lpDevMode, IntPtr hwnd, DisplayFlags dwflags, IntPtr lParam);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -3177,7 +3186,7 @@ namespace WinUtilities {
             [FieldOffset(38)]
             public Int16 dmDriverExtra;
             [FieldOffset(40)]
-            public DisplaySettingsFlags dmFields;
+            public UInt32 dmFields;
 
             [FieldOffset(44)]
             Int16 dmOrientation;
@@ -3213,7 +3222,7 @@ namespace WinUtilities {
             public short dmTTOption;
             [FieldOffset(68)]
             public short dmCollate; // See note below!
-            [FieldOffset(70)]
+            [FieldOffset(72)]
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHFORMNAME)]
             public string dmFormName;
             [FieldOffset(102)]
@@ -3241,13 +3250,14 @@ namespace WinUtilities {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string DeviceString;
             [MarshalAs(UnmanagedType.U4)]
-            public DisplaySettingsFlags StateFlags;
+            public DisplayDeviceStateFlags StateFlags;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string DeviceID;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string DeviceKey;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         public struct POINTL {
             public Int32 x;
             public Int32 y;

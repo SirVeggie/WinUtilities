@@ -5634,6 +5634,24 @@
             Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
             </summary>
         </member>
+        <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.AttachedToDesktop">
+            <summary>The device is part of the desktop.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.PrimaryDevice">
+            <summary>The device is part of the desktop.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.MirroringDriver">
+            <summary>Represents a pseudo device used to mirror application drawing for remoting or other purposes.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.VGACompatible">
+            <summary>The device is VGA compatible.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.Removable">
+            <summary>The device is removable; it cannot be the primary display.</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.ModesPruned">
+            <summary>The device has more display modes than its output devices support.</summary>
+        </member>
         <member name="T:WinUtilities.WinAPI.TernaryRasterOperations">
             <summary>
                 Specifies a raster-operation code. These codes define how the color data for the
@@ -7857,6 +7875,9 @@
         </member>
         <member name="M:WinUtilities.Monitor.GetMonitors">
             <summary>Retrieve all current monitors as a list</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.EnumDisplayNames">
+            <summary>Fetch a human readable list of connected displays</summary>
         </member>
         <member name="T:WinUtilities.Monitor.Orientation">
             <summary>Representation of a monitor orientation</summary>
