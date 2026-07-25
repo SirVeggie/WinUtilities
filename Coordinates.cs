@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -200,7 +201,7 @@ namespace WinUtilities {
 
         /// <summary>Left edge of the area as an int</summary>
         public int IntX => point.IntX;
-        /// <summary>Right edge of the area as an int</summary>
+        /// <summary>Top edge of the area as an int</summary>
         public int IntY => point.IntY;
         /// <summary>Width of the area as an int</summary>
         public int IntW => size.IntX;
@@ -614,6 +615,65 @@ namespace WinUtilities {
             if (bottom == min)
                 return EdgeType.Bottom;
             throw new Exception($"Something unexpected happened in {nameof(ClosestBorder)}");
+        }
+
+        /// <summary>Calculates the intersection over union of two areas. In other words percentage of overlap compared to both areas merged together.</summary>
+        /// <returns>Percentage of match, 0 if not overlapping.</returns>
+        public double IntersectionOverUnion(Area other) {
+            // Calculate Intersection
+            double overlapLeft = Math.Max(Left, other.Left);
+            double overlapRight = Math.Min(Right, other.Right);
+            double overlapTop = Math.Max(Top, other.Top);
+            double overlapBottom = Math.Min(Bottom, other.Bottom);
+
+            double overlapWidth = overlapRight - overlapLeft;
+            double overlapHeight = overlapBottom - overlapTop;
+
+            double intersectionArea = overlapWidth * overlapHeight;
+
+            // Calculate Union
+            double unionArea = Surface + other.Surface - intersectionArea;
+
+            // Calculate IoU
+            double iou = unionArea > 0 ? intersectionArea / unionArea : 0;
+            return iou;
+        }
+
+        /// <summary>Calculate similarity between two areas.</summary>
+        /// <returns>If positive, intersection over union of both areas. If negative, distance between the closest points of the two areas.</returns>
+        public double Similarity(Area other) {
+            // Calculate horizontal and vertical distances between edges
+            double dx = Math.Max(0, Math.Max(other.Left - Right, Left - other.Right));
+            double dy = Math.Max(0, Math.Max(other.Top - Bottom, Top - other.Bottom));
+
+            // If overlapping (distance on both axes is 0)
+            if (dx == 0 && dy == 0) {
+                return IntersectionOverUnion(other);
+            }
+
+            // Euclidean negative distance
+            return -Math.Sqrt(dx * dx + dy * dy);
+        }
+
+        /// <summary>Select the area that is closest to the current area based on <see cref="Similarity(Area)"/>.</summary>
+        /// <returns>Area that most closely matched the current area.</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public Area ClosestArea(List<Area> others) {
+            if (others == null || others.Count == 0) {
+                throw new ArgumentException("Area list was null or empty");
+            }
+
+            Area closest = others[0];
+            double bestValue = Similarity(others[0]);
+
+            for (int i = 1; i < others.Count; i++) {
+                if (Similarity(others[i]) < bestValue) {
+                    closest = others[i];
+                    bestValue = Similarity(others[i]);
+                }
+            }
+
+            return closest;
         }
 
         /// <summary>Moves the area's edges using dynamic selection.</summary>

@@ -3203,7 +3203,7 @@
             <summary>Left edge of the area as an int</summary>
         </member>
         <member name="P:WinUtilities.Area.IntY">
-            <summary>Right edge of the area as an int</summary>
+            <summary>Top edge of the area as an int</summary>
         </member>
         <member name="P:WinUtilities.Area.IntW">
             <summary>Width of the area as an int</summary>
@@ -3377,6 +3377,19 @@
         <member name="M:WinUtilities.Area.ClosestBorder(WinUtilities.Coord)">
             <summary>Get the closest border to a point. Returns either the left, right, top or bottom border.</summary>
             <remarks>This method differs from the ClosestEdge since this method calculates the distance using the entire edge instead of just the center point of an edge.</remarks>
+        </member>
+        <member name="M:WinUtilities.Area.IntersectionOverUnion(WinUtilities.Area)">
+            <summary>Calculates the intersection over union of two areas. In other words percentage of overlap compared to both areas merged together.</summary>
+            <returns>Percentage of match, 0 if not overlapping.</returns>
+        </member>
+        <member name="M:WinUtilities.Area.Similarity(WinUtilities.Area)">
+            <summary>Calculate similarity between two areas.</summary>
+            <returns>If positive, intersection over union of both areas. If negative, distance between the closest points of the two areas.</returns>
+        </member>
+        <member name="M:WinUtilities.Area.ClosestArea(System.Collections.Generic.List{WinUtilities.Area})">
+            <summary>Select the area that is closest to the current area based on <see cref="M:WinUtilities.Area.Similarity(WinUtilities.Area)"/>.</summary>
+            <returns>Area that most closely matched the current area.</returns>
+            <exception cref="T:System.ArgumentException"></exception>
         </member>
         <member name="M:WinUtilities.Area.SetEdge(WinUtilities.Edge,System.Boolean,System.Boolean)">
             <summary>Moves the area's edges using dynamic selection.</summary>
