@@ -12,9 +12,18 @@ namespace WinUtilities {
     public class Monitor {
 
         #region properties
-        /// <summary>The device name of the monitor</summary>
+        /// <summary>The GDI device name of the monitor (e.g. \\.\DISPLAY1). Not stable across disable/enable.</summary>
         [DataMember]
         public string Name { get; private set; }
+        /// <summary>
+        /// Persistent CCD target identity for this monitor. Prefer saving this over <see cref="Name"/>.
+        /// Survives disable/enable and typically survives application restarts and PC reboots for the same display.
+        /// </summary>
+        [DataMember]
+        public string TargetId { get; private set; }
+        /// <summary>Friendly monitor name from Windows (may be empty)</summary>
+        [DataMember]
+        public string FriendlyName { get; private set; }
         /// <summary>Check if the monitor is the primary monitor</summary>
         [DataMember]
         public bool IsPrimary { get; private set; }
@@ -47,12 +56,14 @@ namespace WinUtilities {
 
         #region constructors
         /// <summary>Create a new monitor object</summary>
-        public Monitor(string name, bool isPrimary, IntPtr handle, Area area, Area workarea) {
+        public Monitor(string name, bool isPrimary, IntPtr handle, Area area, Area workarea, string targetId = null, string friendlyName = null) {
             Name = name;
             IsPrimary = isPrimary;
             Handle = handle;
             Area = area;
             WorkArea = workarea;
+            TargetId = targetId;
+            FriendlyName = friendlyName;
         }
         #endregion
 
@@ -69,6 +80,28 @@ namespace WinUtilities {
         public static Monitor FromArea(Area area, MonitorDefault def = MonitorDefault.Nearest) => GetMonitor(HandleFromArea(area, def));
         /// <summary>Find a monitor with a specific index. Don't rely on the index staying the same between restarts or monitor disconnects.</summary>
         public static Monitor FromIndex(int index) => GetMonitor(HandleFromIndex(index));
+        /// <summary>
+        /// Find an attached monitor by persistent <see cref="TargetId"/>.
+        /// Returns null if the target is unknown or not currently attached to the desktop.
+        /// </summary>
+        public static Monitor FromTargetId(string targetId) {
+            if (string.IsNullOrEmpty(targetId)) {
+                return null;
+            }
+
+            var monitors = GetMonitors();
+            if (monitors == null) {
+                return null;
+            }
+
+            for (int i = 0; i < monitors.Count; i++) {
+                if (string.Equals(monitors[i].TargetId, targetId, StringComparison.OrdinalIgnoreCase)) {
+                    return monitors[i];
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>Sets the monitors into a 'sleep' state, any user activity wakes them up</summary>
         public static void SetIdle(bool state) => Window.Find("Program Manager").PostMessage(WM.SYSCOMMAND, 0x170, state ? 2 : -1);
@@ -234,15 +267,30 @@ namespace WinUtilities {
 
         /// <summary>Disable this monitor (detach from the desktop)</summary>
         /// <returns>True if successful</returns>
-        public bool Disable() => SetDisplayEnabled(Name, false);
+        public bool Disable() => DisableByTargetId(ResolveTargetId());
 
         /// <summary>Enable this monitor (attach to the desktop)</summary>
         /// <returns>True if successful</returns>
-        public bool Enable() => SetDisplayEnabled(Name, true);
+        public bool Enable() => EnableByTargetId(ResolveTargetId());
 
-        /// <summary>Enable a monitor by GDI device name (e.g. \\.\DISPLAY2)</summary>
+        /// <summary>Enable a monitor by persistent <see cref="TargetId"/></summary>
         /// <returns>True if successful</returns>
-        public static bool Enable(string deviceName) => SetDisplayEnabled(deviceName, true);
+        public static bool EnableByTargetId(string targetId) => SetDisplayEnabledByTargetId(targetId, true);
+
+        /// <summary>Disable a monitor by persistent <see cref="TargetId"/></summary>
+        /// <returns>True if successful</returns>
+        public static bool DisableByTargetId(string targetId) => SetDisplayEnabledByTargetId(targetId, false);
+
+        /// <summary>Enable a monitor by GDI device name (e.g. \\.\DISPLAY2). Prefer <see cref="EnableByTargetId"/> for persistence.</summary>
+        /// <returns>True if successful</returns>
+        public static bool Enable(string deviceName) {
+            string targetId = TryResolveTargetIdFromGdiName(deviceName);
+            if (string.IsNullOrEmpty(targetId)) {
+                Console.WriteLine($"No CCD target found for GDI device '{deviceName}'");
+                return false;
+            }
+            return EnableByTargetId(targetId);
+        }
 
         /// <summary>Get GDI device names of displays that are present but not attached to the desktop</summary>
         public static List<string> GetDetachedDeviceNames() {
@@ -262,6 +310,48 @@ namespace WinUtilities {
             }
 
             return names;
+        }
+
+        /// <summary>
+        /// List CCD display targets, including ones not currently attached to the desktop.
+        /// <see cref="DisplayTarget.TargetId"/> is suitable for saving and later enable/disable.
+        /// </summary>
+        public static List<DisplayTarget> GetDisplayTargets() {
+            var results = new List<DisplayTarget>();
+            if (!TryQueryDisplayConfig(WinAPI.QueryDisplayConfigFlags.QDC_ALL_PATHS, out var allPaths, out _)) {
+                return results;
+            }
+
+            TryQueryDisplayConfig(WinAPI.QueryDisplayConfigFlags.QDC_ONLY_ACTIVE_PATHS, out var activePaths, out _);
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < allPaths.Length; i++) {
+                if (!TryGetTargetDeviceName(allPaths[i].targetInfo, out var targetInfo)) {
+                    continue;
+                }
+
+                string targetId = BuildTargetId(ref targetInfo);
+                if (string.IsNullOrEmpty(targetId) || !seen.Add(targetId)) {
+                    continue;
+                }
+
+                bool attached = false;
+                string gdiName = null;
+                if (activePaths != null) {
+                    for (int a = 0; a < activePaths.Length; a++) {
+                        if (!PathMatchesTargetInfo(activePaths[a], allPaths[i].targetInfo)) {
+                            continue;
+                        }
+                        attached = true;
+                        gdiName = GetSourceGdiDeviceName(activePaths[a].sourceInfo);
+                        break;
+                    }
+                }
+
+                results.Add(new DisplayTarget(targetId, targetInfo.monitorFriendlyDeviceName, attached, gdiName));
+            }
+
+            return results;
         }
 
         #region helpers
@@ -294,7 +384,8 @@ namespace WinUtilities {
             res.Size = Marshal.SizeOf(res);
 
             if (WinAPI.GetMonitorInfo(hMonitor, ref res)) {
-                return new Monitor(res.DeviceName, res.Flags == 1, hMonitor, res.Monitor, res.WorkArea);
+                TryResolveTargetDetailsFromGdiName(res.DeviceName, out string targetId, out string friendlyName);
+                return new Monitor(res.DeviceName, res.Flags == 1, hMonitor, res.Monitor, res.WorkArea, targetId, friendlyName);
             } else {
                 return null;
             }
@@ -419,9 +510,16 @@ namespace WinUtilities {
             return names;
         }
 
-        private static bool SetDisplayEnabled(string deviceName, bool enable) {
-            if (string.IsNullOrEmpty(deviceName)) {
-                Console.WriteLine("Device name is empty");
+        private string ResolveTargetId() {
+            if (!string.IsNullOrEmpty(TargetId)) {
+                return TargetId;
+            }
+            return TryResolveTargetIdFromGdiName(Name);
+        }
+
+        private static bool SetDisplayEnabledByTargetId(string targetId, bool enable) {
+            if (string.IsNullOrEmpty(targetId)) {
+                Console.WriteLine("Target id is empty");
                 return false;
             }
 
@@ -431,7 +529,7 @@ namespace WinUtilities {
 
             bool isCurrentlyActive = false;
             for (int i = 0; i < activePaths.Length; i++) {
-                if (PathMatchesDevice(activePaths[i], deviceName)) {
+                if (PathMatchesTargetId(activePaths[i], targetId)) {
                     isCurrentlyActive = true;
                     break;
                 }
@@ -448,7 +546,7 @@ namespace WinUtilities {
 
                 int candidateIndex = -1;
                 for (int i = 0; i < allPaths.Length; i++) {
-                    if (!PathMatchesDevice(allPaths[i], deviceName)) {
+                    if (!PathMatchesTargetId(allPaths[i], targetId)) {
                         continue;
                     }
                     if (!allPaths[i].targetInfo.targetAvailable) {
@@ -463,7 +561,7 @@ namespace WinUtilities {
                 }
 
                 if (candidateIndex < 0) {
-                    Console.WriteLine($"No available display path found to enable '{deviceName}'");
+                    Console.WriteLine($"No available display path found to enable target '{targetId}'");
                     return false;
                 }
 
@@ -490,13 +588,13 @@ namespace WinUtilities {
 
             var remaining = new List<WinAPI.DISPLAYCONFIG_PATH_INFO>(activePaths.Length - 1);
             for (int i = 0; i < activePaths.Length; i++) {
-                if (!PathMatchesDevice(activePaths[i], deviceName)) {
+                if (!PathMatchesTargetId(activePaths[i], targetId)) {
                     remaining.Add(activePaths[i]);
                 }
             }
 
             if (remaining.Count == activePaths.Length) {
-                Console.WriteLine($"No active display path found for '{deviceName}'");
+                Console.WriteLine($"No active display path found for target '{targetId}'");
                 return false;
             }
 
@@ -508,10 +606,71 @@ namespace WinUtilities {
             return ApplyDisplayConfig(remaining.ToArray(), activeModes);
         }
 
-        private static bool PathMatchesDevice(WinAPI.DISPLAYCONFIG_PATH_INFO path, string deviceName) {
-            string gdiName = GetSourceGdiDeviceName(path.sourceInfo);
-            return !string.IsNullOrEmpty(gdiName)
-                && string.Equals(gdiName, deviceName, StringComparison.OrdinalIgnoreCase);
+        private static bool PathMatchesTargetId(WinAPI.DISPLAYCONFIG_PATH_INFO path, string targetId) {
+            if (!TryGetTargetDeviceName(path.targetInfo, out var targetInfo)) {
+                return false;
+            }
+            string id = BuildTargetId(ref targetInfo);
+            return !string.IsNullOrEmpty(id)
+                && string.Equals(id, targetId, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool PathMatchesTargetInfo(WinAPI.DISPLAYCONFIG_PATH_INFO path, WinAPI.DISPLAYCONFIG_PATH_TARGET_INFO target) {
+            return path.targetInfo.id == target.id
+                && path.targetInfo.adapterId.LowPart == target.adapterId.LowPart
+                && path.targetInfo.adapterId.HighPart == target.adapterId.HighPart;
+        }
+
+        private static string TryResolveTargetIdFromGdiName(string gdiName) {
+            TryResolveTargetDetailsFromGdiName(gdiName, out string targetId, out _);
+            return targetId;
+        }
+
+        private static bool TryResolveTargetDetailsFromGdiName(string gdiName, out string targetId, out string friendlyName) {
+            targetId = null;
+            friendlyName = null;
+            if (string.IsNullOrEmpty(gdiName)) {
+                return false;
+            }
+
+            if (!TryQueryDisplayConfig(WinAPI.QueryDisplayConfigFlags.QDC_ONLY_ACTIVE_PATHS, out var activePaths, out _)) {
+                return false;
+            }
+
+            for (int i = 0; i < activePaths.Length; i++) {
+                string sourceName = GetSourceGdiDeviceName(activePaths[i].sourceInfo);
+                if (!string.Equals(sourceName, gdiName, StringComparison.OrdinalIgnoreCase)) {
+                    continue;
+                }
+                if (!TryGetTargetDeviceName(activePaths[i].targetInfo, out var targetInfo)) {
+                    continue;
+                }
+
+                targetId = BuildTargetId(ref targetInfo);
+                friendlyName = targetInfo.monitorFriendlyDeviceName;
+                return !string.IsNullOrEmpty(targetId);
+            }
+
+            return false;
+        }
+
+        private static string BuildTargetId(ref WinAPI.DISPLAYCONFIG_TARGET_DEVICE_NAME targetInfo) {
+            if (!string.IsNullOrEmpty(targetInfo.monitorDevicePath)) {
+                return targetInfo.monitorDevicePath;
+            }
+
+            // Fallback when Windows does not provide a device path (less ideal, but still serializable).
+            return $"edid:{targetInfo.edidManufactureId:X4}:{targetInfo.edidProductCodeId:X4}:{targetInfo.connectorInstance}:{(int)targetInfo.outputTechnology}";
+        }
+
+        private static bool TryGetTargetDeviceName(WinAPI.DISPLAYCONFIG_PATH_TARGET_INFO target, out WinAPI.DISPLAYCONFIG_TARGET_DEVICE_NAME info) {
+            info = new WinAPI.DISPLAYCONFIG_TARGET_DEVICE_NAME();
+            info.header.type = WinAPI.DisplayConfigDeviceInfoType.DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
+            info.header.size = Marshal.SizeOf(typeof(WinAPI.DISPLAYCONFIG_TARGET_DEVICE_NAME));
+            info.header.adapterId = target.adapterId;
+            info.header.id = target.id;
+
+            return WinAPI.DisplayConfigGetDeviceInfo(ref info) == WinAPI.ERROR_SUCCESS;
         }
 
         private static string GetSourceGdiDeviceName(WinAPI.DISPLAYCONFIG_PATH_SOURCE_INFO sourceInfo) {
@@ -612,13 +771,43 @@ namespace WinUtilities {
             PortraitFlipped
         }
 
+        /// <summary>Serializable CCD display target information</summary>
+        [DataContract]
+        public class DisplayTarget {
+            /// <summary>Persistent target identity suitable for saving and later enable/disable</summary>
+            [DataMember]
+            public string TargetId { get; private set; }
+            /// <summary>Friendly monitor name from Windows (may be empty)</summary>
+            [DataMember]
+            public string FriendlyName { get; private set; }
+            /// <summary>True if currently attached to the desktop</summary>
+            [DataMember]
+            public bool IsAttached { get; private set; }
+            /// <summary>Current GDI device name when attached; otherwise null</summary>
+            [DataMember]
+            public string GdiName { get; private set; }
+
+            /// <summary>Create display target info</summary>
+            public DisplayTarget(string targetId, string friendlyName, bool isAttached, string gdiName) {
+                TargetId = targetId;
+                FriendlyName = friendlyName;
+                IsAttached = isAttached;
+                GdiName = gdiName;
+            }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+            public override string ToString() =>
+                $"[DisplayTarget: {FriendlyName} | Attached: {IsAttached} | Gdi: {GdiName} | Id: {TargetId}]";
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        }
+
         #region operators
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static bool operator ==(Monitor a, Monitor b) => (a is null && b is null) || !(a is null) && !(b is null) && a.Handle == b.Handle;
         public static bool operator !=(Monitor a, Monitor b) => !(a == b);
         public override bool Equals(object obj) => obj is Monitor && this == (Monitor)obj;
         public override int GetHashCode() => 1786700523 + Handle.GetHashCode();
-        public override string ToString() => "[Monitor: " + Name + " | Primary: " + IsPrimary + " | Handle: " + Handle + " | Full area: " + Area + " | Work area: " + WorkArea + "]";
+        public override string ToString() => "[Monitor: " + Name + " | TargetId: " + TargetId + " | Primary: " + IsPrimary + " | Handle: " + Handle + " | Full area: " + Area + " | Work area: " + WorkArea + "]";
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         #endregion
     }

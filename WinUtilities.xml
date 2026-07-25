@@ -7783,7 +7783,16 @@
             <summary>Class for the retrieving of info and the control of monitors</summary>
         </member>
         <member name="P:WinUtilities.Monitor.Name">
-            <summary>The device name of the monitor</summary>
+            <summary>The GDI device name of the monitor (e.g. \\.\DISPLAY1). Not stable across disable/enable.</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.TargetId">
+            <summary>
+            Persistent CCD target identity for this monitor. Prefer saving this over <see cref="P:WinUtilities.Monitor.Name"/>.
+            Survives disable/enable and typically survives application restarts and PC reboots for the same display.
+            </summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.FriendlyName">
+            <summary>Friendly monitor name from Windows (may be empty)</summary>
         </member>
         <member name="P:WinUtilities.Monitor.IsPrimary">
             <summary>Check if the monitor is the primary monitor</summary>
@@ -7818,7 +7827,7 @@
         <member name="P:WinUtilities.Monitor.ScreenImage">
             <summary>Get the entire screen as an image</summary>
         </member>
-        <member name="M:WinUtilities.Monitor.#ctor(System.String,System.Boolean,System.IntPtr,WinUtilities.Area,WinUtilities.Area)">
+        <member name="M:WinUtilities.Monitor.#ctor(System.String,System.Boolean,System.IntPtr,WinUtilities.Area,WinUtilities.Area,System.String,System.String)">
             <summary>Create a new monitor object</summary>
         </member>
         <member name="M:WinUtilities.Monitor.FromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
@@ -7838,6 +7847,12 @@
         </member>
         <member name="M:WinUtilities.Monitor.FromIndex(System.Int32)">
             <summary>Find a monitor with a specific index. Don't rely on the index staying the same between restarts or monitor disconnects.</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.FromTargetId(System.String)">
+            <summary>
+            Find an attached monitor by persistent <see cref="P:WinUtilities.Monitor.TargetId"/>.
+            Returns null if the target is unknown or not currently attached to the desktop.
+            </summary>
         </member>
         <member name="M:WinUtilities.Monitor.SetIdle(System.Boolean)">
             <summary>Sets the monitors into a 'sleep' state, any user activity wakes them up</summary>
@@ -7887,12 +7902,44 @@
             <summary>Enable this monitor (attach to the desktop)</summary>
             <returns>True if successful</returns>
         </member>
+        <member name="M:WinUtilities.Monitor.EnableByTargetId(System.String)">
+            <summary>Enable a monitor by persistent <see cref="P:WinUtilities.Monitor.TargetId"/></summary>
+            <returns>True if successful</returns>
+        </member>
+        <member name="M:WinUtilities.Monitor.DisableByTargetId(System.String)">
+            <summary>Disable a monitor by persistent <see cref="P:WinUtilities.Monitor.TargetId"/></summary>
+            <returns>True if successful</returns>
+        </member>
         <member name="M:WinUtilities.Monitor.Enable(System.String)">
-            <summary>Enable a monitor by GDI device name (e.g. \\.\DISPLAY2)</summary>
+            <summary>Enable a monitor by GDI device name (e.g. \\.\DISPLAY2). Prefer <see cref="M:WinUtilities.Monitor.EnableByTargetId(System.String)"/> for persistence.</summary>
             <returns>True if successful</returns>
         </member>
         <member name="M:WinUtilities.Monitor.GetDetachedDeviceNames">
             <summary>Get GDI device names of displays that are present but not attached to the desktop</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetDisplayTargets">
+            <summary>
+            List CCD display targets, including ones not currently attached to the desktop.
+            <see cref="P:WinUtilities.Monitor.DisplayTarget.TargetId"/> is suitable for saving and later enable/disable.
+            </summary>
+        </member>
+        <member name="T:WinUtilities.Monitor.DisplayTarget">
+            <summary>Serializable CCD display target information</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.TargetId">
+            <summary>Persistent target identity suitable for saving and later enable/disable</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.FriendlyName">
+            <summary>Friendly monitor name from Windows (may be empty)</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.IsAttached">
+            <summary>True if currently attached to the desktop</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.GdiName">
+            <summary>Current GDI device name when attached; otherwise null</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.DisplayTarget.#ctor(System.String,System.String,System.Boolean,System.String)">
+            <summary>Create display target info</summary>
         </member>
         <member name="M:WinUtilities.Monitor.HandleFromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
             <summary>Retrieve a handle to a monitor that contains the given point</summary>

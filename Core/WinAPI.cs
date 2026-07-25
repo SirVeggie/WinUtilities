@@ -365,6 +365,9 @@ namespace WinUtilities {
         [DllImport("user32.dll")]
         public static extern int DisplayConfigGetDeviceInfo(ref DISPLAYCONFIG_SOURCE_DEVICE_NAME requestPacket);
 
+        [DllImport("user32.dll")]
+        public static extern int DisplayConfigGetDeviceInfo(ref DISPLAYCONFIG_TARGET_DEVICE_NAME requestPacket);
+
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern bool EnumWindows(EnumWindowsDelegate enumCallback, IntPtr lParam);
 
@@ -3499,6 +3502,25 @@ namespace WinUtilities {
             public DISPLAYCONFIG_DEVICE_INFO_HEADER header;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
             public string viewGdiDeviceName;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct DISPLAYCONFIG_TARGET_DEVICE_NAME_FLAGS {
+            public uint value;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        public struct DISPLAYCONFIG_TARGET_DEVICE_NAME {
+            public DISPLAYCONFIG_DEVICE_INFO_HEADER header;
+            public DISPLAYCONFIG_TARGET_DEVICE_NAME_FLAGS flags;
+            public DisplayConfigVideoOutputTechnology outputTechnology;
+            public ushort edidManufactureId;
+            public ushort edidProductCodeId;
+            public uint connectorInstance;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+            public string monitorFriendlyDeviceName;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+            public string monitorDevicePath;
         }
 
         [StructLayout(LayoutKind.Sequential)]

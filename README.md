@@ -47,7 +47,7 @@ The list is not exhaustive.
   - Get the entire screen, a single monitor or specified area as an Image
   - Set primary monitor
   - Set monitor orientation
-  - Enable/disable monitors (CCD)
+  - Enable/disable monitors by persistent CCD TargetId (survives app restart / reboot)
 
 - Mouse.cs
   - Get mouse related information like position
