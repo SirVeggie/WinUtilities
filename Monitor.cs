@@ -170,18 +170,98 @@ namespace WinUtilities {
             return GetMonitor(Handle) != null;
         }
 
-        /// <summary>[Not implemented] Set as the current primary monitor</summary>
+        /// <summary>Set as the current primary monitor</summary>
+        /// <returns>True if successful</returns>
         public bool SetPrimary() {
             if (IsPrimary) {
                 Console.WriteLine("Monitor already primary");
                 return false;
             }
-            return SetPrimaryMonitor((uint)GetIndex());
+            return SetPrimaryMonitor(Name);
         }
 
-        /// <summary>[Not implemented] Set the orientation of the monitor</summary>
-        public void SetOrientation(Orientation orientation) {
-            throw new NotImplementedException();
+        /// <summary>Set the orientation of the monitor</summary>
+        /// <returns>True if successful</returns>
+        public bool SetOrientation(Orientation orientation) {
+            var mode = new WinAPI.DEVMODE();
+            mode.dmSize = (short)Marshal.SizeOf(typeof(WinAPI.DEVMODE));
+
+            if (!WinAPI.EnumDisplaySettings(Name, -1, ref mode)) {
+                Console.WriteLine($"Failed to get display settings for '{Name}'");
+                return false;
+            }
+
+            int newOrient = (int)orientation;
+            int oldOrient = mode.dmDisplayOrientation;
+            bool oldPortrait = oldOrient == WinAPI.DMDO_90 || oldOrient == WinAPI.DMDO_270;
+            bool newPortrait = newOrient == WinAPI.DMDO_90 || newOrient == WinAPI.DMDO_270;
+
+            if (oldPortrait != newPortrait) {
+                int tmp = mode.dmPelsWidth;
+                mode.dmPelsWidth = mode.dmPelsHeight;
+                mode.dmPelsHeight = tmp;
+            }
+
+            mode.dmDisplayOrientation = newOrient;
+            mode.dmFields = WinAPI.DM_DISPLAYORIENTATION | WinAPI.DM_PELSWIDTH | WinAPI.DM_PELSHEIGHT;
+
+            WinAPI.DisplayReturn ret = WinAPI.ChangeDisplaySettingsEx(
+                Name,
+                ref mode,
+                IntPtr.Zero,
+                WinAPI.DisplaySettingsFlags.CDS_UPDATEREGISTRY,
+                IntPtr.Zero);
+
+            if (ret != WinAPI.DisplayReturn.Successful && ret != WinAPI.DisplayReturn.Restart) {
+                Console.WriteLine($"Failed to set orientation with reason '{ret}'");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>Get the current orientation of the monitor</summary>
+        public Orientation GetOrientation() {
+            var mode = new WinAPI.DEVMODE();
+            mode.dmSize = (short)Marshal.SizeOf(typeof(WinAPI.DEVMODE));
+
+            if (!WinAPI.EnumDisplaySettings(Name, -1, ref mode)) {
+                return Orientation.Landscape;
+            }
+
+            return (Orientation)mode.dmDisplayOrientation;
+        }
+
+        /// <summary>Disable this monitor (detach from the desktop)</summary>
+        /// <returns>True if successful</returns>
+        public bool Disable() => SetDisplayEnabled(Name, false);
+
+        /// <summary>Enable this monitor (attach to the desktop)</summary>
+        /// <returns>True if successful</returns>
+        public bool Enable() => SetDisplayEnabled(Name, true);
+
+        /// <summary>Enable a monitor by GDI device name (e.g. \\.\DISPLAY2)</summary>
+        /// <returns>True if successful</returns>
+        public static bool Enable(string deviceName) => SetDisplayEnabled(deviceName, true);
+
+        /// <summary>Get GDI device names of displays that are present but not attached to the desktop</summary>
+        public static List<string> GetDetachedDeviceNames() {
+            var names = new List<string>();
+            var device = new WinAPI.DISPLAY_DEVICE();
+            device.cb = Marshal.SizeOf(device);
+
+            for (uint i = 0; WinAPI.EnumDisplayDevices(null, i, ref device, 0); i++) {
+                bool attached = device.StateFlags.HasFlag(WinAPI.DisplayDeviceStateFlags.AttachedToDesktop);
+                bool mirror = device.StateFlags.HasFlag(WinAPI.DisplayDeviceStateFlags.MirroringDriver);
+
+                if (!attached && !mirror && !string.IsNullOrEmpty(device.DeviceName)) {
+                    names.Add(device.DeviceName);
+                }
+
+                device.cb = Marshal.SizeOf(device);
+            }
+
+            return names;
         }
 
         #region helpers
@@ -239,23 +319,33 @@ namespace WinUtilities {
             }
         }
 
-        private static bool SetPrimaryMonitor(uint primaryId) {
+        private static bool SetPrimaryMonitor(string deviceName) {
             // Source - https://stackoverflow.com/a/23044185
             // Posted by ADBailey
             // Retrieved 2026-03-09, License - CC BY-SA 3.0
-            var device = new WinAPI.DISPLAY_DEVICE();
-            var deviceMode = new WinAPI.DEVMODE();
-            device.cb = Marshal.SizeOf(device);
+            // Adapted to target by GDI device name (Monitor.Name). Do not use GetIndex() here:
+            // EnumDisplayMonitors order and EnumDisplayDevices indices are not the same.
+            if (string.IsNullOrEmpty(deviceName)) {
+                Console.WriteLine("Device name is empty");
+                return false;
+            }
 
-            WinAPI.EnumDisplayDevices(null, primaryId, ref device, 0);
-            WinAPI.EnumDisplaySettings(device.DeviceName, -1, ref deviceMode);
+            var deviceMode = new WinAPI.DEVMODE();
+            deviceMode.dmSize = (short)Marshal.SizeOf(typeof(WinAPI.DEVMODE));
+
+            if (!WinAPI.EnumDisplaySettings(deviceName, -1, ref deviceMode)) {
+                Console.WriteLine($"Failed to get display settings for '{deviceName}'");
+                return false;
+            }
+
             var offsetx = deviceMode.dmPosition.x;
             var offsety = deviceMode.dmPosition.y;
             deviceMode.dmPosition.x = 0;
             deviceMode.dmPosition.y = 0;
+            deviceMode.dmFields |= WinAPI.DM_POSITION;
 
             WinAPI.DisplayReturn ret = WinAPI.ChangeDisplaySettingsEx(
-                device.DeviceName,
+                deviceName,
                 ref deviceMode,
                 (IntPtr)null,
                 WinAPI.DisplaySettingsFlags.CDS_SET_PRIMARY | WinAPI.DisplaySettingsFlags.CDS_UPDATEREGISTRY | WinAPI.DisplaySettingsFlags.CDS_NORESET,
@@ -266,19 +356,25 @@ namespace WinUtilities {
                 return false;
             }
 
-            device = new WinAPI.DISPLAY_DEVICE();
+            var device = new WinAPI.DISPLAY_DEVICE();
             device.cb = Marshal.SizeOf(device);
 
             // Update remaining devices
             for (uint otherid = 0; WinAPI.EnumDisplayDevices(null, otherid, ref device, 0); otherid++) {
-                if (device.StateFlags.HasFlag(WinAPI.DisplayDeviceStateFlags.AttachedToDesktop) && otherid != primaryId) {
+                if (device.StateFlags.HasFlag(WinAPI.DisplayDeviceStateFlags.AttachedToDesktop)
+                    && !string.Equals(device.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase)) {
                     device.cb = Marshal.SizeOf(device);
                     var otherDeviceMode = new WinAPI.DEVMODE();
+                    otherDeviceMode.dmSize = (short)Marshal.SizeOf(typeof(WinAPI.DEVMODE));
 
-                    WinAPI.EnumDisplaySettings(device.DeviceName, -1, ref otherDeviceMode);
+                    if (!WinAPI.EnumDisplaySettings(device.DeviceName, -1, ref otherDeviceMode)) {
+                        device.cb = Marshal.SizeOf(device);
+                        continue;
+                    }
 
                     otherDeviceMode.dmPosition.x -= offsetx;
                     otherDeviceMode.dmPosition.y -= offsety;
+                    otherDeviceMode.dmFields |= WinAPI.DM_POSITION;
 
                     WinAPI.ChangeDisplaySettingsEx(
                         device.DeviceName,
@@ -286,7 +382,6 @@ namespace WinUtilities {
                         (IntPtr)null,
                         WinAPI.DisplaySettingsFlags.CDS_UPDATEREGISTRY | WinAPI.DisplaySettingsFlags.CDS_NORESET,
                         IntPtr.Zero);
-
                 }
 
                 device.cb = Marshal.SizeOf(device);
@@ -297,10 +392,10 @@ namespace WinUtilities {
             if (ret != WinAPI.DisplayReturn.Successful) {
                 Console.WriteLine($"Failed to set monitor settings with reason '{ret}'");
                 return false;
-            } else {
-                Console.WriteLine("Succesfully set monitor settings");
-                return true;
             }
+
+            Console.WriteLine("Succesfully set monitor settings");
+            return true;
         }
 
         /// <summary>Fetch a human readable list of connected displays</summary>
@@ -322,6 +417,173 @@ namespace WinUtilities {
             }
 
             return names;
+        }
+
+        private static bool SetDisplayEnabled(string deviceName, bool enable) {
+            if (string.IsNullOrEmpty(deviceName)) {
+                Console.WriteLine("Device name is empty");
+                return false;
+            }
+
+            if (!TryQueryDisplayConfig(WinAPI.QueryDisplayConfigFlags.QDC_ONLY_ACTIVE_PATHS, out var activePaths, out var activeModes)) {
+                return false;
+            }
+
+            bool isCurrentlyActive = false;
+            for (int i = 0; i < activePaths.Length; i++) {
+                if (PathMatchesDevice(activePaths[i], deviceName)) {
+                    isCurrentlyActive = true;
+                    break;
+                }
+            }
+
+            if (enable) {
+                if (isCurrentlyActive) {
+                    return true;
+                }
+
+                if (!TryQueryDisplayConfig(WinAPI.QueryDisplayConfigFlags.QDC_ALL_PATHS, out var allPaths, out _)) {
+                    return false;
+                }
+
+                int candidateIndex = -1;
+                for (int i = 0; i < allPaths.Length; i++) {
+                    if (!PathMatchesDevice(allPaths[i], deviceName)) {
+                        continue;
+                    }
+                    if (!allPaths[i].targetInfo.targetAvailable) {
+                        continue;
+                    }
+                    if ((allPaths[i].flags & WinAPI.DisplayConfigPathFlags.DISPLAYCONFIG_PATH_ACTIVE) != 0) {
+                        continue;
+                    }
+
+                    candidateIndex = i;
+                    break;
+                }
+
+                if (candidateIndex < 0) {
+                    Console.WriteLine($"No available display path found to enable '{deviceName}'");
+                    return false;
+                }
+
+                var pathToEnable = allPaths[candidateIndex];
+                pathToEnable.flags |= WinAPI.DisplayConfigPathFlags.DISPLAYCONFIG_PATH_ACTIVE;
+                pathToEnable.sourceInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+                pathToEnable.targetInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+
+                var newPaths = new WinAPI.DISPLAYCONFIG_PATH_INFO[activePaths.Length + 1];
+                Array.Copy(activePaths, newPaths, activePaths.Length);
+                newPaths[activePaths.Length] = pathToEnable;
+
+                return ApplyDisplayConfig(newPaths, activeModes);
+            }
+
+            if (!isCurrentlyActive) {
+                return true;
+            }
+
+            if (activePaths.Length <= 1) {
+                Console.WriteLine("Cannot disable the only active display");
+                return false;
+            }
+
+            var remaining = new List<WinAPI.DISPLAYCONFIG_PATH_INFO>(activePaths.Length - 1);
+            for (int i = 0; i < activePaths.Length; i++) {
+                if (!PathMatchesDevice(activePaths[i], deviceName)) {
+                    remaining.Add(activePaths[i]);
+                }
+            }
+
+            if (remaining.Count == activePaths.Length) {
+                Console.WriteLine($"No active display path found for '{deviceName}'");
+                return false;
+            }
+
+            if (remaining.Count == 0) {
+                Console.WriteLine("Cannot disable the only active display");
+                return false;
+            }
+
+            return ApplyDisplayConfig(remaining.ToArray(), activeModes);
+        }
+
+        private static bool PathMatchesDevice(WinAPI.DISPLAYCONFIG_PATH_INFO path, string deviceName) {
+            string gdiName = GetSourceGdiDeviceName(path.sourceInfo);
+            return !string.IsNullOrEmpty(gdiName)
+                && string.Equals(gdiName, deviceName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string GetSourceGdiDeviceName(WinAPI.DISPLAYCONFIG_PATH_SOURCE_INFO sourceInfo) {
+            var request = new WinAPI.DISPLAYCONFIG_SOURCE_DEVICE_NAME();
+            request.header.type = WinAPI.DisplayConfigDeviceInfoType.DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
+            request.header.size = Marshal.SizeOf(typeof(WinAPI.DISPLAYCONFIG_SOURCE_DEVICE_NAME));
+            request.header.adapterId = sourceInfo.adapterId;
+            request.header.id = sourceInfo.id;
+
+            int result = WinAPI.DisplayConfigGetDeviceInfo(ref request);
+            if (result != WinAPI.ERROR_SUCCESS) {
+                return null;
+            }
+
+            return request.viewGdiDeviceName;
+        }
+
+        private static bool TryQueryDisplayConfig(
+            WinAPI.QueryDisplayConfigFlags flags,
+            out WinAPI.DISPLAYCONFIG_PATH_INFO[] paths,
+            out WinAPI.DISPLAYCONFIG_MODE_INFO[] modes) {
+
+            paths = null;
+            modes = null;
+
+            int err = WinAPI.GetDisplayConfigBufferSizes(flags, out int pathCount, out int modeCount);
+            if (err != WinAPI.ERROR_SUCCESS) {
+                Console.WriteLine($"GetDisplayConfigBufferSizes failed with error {err}");
+                return false;
+            }
+
+            paths = new WinAPI.DISPLAYCONFIG_PATH_INFO[pathCount];
+            modes = new WinAPI.DISPLAYCONFIG_MODE_INFO[modeCount];
+
+            err = WinAPI.QueryDisplayConfig(flags, ref pathCount, paths, ref modeCount, modes, IntPtr.Zero);
+            if (err != WinAPI.ERROR_SUCCESS) {
+                Console.WriteLine($"QueryDisplayConfig failed with error {err}");
+                paths = null;
+                modes = null;
+                return false;
+            }
+
+            if (pathCount != paths.Length) {
+                Array.Resize(ref paths, pathCount);
+            }
+            if (modeCount != modes.Length) {
+                Array.Resize(ref modes, modeCount);
+            }
+
+            return true;
+        }
+
+        private static bool ApplyDisplayConfig(WinAPI.DISPLAYCONFIG_PATH_INFO[] paths, WinAPI.DISPLAYCONFIG_MODE_INFO[] modes) {
+            var flags = WinAPI.SetDisplayConfigFlags.SDC_APPLY
+                | WinAPI.SetDisplayConfigFlags.SDC_USE_SUPPLIED_DISPLAY_CONFIG
+                | WinAPI.SetDisplayConfigFlags.SDC_ALLOW_CHANGES;
+
+            int result = WinAPI.SetDisplayConfig((uint)paths.Length, paths, (uint)modes.Length, modes, flags);
+            if (result == WinAPI.ERROR_SUCCESS) {
+                return true;
+            }
+
+            if (result == WinAPI.ERROR_GEN_FAILURE) {
+                flags |= WinAPI.SetDisplayConfigFlags.SDC_SAVE_TO_DATABASE;
+                result = WinAPI.SetDisplayConfig((uint)paths.Length, paths, (uint)modes.Length, modes, flags);
+                if (result == WinAPI.ERROR_SUCCESS) {
+                    return true;
+                }
+            }
+
+            Console.WriteLine($"SetDisplayConfig failed with error {result}");
+            return false;
         }
 
         private static Area GetScreenArea() {

@@ -45,7 +45,9 @@ The list is not exhaustive.
 - Monitor.cs
   - Get information of current monitors
   - Get the entire screen, a single monitor or specified area as an Image
-  - Set primary monitor and monitor orientation (WIP)
+  - Set primary monitor
+  - Set monitor orientation
+  - Enable/disable monitors (CCD)
 
 - Mouse.cs
   - Get mouse related information like position

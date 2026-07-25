@@ -5647,6 +5647,12 @@
             Retrieves the owned root window by walking the chain of parent and owner windows returned by GetParent.
             </summary>
         </member>
+        <member name="F:WinUtilities.WinAPI.DM_POSITION">
+            <summary>DEVMODE.dmFields flags for display settings</summary>
+        </member>
+        <member name="F:WinUtilities.WinAPI.DMDO_DEFAULT">
+            <summary>DEVMODE.dmDisplayOrientation values</summary>
+        </member>
         <member name="F:WinUtilities.WinAPI.DisplayDeviceStateFlags.AttachedToDesktop">
             <summary>The device is part of the desktop.</summary>
         </member>
@@ -7863,10 +7869,30 @@
             <returns>True if monitor exists</returns>
         </member>
         <member name="M:WinUtilities.Monitor.SetPrimary">
-            <summary>[Not implemented] Set as the current primary monitor</summary>
+            <summary>Set as the current primary monitor</summary>
+            <returns>True if successful</returns>
         </member>
         <member name="M:WinUtilities.Monitor.SetOrientation(WinUtilities.Monitor.Orientation)">
-            <summary>[Not implemented] Set the orientation of the monitor</summary>
+            <summary>Set the orientation of the monitor</summary>
+            <returns>True if successful</returns>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetOrientation">
+            <summary>Get the current orientation of the monitor</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.Disable">
+            <summary>Disable this monitor (detach from the desktop)</summary>
+            <returns>True if successful</returns>
+        </member>
+        <member name="M:WinUtilities.Monitor.Enable">
+            <summary>Enable this monitor (attach to the desktop)</summary>
+            <returns>True if successful</returns>
+        </member>
+        <member name="M:WinUtilities.Monitor.Enable(System.String)">
+            <summary>Enable a monitor by GDI device name (e.g. \\.\DISPLAY2)</summary>
+            <returns>True if successful</returns>
+        </member>
+        <member name="M:WinUtilities.Monitor.GetDetachedDeviceNames">
+            <summary>Get GDI device names of displays that are present but not attached to the desktop</summary>
         </member>
         <member name="M:WinUtilities.Monitor.HandleFromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
             <summary>Retrieve a handle to a monitor that contains the given point</summary>
