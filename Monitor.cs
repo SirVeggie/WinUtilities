@@ -544,37 +544,18 @@ namespace WinUtilities {
                     return false;
                 }
 
-                int candidateIndex = -1;
-                for (int i = 0; i < allPaths.Length; i++) {
-                    if (!PathMatchesTargetId(allPaths[i], targetId)) {
-                        continue;
-                    }
-                    if (!allPaths[i].targetInfo.targetAvailable) {
-                        continue;
-                    }
-                    if ((allPaths[i].flags & WinAPI.DisplayConfigPathFlags.DISPLAYCONFIG_PATH_ACTIVE) != 0) {
-                        continue;
-                    }
-
-                    candidateIndex = i;
-                    break;
-                }
-
-                if (candidateIndex < 0) {
+                if (!TryFindPathToEnable(allPaths, activePaths, targetId, out var pathToEnable)) {
                     Console.WriteLine($"No available display path found to enable target '{targetId}'");
                     return false;
                 }
 
-                var pathToEnable = allPaths[candidateIndex];
-                pathToEnable.flags |= WinAPI.DisplayConfigPathFlags.DISPLAYCONFIG_PATH_ACTIVE;
-                pathToEnable.sourceInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
-                pathToEnable.targetInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+                var newPaths = BuildPathsWithEnabledTarget(activePaths, pathToEnable);
+                if (!TryApplyTopologyFromDatabase(newPaths)) {
+                    Console.WriteLine($"No CCD database entry found to enable target '{targetId}'");
+                    return false;
+                }
 
-                var newPaths = new WinAPI.DISPLAYCONFIG_PATH_INFO[activePaths.Length + 1];
-                Array.Copy(activePaths, newPaths, activePaths.Length);
-                newPaths[activePaths.Length] = pathToEnable;
-
-                return ApplyDisplayConfig(newPaths, activeModes);
+                return true;
             }
 
             if (!isCurrentlyActive) {
@@ -585,6 +566,10 @@ namespace WinUtilities {
                 Console.WriteLine("Cannot disable the only active display");
                 return false;
             }
+
+            // Ensure the full layout (with positions) is in the CCD DB before we change topology,
+            // so a later enable can restore it with SDC_TOPOLOGY_SUPPLIED.
+            TryApplySuppliedDisplayConfig(activePaths, activeModes, saveToDatabase: true);
 
             var remaining = new List<WinAPI.DISPLAYCONFIG_PATH_INFO>(activePaths.Length - 1);
             for (int i = 0; i < activePaths.Length; i++) {
@@ -603,7 +588,82 @@ namespace WinUtilities {
                 return false;
             }
 
-            return ApplyDisplayConfig(remaining.ToArray(), activeModes);
+            // Save the reduced topology to the DB, matching Display Settings disable behavior.
+            return TryApplySuppliedDisplayConfig(remaining.ToArray(), activeModes, saveToDatabase: true);
+        }
+
+        private static WinAPI.DISPLAYCONFIG_PATH_INFO[] BuildPathsWithEnabledTarget(
+            WinAPI.DISPLAYCONFIG_PATH_INFO[] activePaths,
+            WinAPI.DISPLAYCONFIG_PATH_INFO pathToEnable) {
+
+            pathToEnable.flags |= WinAPI.DisplayConfigPathFlags.DISPLAYCONFIG_PATH_ACTIVE;
+            pathToEnable.sourceInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+            pathToEnable.targetInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+
+            var newPaths = new WinAPI.DISPLAYCONFIG_PATH_INFO[activePaths.Length + 1];
+            Array.Copy(activePaths, newPaths, activePaths.Length);
+            newPaths[activePaths.Length] = pathToEnable;
+            return newPaths;
+        }
+
+        /// <summary>
+        /// Prefer a path whose topology exists in the CCD DB, otherwise an unused source (extend).
+        /// </summary>
+        private static bool TryFindPathToEnable(
+            WinAPI.DISPLAYCONFIG_PATH_INFO[] allPaths,
+            WinAPI.DISPLAYCONFIG_PATH_INFO[] activePaths,
+            string targetId,
+            out WinAPI.DISPLAYCONFIG_PATH_INFO pathToEnable) {
+
+            pathToEnable = default;
+            int databaseIndex = -1;
+            int unusedSourceIndex = -1;
+
+            for (int i = 0; i < allPaths.Length; i++) {
+                if (!PathMatchesTargetId(allPaths[i], targetId)) {
+                    continue;
+                }
+                if (!allPaths[i].targetInfo.targetAvailable) {
+                    continue;
+                }
+                if ((allPaths[i].flags & WinAPI.DisplayConfigPathFlags.DISPLAYCONFIG_PATH_ACTIVE) != 0) {
+                    continue;
+                }
+
+                if (IsSourceInUse(allPaths[i].sourceInfo, activePaths)) {
+                    continue;
+                }
+
+                if (unusedSourceIndex < 0) {
+                    unusedSourceIndex = i;
+                }
+
+                if (databaseIndex < 0) {
+                    var probePaths = BuildPathsWithEnabledTarget(activePaths, allPaths[i]);
+                    if (TryValidateTopologyInDatabase(probePaths)) {
+                        databaseIndex = i;
+                    }
+                }
+            }
+
+            int chosen = databaseIndex >= 0 ? databaseIndex : unusedSourceIndex;
+            if (chosen < 0) {
+                return false;
+            }
+
+            pathToEnable = allPaths[chosen];
+            return true;
+        }
+
+        private static bool IsSourceInUse(WinAPI.DISPLAYCONFIG_PATH_SOURCE_INFO source, WinAPI.DISPLAYCONFIG_PATH_INFO[] activePaths) {
+            for (int i = 0; i < activePaths.Length; i++) {
+                if (source.id == activePaths[i].sourceInfo.id
+                    && source.adapterId.LowPart == activePaths[i].sourceInfo.adapterId.LowPart
+                    && source.adapterId.HighPart == activePaths[i].sourceInfo.adapterId.HighPart) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool PathMatchesTargetId(WinAPI.DISPLAYCONFIG_PATH_INFO path, string targetId) {
@@ -723,17 +783,69 @@ namespace WinUtilities {
             return true;
         }
 
-        private static bool ApplyDisplayConfig(WinAPI.DISPLAYCONFIG_PATH_INFO[] paths, WinAPI.DISPLAYCONFIG_MODE_INFO[] modes) {
+        private static WinAPI.DISPLAYCONFIG_PATH_INFO[] ClonePathsWithInvalidModes(WinAPI.DISPLAYCONFIG_PATH_INFO[] paths) {
+            var clone = (WinAPI.DISPLAYCONFIG_PATH_INFO[])paths.Clone();
+            for (int i = 0; i < clone.Length; i++) {
+                clone[i].sourceInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+                clone[i].targetInfo.modeInfoIdx = WinAPI.DISPLAYCONFIG_PATH_MODE_IDX_INVALID;
+            }
+            return clone;
+        }
+
+        /// <summary>
+        /// Ask Windows whether this topology exists in the CCD persistence database (Display Settings store).
+        /// </summary>
+        private static bool TryValidateTopologyInDatabase(WinAPI.DISPLAYCONFIG_PATH_INFO[] paths) {
+            var topologyPaths = ClonePathsWithInvalidModes(paths);
+            var flags = WinAPI.SetDisplayConfigFlags.SDC_VALIDATE
+                | WinAPI.SetDisplayConfigFlags.SDC_TOPOLOGY_SUPPLIED
+                | WinAPI.SetDisplayConfigFlags.SDC_ALLOW_PATH_ORDER_CHANGES;
+
+            return WinAPI.SetDisplayConfig((uint)topologyPaths.Length, topologyPaths, 0, null, flags) == WinAPI.ERROR_SUCCESS;
+        }
+
+        /// <summary>
+        /// Restore topology + modes/positions from the CCD persistence database (Display Settings flow).
+        /// </summary>
+        private static bool TryApplyTopologyFromDatabase(WinAPI.DISPLAYCONFIG_PATH_INFO[] paths) {
+            var topologyPaths = ClonePathsWithInvalidModes(paths);
+            var flags = WinAPI.SetDisplayConfigFlags.SDC_APPLY
+                | WinAPI.SetDisplayConfigFlags.SDC_TOPOLOGY_SUPPLIED
+                | WinAPI.SetDisplayConfigFlags.SDC_ALLOW_PATH_ORDER_CHANGES;
+
+            int result = WinAPI.SetDisplayConfig((uint)topologyPaths.Length, topologyPaths, 0, null, flags);
+            if (result == WinAPI.ERROR_SUCCESS) {
+                return true;
+            }
+
+            // Some hosts need ALLOW_CHANGES when path order differs slightly from the DB entry.
+            flags |= WinAPI.SetDisplayConfigFlags.SDC_ALLOW_CHANGES;
+            result = WinAPI.SetDisplayConfig((uint)topologyPaths.Length, topologyPaths, 0, null, flags);
+            return result == WinAPI.ERROR_SUCCESS;
+        }
+
+        /// <summary>
+        /// Apply an explicit path/mode config, optionally writing it to the CCD persistence database.
+        /// </summary>
+        private static bool TryApplySuppliedDisplayConfig(
+            WinAPI.DISPLAYCONFIG_PATH_INFO[] paths,
+            WinAPI.DISPLAYCONFIG_MODE_INFO[] modes,
+            bool saveToDatabase) {
+
             var flags = WinAPI.SetDisplayConfigFlags.SDC_APPLY
                 | WinAPI.SetDisplayConfigFlags.SDC_USE_SUPPLIED_DISPLAY_CONFIG
                 | WinAPI.SetDisplayConfigFlags.SDC_ALLOW_CHANGES;
+
+            if (saveToDatabase) {
+                flags |= WinAPI.SetDisplayConfigFlags.SDC_SAVE_TO_DATABASE;
+            }
 
             int result = WinAPI.SetDisplayConfig((uint)paths.Length, paths, (uint)modes.Length, modes, flags);
             if (result == WinAPI.ERROR_SUCCESS) {
                 return true;
             }
 
-            if (result == WinAPI.ERROR_GEN_FAILURE) {
+            if (!saveToDatabase && result == WinAPI.ERROR_GEN_FAILURE) {
                 flags |= WinAPI.SetDisplayConfigFlags.SDC_SAVE_TO_DATABASE;
                 result = WinAPI.SetDisplayConfig((uint)paths.Length, paths, (uint)modes.Length, modes, flags);
                 if (result == WinAPI.ERROR_SUCCESS) {

@@ -7923,24 +7923,6 @@
             <see cref="P:WinUtilities.Monitor.DisplayTarget.TargetId"/> is suitable for saving and later enable/disable.
             </summary>
         </member>
-        <member name="T:WinUtilities.Monitor.DisplayTarget">
-            <summary>Serializable CCD display target information</summary>
-        </member>
-        <member name="P:WinUtilities.Monitor.DisplayTarget.TargetId">
-            <summary>Persistent target identity suitable for saving and later enable/disable</summary>
-        </member>
-        <member name="P:WinUtilities.Monitor.DisplayTarget.FriendlyName">
-            <summary>Friendly monitor name from Windows (may be empty)</summary>
-        </member>
-        <member name="P:WinUtilities.Monitor.DisplayTarget.IsAttached">
-            <summary>True if currently attached to the desktop</summary>
-        </member>
-        <member name="P:WinUtilities.Monitor.DisplayTarget.GdiName">
-            <summary>Current GDI device name when attached; otherwise null</summary>
-        </member>
-        <member name="M:WinUtilities.Monitor.DisplayTarget.#ctor(System.String,System.String,System.Boolean,System.String)">
-            <summary>Create display target info</summary>
-        </member>
         <member name="M:WinUtilities.Monitor.HandleFromPoint(System.Int32,System.Int32,WinUtilities.MonitorDefault)">
             <summary>Retrieve a handle to a monitor that contains the given point</summary>
         </member>
@@ -7965,6 +7947,26 @@
         <member name="M:WinUtilities.Monitor.EnumDisplayNames">
             <summary>Fetch a human readable list of connected displays</summary>
         </member>
+        <member name="M:WinUtilities.Monitor.TryFindPathToEnable(WinUtilities.WinAPI.DISPLAYCONFIG_PATH_INFO[],WinUtilities.WinAPI.DISPLAYCONFIG_PATH_INFO[],System.String,WinUtilities.WinAPI.DISPLAYCONFIG_PATH_INFO@)">
+            <summary>
+            Prefer a path whose topology exists in the CCD DB, otherwise an unused source (extend).
+            </summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.TryValidateTopologyInDatabase(WinUtilities.WinAPI.DISPLAYCONFIG_PATH_INFO[])">
+            <summary>
+            Ask Windows whether this topology exists in the CCD persistence database (Display Settings store).
+            </summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.TryApplyTopologyFromDatabase(WinUtilities.WinAPI.DISPLAYCONFIG_PATH_INFO[])">
+            <summary>
+            Restore topology + modes/positions from the CCD persistence database (Display Settings flow).
+            </summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.TryApplySuppliedDisplayConfig(WinUtilities.WinAPI.DISPLAYCONFIG_PATH_INFO[],WinUtilities.WinAPI.DISPLAYCONFIG_MODE_INFO[],System.Boolean)">
+            <summary>
+            Apply an explicit path/mode config, optionally writing it to the CCD persistence database.
+            </summary>
+        </member>
         <member name="T:WinUtilities.Monitor.Orientation">
             <summary>Representation of a monitor orientation</summary>
         </member>
@@ -7979,6 +7981,24 @@
         </member>
         <member name="F:WinUtilities.Monitor.Orientation.PortraitFlipped">
             <summary>Image pointed right</summary>
+        </member>
+        <member name="T:WinUtilities.Monitor.DisplayTarget">
+            <summary>Serializable CCD display target information</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.TargetId">
+            <summary>Persistent target identity suitable for saving and later enable/disable</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.FriendlyName">
+            <summary>Friendly monitor name from Windows (may be empty)</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.IsAttached">
+            <summary>True if currently attached to the desktop</summary>
+        </member>
+        <member name="P:WinUtilities.Monitor.DisplayTarget.GdiName">
+            <summary>Current GDI device name when attached; otherwise null</summary>
+        </member>
+        <member name="M:WinUtilities.Monitor.DisplayTarget.#ctor(System.String,System.String,System.Boolean,System.String)">
+            <summary>Create display target info</summary>
         </member>
         <member name="T:WinUtilities.Mouse">
             <summary>Class for controlling the mouse</summary>
